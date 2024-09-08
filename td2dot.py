@@ -6,14 +6,14 @@ Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
 Construct labeled Gaifman graph of a transactional dataset.
 
-Produce either DOT output on stdout for the Gaifman graph
-or an AGraph from pygraphviz with separate singletons and 
-representing points.
+Able to produce either DOT output on stdout for the Gaifman graph
+or an AGraph from pygraphviz that we are no longer using (see
+the labgaif repository if necessary).
 
 Pending: smarter iterator on .td file to handle comments and such
 
-Graph is read as adjacency lists, then transformed into DOT code
-or into an AGraph. Specifically, graph g is a dict of counters, 
+Graph is read as adjacency lists, then optionally transformed 
+into DOT code. Specifically, graph g is a dict of counters, 
 maps node u to g[u] which is a Counter of edges: g[u][v] gives 
 how many occurrences we find of the pair (u, v) in a transaction.
 
