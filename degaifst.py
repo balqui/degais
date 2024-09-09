@@ -62,20 +62,18 @@ if __name__ == "__main__":
 
 
     # Initialize the decomposition tree
-    assert len(items) > 1 # need at least two items
-    first = Clan()
-    first.sgton(items[0])
-    second = Clan()
-    second.sgton(items[1])
-
+    assert len(items) > 0
     root = Clan()
-    root.init(first, second, g[first.prototype][second.prototype])
+    root.sgton(items[0])
     print(root)
 
     # Add all items to the decomposition tree
-    for it in items[2:]:
+    # ~ root = Clan()
+    for it in items[1:]:
+        print(" ...adding", it, "to", root)
         root = root.add(it, g)
-        print(root)
+
+    print(root)
 
     # Convert the decomposition tree into a GV graph for drawing
 
