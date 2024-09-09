@@ -2,17 +2,19 @@ from collections import Counter, defaultdict as ddict
 
 class Clan(list):
     '''
-    A clan is a list of subclans plus a prototype item taken 
-    from one of the subclans. "Colors" relating clans are 
+    A clan is a list of subclans. 
+    
+    They could be alternatively sets. I set up a GitHub issue
+    about that.
+
+    Initially they also had a prototype item taken 
+    from one of the subclans so that "colors" relating clans are 
     found out by checking the edge connecting the prototypes 
-    in the original graph. 
+    in the original graph. Maintaining the prototype upon 
+    splitting is too far from trivial. I set up a GitHub issue
+    about it.
     
-    Could be a set instead of a list; but a list will enable
-    easy extension to linear clans in the future, if convenient.
-    
-    Inherits __init__ so we get an empty list.
-    
-    Singleton clans are created separately.
+    Singleton clans are created separately. TO CHANGE.
     
     In complete clans, self.color indicates the color.
     Primitive clans have self.color == -1.
@@ -22,25 +24,27 @@ class Clan(list):
     Clans might get also a visibility dict. Current plan is
     that they map items to further color visibility dicts: 
     in turn, these map non-negative colors to lists of their 
-    visible subclans.
+    visible subclans. For the time being, all visibility
+    issues are handled on local variables.
     '''
 
-    def __init__(self, elems = [], color = -1, prototype = None):
+    def __init__(self, elems = [], color = -1): #, prototype = None):
         super().__init__(self)
         self.extend(elems)
         self.color = color
-        self.prototype = prototype
+        # ~ self.prototype = prototype
 
     def __str__(self):
-        return (super().__str__()
-            + " {prot:" + str(self.prototype) + "; color:" + str(self.color) + "}")
+        return (super().__str__() + " {"
+            # ~ + "prot:" + str(self.prototype) 
+            + "color:" + str(self.color) + "}")
 
 
     def sgton(self, item):
-        'Creates a singleton clan'
+        'Creates a singleton clan - TODO: MERGE WITH INIT'
         assert len(self) == 0
         self.append(item)
-        self.prototype = item
+        # ~ self.prototype = item
 
 # Plan was to initialize with size-two clans but that will not
 # work well with recursive calls where an item is added to a sgton.
@@ -79,18 +83,20 @@ class Clan(list):
         '''
         if len(self) == 1:
             '''
-            must be a singleton with item as prototype (but 
-            self[0] should allow us to get rid of the prototype)
+            must be a singleton
             '''
-            return graph[item][self.prototype]
+            print(' ... seen', self, item, graph[item][self[0]])
+            return graph[item][self[0]]
         v = ddict(int)
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
+            print(' ... seen', self, item, -1)
             return -1
         else:
             for c in v:
                 'loop grabs the single element'
+                print(' ... seen', self, item, c)
                 return c
             
 
@@ -105,31 +111,59 @@ class Clan(list):
 
         if len(self) == 1:
             'new root with both'
-            return Clan([self, new_cl], graph[item][self.prototype], self.prototype)
+            print(' ... second item', item)
+            return Clan([self, new_cl], graph[item][self[0]]) #, item)
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans
+        # They contain POSITIONS of the clan list, not the subclans proper
         visib = ddict(list)
-        for subclan in self:
+        somecolor = -2 # some color different from self.color if one such appears 
+        for pos, subclan in enumerate(self):
             'len(self) > 1 here'
-            visib[subclan.how_seen(item, graph)].append(subclan)
+            visib[somec := subclan.how_seen(item, graph)].append(pos)
+            if somec != self.color and somecolor == -2:
+                somecolor = somec
+        selfc = visib[self.color]
 
         # Case analysis
-        if len(self) == len(visib[self.color]):
+        if len(self) == len(selfc):
             'case 1a: item sees everything in self in the color of self'
+            print(' ... 1a')
             self.append(new_cl)
             return self
 
-        if len(self) == len(visib[graph[item][self.prototype]]):
+        if 0 < len(selfc) < len(self):
             '''
-            case 1b: all same color but different from self.color, 
-            might encompass case 2c and init case of singleton self, 
-            might be encompassed by cases 1c or 1d
+            case 1b: some, but not all, seen as self.color, then clan
+            reduces to these, recursive call on new clan with the rest.
             '''
-            return Clan([self, new_cl], graph[item][self.prototype], self.prototype)
+            print(' ... 1b')
+            to_new_cl_pos = sorted(set(range(len(self))).difference(selfc), 
+                                   reverse = True)
+            to_new_cl = list()
+            # ~ print(' ...clan', self)
+            for pos in to_new_cl_pos:
+                # ~ print(' ...switching pos', pos, self[pos])
+                to_new_cl.append(self[pos])
+                del self[pos]
+            new_cl = Clan(to_new_cl, self.color)
+            # ~ print(' ...new_cl auxiliar', new_cl)
+            # ~ print(' ...reduced clan', self)
+            new_cl = new_cl.add(item, graph) # recursive call
+            self.append(new_cl)
+            return self
+
+        if len(self) == len(visib[somecolor]):
+            '''
+            case 1c: all same color but different from self.color, 
+            seems a particular case of 1b but subtly different
+            because no clans would remain in self;
+            might encompass case 2c and/or the init case of sgton self
+            '''
+            print(' ... 1c', item, somecolor, visib[somecolor])
+            return Clan([self, new_cl], somecolor)
 
 
-
-        return self # might as well be a new root
 
 
 

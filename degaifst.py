@@ -56,8 +56,8 @@ if __name__ == "__main__":
     # ~ 'SurvivedYes', 'Class_3rd', 'Sex_Female', 'Class_1st', 
     # ~ 'Class_2nd', 'Age_Child']
     items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
-    'Age_Adult', 'Sex_Male', 'Survived_No'] 
-    # 'SurvivedYes', 'Sex_Female',  
+    'Age_Adult', 'Sex_Male', 'Survived_No',
+    'Survived_Yes', 'Sex_Female' ]  
     # , 'Age_Child']
 
 
