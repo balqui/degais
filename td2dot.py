@@ -26,16 +26,24 @@ Alpha chars in filename used as dot graph name.
 
 from collections import Counter, defaultdict
 from itertools import combinations
-from sgton import Sgton
+# ~ from sgton import Sgton
 from auxfun import delbl, q
 
 VERSION = "0.2 alpha"
 
-def read_graph_in(filename):
+# Set up potential 'color' functions to map each graph label 
+# (multiplicity in labeled Gaifman graph) into a 'color' 
+# (equivalence class for the 2-structure). Some options:
+
+ident = lambda x: x
+binary = lambda x: int(x > 0)
+
+
+def read_graph_in(filename, coloring = binary):
     '''
     filename must be a .td file containing only transactions:
     comments and other variations not supported yet;
-    returns Gaifman graph and sorted list of items
+    returns colored Gaifman graph and sorted list of items
     '''
     gr = defaultdict(Counter)
     items = set()
@@ -47,6 +55,9 @@ def read_graph_in(filename):
                 for (u,v) in combinations(transaction, 2):
                     gr[u][v] += 1
                     gr[v][u] += 1
+    for u in gr:
+        for v in gr:
+            gr[u][v] = coloring(gr[u][v])
     return gr, sorted(items)
 
 def dump_graph(gr):
