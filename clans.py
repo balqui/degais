@@ -94,15 +94,17 @@ class Clan(list):
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
             # ~ print(' ... seen', self, item, -1)
+            graph.new_node(subclan.name)
             graph.new_edge(item, subclan.name, -1)
             return -1
         else:
             for c in v:
                 'loop grabs the single element'
                 # ~ print(' ... seen', self, item, c)
+                graph.new_node(subclan.name)
                 graph.new_edge(item, subclan.name, c)
                 return c
-            
+
 
     def add(self, item, graph):
         '''

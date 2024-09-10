@@ -16,7 +16,7 @@ VERSION = "0.0 alpha"
 from collections import Counter, defaultdict as ddict
 from itertools import combinations
 from auxfun import delbl, q
-from bisect import insort
+from bisect import bisect, insort
 
 # keeps multiplicities as labels
 # ~ from binning import ident as coloring 
@@ -88,18 +88,40 @@ class EZGraph(ddict):
             r += '\n'
         return r
 
+    def has(self, item):
+        '''
+        Search among dict keys unreliable due to edges only from min to max.
+        Bisect for binary search on items.
+        '''
+        pos = bisect(self.items, item)
+        return pos > 0 and self.items[pos - 1] == item
+
+    def new_node(self, u):
+        '''
+        Might be already there; if not, connect with -2 to 
+        existing nodes; only applies to additional clan nodes.
+        '''
+        if not self.has(u):
+            '''
+            Slightly inefficient, repeats the log search just made,
+            but linear shift time dominates.
+            '''
+            insort(self.items, u)
+            q = u
+            for v in self.items:
+                if v < u:
+                    self[v][u] = -2
+                if v > u:
+                    self[u][v] = -2
+
     def new_edge(self, u, v, label):
-        '''
-        If necessary, add endpoints, then add edge;
-        so far, no provision made to add isolated vertices.
-        '''
-        assert u != v
+        assert u != v and u in self.items and v in self.items
         if v < u:
             u, v = v, u
-        if u not in self:
-            insort(self.items, u)
-        if v not in self:
-            insort(self.items, v)
+        # ~ if u not in self:
+            # ~ insort(self.items, u)
+        # ~ if v not in self:
+            # ~ insort(self.items, v)
         self[u][v] = label
 
     def to_dot(self, filename = None):
@@ -112,7 +134,7 @@ class EZGraph(ddict):
             print("graph " + self.name + " {", file = f)
             for u in self:
                 for v in self[u]:
-                    if u < v and self[u][v]:
+                    if u < v and self[u][v] > 0:
                         print(q(u), " -- ", q(v), "[ label = ", q(str(self[u][v])), "]", file = f)
             print("}", file = f)
 
