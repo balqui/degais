@@ -1,3 +1,4 @@
+from ezGraph import EZGraph
 from clans import Clan
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
@@ -47,8 +48,10 @@ if __name__ == "__main__":
         fullfilename = filename + ".td"
 
     # Construct labeled graph: labels are multiplicities
-    g, items = read_graph_in(fullfilename)
+    # ~ g, items = read_graph_in(fullfilename)
     # ~ print(items)
+    g = EZGraph(fullfilename)
+    print(g)
 
 # Titanic nodes in order of edge weight, computed separately, 
 # cases 1a and 1b until Age_Child 1d:
@@ -74,6 +77,8 @@ if __name__ == "__main__":
         root = root.add(it, g)
 
     print(root)
+    print(g)
+    g.to_dot("tt")
 
     # Convert the decomposition tree into a GV graph for drawing
 

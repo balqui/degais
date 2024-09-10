@@ -12,15 +12,19 @@ Pending: smarter iterator on .td file to handle comments and such.
 
 VERSION = "0.0 alpha"
 
+# ~ from sys import exit
 from collections import Counter, defaultdict as ddict
 from itertools import combinations
 from auxfun import delbl, q
+from bisect import insort
 
 # keeps multiplicities as labels
-from binning import ident as coloring 
+# ~ from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
-# ~ from binning import binary as coloring 
+from binning import binary as coloring 
+
+SEP = '-' # constant to make up clan names, forbidden in items
 
 class EZGraph(ddict):
     '''
@@ -59,18 +63,23 @@ class EZGraph(ddict):
                         items.update(transaction)
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
-                print()
             self.items = sorted(items)
+            self.mxlen = 0
             for u in self.items:
+                if SEP in u:
+                    print(q(SEP), 'not valid in item', u, 
+                          '(please change separator SEP in source code).')
+                    exit()
                 for v in self.items:
                     if u < v:
                         self[u][v] = coloring(self[u][v])
+                self.mxlen = max(self.mxlen, len(u))
 
     def __str__(self):
         "Tuned for 1-digit colors, improve some day"
         r = self.name + '\n' + '  ' + ' '.join(self.items) + '\n'
         for u in self.items:
-            r += u + ' '
+            r += f'{u:<{self.mxlen}}' + ' '
             for v in self.items:
                 if u < v:
                     r += str(self[u][v]) + ' '
@@ -78,6 +87,20 @@ class EZGraph(ddict):
                     r += '  '
             r += '\n'
         return r
+
+    def new_edge(self, u, v, label):
+        '''
+        If necessary, add endpoints, then add edge;
+        so far, no provision made to add isolated vertices.
+        '''
+        assert u != v
+        if v < u:
+            u, v = v, u
+        if u not in self:
+            insort(self.items, u)
+        if v not in self:
+            insort(self.items, v)
+        self[u][v] = label
 
     def to_dot(self, filename = None):
         "Edges with label zero are omitted"
@@ -181,12 +204,11 @@ class EZGraph(ddict):
     # ~ return sorted(name.values(), key = lambda x: weight[x], reverse = True)
 
 if __name__ == "__main__":
-    # ~ gr0 = EZGraph()
-    # ~ print(gr0)
     # ~ gr1 = EZGraph("e7.td")
     gr1 = EZGraph("ex_dec_0.td")
+    # ~ gr1 = EZGraph("lenses.td") # requires a different SEP
     print(gr1)
-    gr1.to_dot("ex_dec_0")
+    # ~ gr1.to_dot("ex_dec_0")
 
 
 if __name__ == "__MAIN__":

@@ -1,49 +1,53 @@
+from ezGraph import SEP # , EZGraph
+from auxfun import delbl
 from collections import Counter, defaultdict as ddict
 
 class Clan(list):
     '''
-    A clan is a list of subclans. 
-    
+    A clan is a list of subclans plus a name and a singleton flag. 
+
     They could be alternatively sets. I set up a GitHub issue
     about that.
 
-    Initially they also had a prototype item taken 
-    from one of the subclans so that "colors" relating clans are 
-    found out by checking the edge connecting the prototypes 
-    in the original graph. Maintaining the prototype upon 
-    splitting is too far from trivial. I set up a GitHub issue
-    about it.
-    
-    Singleton clans are created separately. TO CHANGE.
-    
+    Singleton clans consist of a single vertex. They are created 
+    separately and marked as such with the flag.
+
+    Clan names get added as vertices to the underlying graph.
+    Might need a separate dict to get them back from their names.
+
     In complete clans, self.color indicates the color.
     Primitive clans have self.color == -1.
     Also singleton clans, just to avoid checking an
     undefined value.
  
-    Clans might get also a visibility dict. Current plan is
-    that they map items to further color visibility dicts: 
+    Clans might get also later a visibility dict. Current plan
+    is that they map items to further color visibility dicts: 
     in turn, these map non-negative colors to lists of their 
     visible subclans. For the time being, all visibility
-    issues are handled on local variables.
+    issues are handled on local variables but the clan names
+    get added to the graph to maintain their visibility info.
     '''
 
     def __init__(self, elems = [], color = -1): #, prototype = None):
         super().__init__(self)
         self.extend(elems)
+        self.name = SEP.join( e.name for e in elems ) # might be empty
         self.color = color
+        self.is_sgton = False
         # ~ self.prototype = prototype
 
     def __str__(self):
         return (super().__str__() + " {"
             # ~ + "prot:" + str(self.prototype) 
-            + "color:" + str(self.color) + "}")
-
+            + "name:" + self.name 
+            + "; color:" + str(self.color) + "}")
 
     def sgton(self, item):
-        'Creates a singleton clan - TODO: MERGE WITH INIT'
+        'Creates a singleton clan'
         assert len(self) == 0
         self.append(item)
+        self.name = delbl(item)
+        self.is_sgton = True
         # ~ self.prototype = item
 
 # Plan was to initialize with size-two clans but that will not
@@ -80,23 +84,23 @@ class Clan(list):
         '''
         Graph color with which the clan is seen from item,
         if any; -1 otherwise, signals not visible.
+        Color found is stored as a new edge of the graph.
         '''
-        if len(self) == 1:
-            '''
-            must be a singleton
-            '''
-            print(' ... seen', self, item, graph[item][self[0]])
+        if self.is_sgton:
+            # ~ print(' ... seen', self, item, graph[item][self[0]])
             return graph[item][self[0]]
         v = ddict(int)
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
-            print(' ... seen', self, item, -1)
+            # ~ print(' ... seen', self, item, -1)
+            graph.new_edge(item, subclan.name, -1)
             return -1
         else:
             for c in v:
                 'loop grabs the single element'
-                print(' ... seen', self, item, c)
+                # ~ print(' ... seen', self, item, c)
+                graph.new_edge(item, subclan.name, c)
                 return c
             
 
@@ -106,13 +110,13 @@ class Clan(list):
         a new root, possibly the same; uses graph to check colors 
         so as to apply the correct case. 
         '''
-        new_cl = Clan()
-        new_cl.sgton(item)
+        item_cl = Clan()
+        item_cl.sgton(item)
 
-        if len(self) == 1:
-            'new root with both'
-            print(' ... second item', item)
-            return Clan([self, new_cl], graph[item][self[0]]) #, item)
+        if self.is_sgton:
+            'second item, new root with both'
+            # ~ print(' ... second item', item)
+            return Clan([self, item_cl], graph[item][self[0]]) #, item)
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans
         # They contain POSITIONS of the clan list, not the subclans proper
@@ -129,7 +133,7 @@ class Clan(list):
         if len(self) == len(selfc):
             'case 1a: item sees everything in self in the color of self'
             print(' ... 1a')
-            self.append(new_cl)
+            self.append(item_cl)
             return self
 
         if 0 < len(selfc) < len(self):
@@ -159,9 +163,10 @@ class Clan(list):
             seems a particular case of 1b but subtly different
             because no clans would remain in self;
             might encompass case 2c and/or the init case of sgton self
+            also: somecolor might still be -2 w/ len zero != len(self)
             '''
             print(' ... 1c', item, somecolor, visib[somecolor])
-            return Clan([self, new_cl], somecolor)
+            return Clan([self, item_cl], somecolor)
 
 
 
