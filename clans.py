@@ -1,10 +1,11 @@
-from ezGraph import SEP # , EZGraph
+from ezGraph import SEP, EZGraph
 from auxfun import delbl
 from collections import Counter, defaultdict as ddict
 
 class Clan(list):
     '''
-    A clan is a list of subclans plus a name and a singleton flag. 
+    A clan is a list of subclans plus a name and a singleton flag.
+    Clan names start always with an asterisk '*'.
 
     They could be alternatively sets. I set up a GitHub issue
     about that.
@@ -12,26 +13,27 @@ class Clan(list):
     Singleton clans consist of a single vertex. They are created 
     separately and marked as such with the flag.
 
-    Clan names get added as vertices to the underlying graph.
-    Might need a separate dict to get them back from their names.
-
     In complete clans, self.color indicates the color.
     Primitive clans have self.color == -1.
     Also singleton clans, just to avoid checking an
     undefined value.
- 
-    Clans might get also later a visibility dict. Current plan
-    is that they map items to further color visibility dicts: 
-    in turn, these map non-negative colors to lists of their 
-    visible subclans. For the time being, all visibility
-    issues are handled on local variables but the clan names
-    get added to the graph to maintain their visibility info.
+
+    Clan objects share a sort-of-static common graph where
+    clan names get added as vertices to record their visibility.
+    As zero is a valid color of the input graph but here zero
+    means no information, and -1 represents "not visible", 
+    colors are coded by adding 2 to the integer value instead. 
+    These decisions supersede plans about visibility 
+    dicts: all visibility issues are handled on local variables 
+    and then the info gets added to the shared graph.
     '''
+
+    visib = EZGraph()
 
     def __init__(self, elems = [], color = -1): #, prototype = None):
         super().__init__(self)
         self.extend(elems)
-        self.name = SEP.join( e.name for e in elems ) # might be empty
+        self.name = '*' + SEP.join( e.name for e in elems ) # might be empty
         self.color = color
         self.is_sgton = False
         # ~ self.prototype = prototype
@@ -46,7 +48,7 @@ class Clan(list):
         'Creates a singleton clan'
         assert len(self) == 0
         self.append(item)
-        self.name = delbl(item)
+        self.name = '*' + delbl(item)
         self.is_sgton = True
         # ~ self.prototype = item
 
@@ -92,25 +94,28 @@ class Clan(list):
             p, q = min(item, self[0]), max(item, self[0])
             print(' ... ... seen', self, p, q, graph[p][q])
             return graph[p][q]
-        p, q = min(item, self.name), max(item, self.name)
-        # ~ if graph[p][q] != -2:
-            # ~ "already found out earlier"
-            # ~ print(' ... ... repeated seen', self, p, q, graph[p][q])
-            # ~ return graph[p][q]
+        # test whether already found out earlier, -2 if not
+        guess = self.visib[self.name][item] - 2 
         v = ddict(int)
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
             print(' ... ... seen and added', self, item, -1, list(v.keys()))
-            graph.new_node(self.name)
-            graph.new_edge(item, self.name, -1)
+            self.visib.new_edge(self.name, item, -1)
+            if guess not in [-2, -1]:
+                print(' ... ... repeated and wrong', item, self.name, -1, guess)
+            if guess == -1:
+                print(' ... ... repeated', item, self.name, -1, guess)
             return -1
         else:
             for c in v:
                 'loop grabs the single element'
+                if guess not in [-2, c]:
+                    print(' ... ... repeated and wrong', item, self.name, c, guess)
+                if guess == c:
+                    print(' ... ... repeated', item, self.name, c, guess)
                 print(' ... ... seen and added', self, item, c)
-                graph.new_node(self.name)
-                graph.new_edge(item, self.name, c)
+                self.visib.new_edge(self.name, item, c)
                 return c
 
 
@@ -130,15 +135,15 @@ class Clan(list):
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans
         # They contain POSITIONS of the clan list, not the subclans proper
-        visib = ddict(list)
+        visib_dict = ddict(list)
         somecolor = -2 # some color different from self.color if one such appears 
         for pos, subclan in enumerate(self):
             'len(self) > 1 here'
-            visib[somec := subclan.how_seen(item, graph)].append(pos)
+            visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
             if -1 < somec != self.color and somecolor == -2:
                 "if all are -1 then we may get in trouble"
                 somecolor = somec
-        selfc = visib[self.color]
+        selfc = visib_dict[self.color]
 
         # Case analysis
         if len(self) == len(selfc):
@@ -182,7 +187,7 @@ class Clan(list):
             # ~ self.append(new_cl)
             return self
 
-        if len(self) == len(visib[somecolor]):
+        if len(self) == len(visib_dict[somecolor]):
             '''
             case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
@@ -190,10 +195,10 @@ class Clan(list):
             might encompass case 2c and/or the init case of sgton self
             also: somecolor might still be -2 w/ len zero != len(self)
             '''
-            print(' ... 1c', item, somecolor, visib[somecolor], len(self))
+            print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
             return Clan([self, item_cl], somecolor)
 
-        print('Unhandled case', visib, self.color, somecolor)
+        print('Unhandled case', visib_dict, self.color, somecolor)
 
 
 

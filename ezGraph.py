@@ -8,6 +8,9 @@ earlier attempts of employing ready-made graph classes got into
 far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
+
+Items must not start with an asterisk and must not contain SEP
+which defaults to '-'.
 '''
 
 VERSION = "0.0 alpha"
@@ -55,7 +58,7 @@ class EZGraph(ddict):
         super().__init__(Counter)
         if filename is None:
             self.items = list()
-            self.name = None
+            self.name = '' # empty name e. g. for clan visibility graph
         else:
             self.name = delbl(filename.split('.')[0])
             items = set()
@@ -67,22 +70,26 @@ class EZGraph(ddict):
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(items)
-            self.mxlen = 0
             for u in self.items:
                 if SEP in u:
                     print(q(SEP), 'not valid in item', u, 
                           '(please change separator SEP in source code).')
                     exit()
+                if u.startswith('*'):
+                    print('Initial asterisk not valid in item', u)
+                    exit()
                 for v in self.items:
                     if u < v:
                         self[u][v] = coloring(self[u][v])
-                self.mxlen = max(self.mxlen, len(u))
 
     def __str__(self):
         "Tuned for 1-digit colors, improve some day"
+        mxlen = 0
+        for u in self.items:
+            mxlen = max(mxlen, len(u))
         r = self.name + '\n' + '  ' + ' '.join(self.items) + '\n'
         for u in self.items:
-            r += f'{u:<{self.mxlen}}' + ' '
+            r += f'{u:<{mxlen}}' + ' '
             for v in self.items:
                 if u < v:
                     r += str(self[u][v]) + ' '
@@ -100,36 +107,40 @@ class EZGraph(ddict):
         pos = bisect(self.items, item)
         return pos > 0 and self.items[pos - 1] == item
 
-    def new_node(self, u):
-        '''
-        Might be already there; if not, connect with -2 to 
-        existing nodes; only applies to additional clan nodes.
-        '''
-        print(' ... ... new node call:', u, end = ' ')
-        if not self.has(u):
-            '''
-            Slightly inefficient, repeats the log search just made,
-            but linear shift time dominates.
-            '''
-            insort(self.items, u)
-            q = u
-            print("connecting -2", end = ' ')
-            for v in self.items:
-                print(v, end = ' ')
-                if v < u:
-                    self[v][u] = -2
-                if v > u:
-                    self[u][v] = -2
-        print("|")
+    # ~ def new_node(self, u):
+        # ~ '''
+        # ~ Might be already there; if not, connect with -2 to 
+        # ~ existing nodes; only applies to additional clan nodes.
+        # ~ '''
+        # ~ print(' ... ... new node call:', u, end = ' ')
+        # ~ if not self.has(u):
+            # ~ '''
+            # ~ Slightly inefficient, repeats the log search just made,
+            # ~ but linear shift time dominates.
+            # ~ '''
+            # ~ insort(self.items, u)
+            # ~ q = u
+            # ~ print("connecting -2", end = ' ')
+            # ~ for v in self.items:
+                # ~ print(v, end = ' ')
+                # ~ if v < u:
+                    # ~ self[v][u] = -2
+                # ~ if v > u:
+                    # ~ self[u][v] = -2
+        # ~ print("|")
 
     def new_edge(self, u, v, label):
-        assert u != v and u in self.items and v in self.items
-        if v < u:
-            u, v = v, u
-        # ~ if u not in self:
-            # ~ insort(self.items, u)
-        # ~ if v not in self:
-            # ~ insort(self.items, v)
+        '''
+        Employed only on visibility graphs; u is a clan name 
+        and v an item, hence u < v due to asterisk.
+        No need to cater for adding isolated vertices.
+        '''
+        # ~ if v < u:
+            # ~ u, v = v, u
+        if u not in self.items:
+            insort(self.items, u)
+        if v not in self.items:
+            insort(self.items, v)
         self[u][v] = label
 
     def to_dot(self, filename = None):
