@@ -101,6 +101,7 @@ class EZGraph(ddict):
         Might be already there; if not, connect with -2 to 
         existing nodes; only applies to additional clan nodes.
         '''
+        print(' ... ... new node call:', u, end = ' ')
         if not self.has(u):
             '''
             Slightly inefficient, repeats the log search just made,
@@ -108,11 +109,14 @@ class EZGraph(ddict):
             '''
             insort(self.items, u)
             q = u
+            print("connecting -2", end = ' ')
             for v in self.items:
+                print(v, end = ' ')
                 if v < u:
                     self[v][u] = -2
                 if v > u:
                     self[u][v] = -2
+        print("|")
 
     def new_edge(self, u, v, label):
         assert u != v and u in self.items and v in self.items

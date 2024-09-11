@@ -16,7 +16,8 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
+    filename = "e7r"
+    # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
     # ~ argp = ArgumentParser(
@@ -52,15 +53,16 @@ if __name__ == "__main__":
     # ~ print(items)
     g = EZGraph(fullfilename)
     print(g)
+    items = g.items
 
 # Titanic nodes in order of edge weight, computed separately, 
 # cases 1a and 1b until Age_Child 1d:
     # ~ ittit = ['Age_Adult', 'Sex_Male', 'Survived_No', 'Class_Crew', 
     # ~ 'SurvivedYes', 'Class_3rd', 'Sex_Female', 'Class_1st', 
     # ~ 'Class_2nd', 'Age_Child']
-    items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
-    'Age_Adult', 'Sex_Male', 'Survived_No',
-    'Survived_Yes', 'Sex_Female' ]  
+    # ~ items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
+    # ~ 'Age_Adult', 'Sex_Male', 'Survived_No',
+    # ~ 'Survived_Yes', 'Sex_Female' ]  
     # , 'Age_Child']
 
 
@@ -73,7 +75,7 @@ if __name__ == "__main__":
     # Add all items to the decomposition tree
     # ~ root = Clan()
     for it in items[1:]:
-        print(" ...adding", it, "to", root)
+        print(" ... adding", it, "to", root)
         root = root.add(it, g)
 
     print(root)

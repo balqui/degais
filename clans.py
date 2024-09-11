@@ -85,24 +85,26 @@ class Clan(list):
         Graph color with which the clan is seen from item,
         if any; -1 otherwise, signals not visible.
         Color found is stored as a new edge of the graph.
+        PENDING: check first on graph before deepening, just in case.
         '''
         if self.is_sgton:
-            # ~ print(' ... seen', self, item, graph[item][self[0]])
-            return graph[item][self[0]]
+            p, q = min(item, self[0]), max(item, self[0])
+            print(' ... ... seen', self, p, q, graph[p][q])
+            return graph[p][q]
         v = ddict(int)
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
-            # ~ print(' ... seen', self, item, -1)
-            graph.new_node(subclan.name)
-            graph.new_edge(item, subclan.name, -1)
+            print(' ... ... seen and added', self, item, -1, list(v.keys()))
+            graph.new_node(self.name)
+            graph.new_edge(item, self.name, -1)
             return -1
         else:
             for c in v:
                 'loop grabs the single element'
-                # ~ print(' ... seen', self, item, c)
-                graph.new_node(subclan.name)
-                graph.new_edge(item, subclan.name, c)
+                print(' ... ... seen and added', self, item, c)
+                graph.new_node(self.name)
+                graph.new_edge(item, self.name, c)
                 return c
 
 
@@ -117,8 +119,8 @@ class Clan(list):
 
         if self.is_sgton:
             'second item, new root with both'
-            # ~ print(' ... second item', item)
-            return Clan([self, item_cl], graph[item][self[0]]) #, item)
+            print(' ... ... second item', item, 'for', self[0])
+            return Clan([self, item_cl], graph[min(item, self[0])][max(item, self[0])]  ) #, item)
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans
         # They contain POSITIONS of the clan list, not the subclans proper
@@ -128,6 +130,7 @@ class Clan(list):
             'len(self) > 1 here'
             visib[somec := subclan.how_seen(item, graph)].append(pos)
             if somec != self.color and somecolor == -2:
+                "IT CAN BE A -1, does that make sense?"
                 somecolor = somec
         selfc = visib[self.color]
 
@@ -144,19 +147,33 @@ class Clan(list):
             reduces to these, recursive call on new clan with the rest.
             '''
             print(' ... 1b')
-            to_new_cl_pos = sorted(set(range(len(self))).difference(selfc), 
-                                   reverse = True)
-            to_new_cl = list()
+
+            # current solution: self is left alone, two new clans are created
+            print(' ... same color:', list(self[pos].name for pos in selfc))
+            rest_pos = list(set(range(len(self))).difference(selfc))
+            if len(rest_pos) == 1:
+                cl_rest = self[rest_pos[0]]
+            else:
+                cl_rest = Clan((self[pos] for pos in rest_pos), self.color)
+            cl_rest = cl_rest.add(item, graph) # recursive call
+            cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
+            cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
+            return cl_same_c
+
+            # earlier solution: self is reduced and one new clan is created
+            # ~ to_new_cl_pos = sorted(set(range(len(self))).difference(selfc), 
+                                   # ~ reverse = True)
+            # ~ to_new_cl = list()
             # ~ print(' ...clan', self)
-            for pos in to_new_cl_pos:
+            # ~ for pos in to_new_cl_pos:
                 # ~ print(' ...switching pos', pos, self[pos])
-                to_new_cl.append(self[pos])
-                del self[pos]
-            new_cl = Clan(to_new_cl, self.color)
+                # ~ to_new_cl.append(self[pos])
+                # ~ del self[pos]
+            # ~ new_cl = Clan(to_new_cl, self.color)
             # ~ print(' ...new_cl auxiliar', new_cl)
             # ~ print(' ...reduced clan', self)
-            new_cl = new_cl.add(item, graph) # recursive call
-            self.append(new_cl)
+            # ~ new_cl = new_cl.add(item, graph) # recursive call
+            # ~ self.append(new_cl)
             return self
 
         if len(self) == len(visib[somecolor]):
@@ -167,10 +184,10 @@ class Clan(list):
             might encompass case 2c and/or the init case of sgton self
             also: somecolor might still be -2 w/ len zero != len(self)
             '''
-            print(' ... 1c', item, somecolor, visib[somecolor])
+            print(' ... 1c', item, somecolor, visib[somecolor], len(self))
             return Clan([self, item_cl], somecolor)
 
-
+        print('Unhandled case', visib, self.color, somecolor)
 
 
 
