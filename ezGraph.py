@@ -24,6 +24,9 @@ from bisect import bisect, insort
 # labels 0/1 give, essentially, a standard Gaifman graph
 from binning import binary as coloring 
 
+# labels manually decided for Titanic
+# ~ from binning import t as coloring 
+
 SEP = '-' # constant to make up clan names, forbidden in items
 
 class EZGraph(ddict):
@@ -86,6 +89,7 @@ class EZGraph(ddict):
                 else: 
                     r += '  '
             r += '\n'
+        print(sorted(self[u][v] for u in self for v in self[u])) # to see Titanic labels
         return r
 
     def has(self, item):

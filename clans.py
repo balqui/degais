@@ -86,11 +86,17 @@ class Clan(list):
         if any; -1 otherwise, signals not visible.
         Color found is stored as a new edge of the graph.
         PENDING: check first on graph before deepening, just in case.
+        Tried, but then the outcome is wrong.
         '''
         if self.is_sgton:
             p, q = min(item, self[0]), max(item, self[0])
             print(' ... ... seen', self, p, q, graph[p][q])
             return graph[p][q]
+        p, q = min(item, self.name), max(item, self.name)
+        # ~ if graph[p][q] != -2:
+            # ~ "already found out earlier"
+            # ~ print(' ... ... repeated seen', self, p, q, graph[p][q])
+            # ~ return graph[p][q]
         v = ddict(int)
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
@@ -129,8 +135,8 @@ class Clan(list):
         for pos, subclan in enumerate(self):
             'len(self) > 1 here'
             visib[somec := subclan.how_seen(item, graph)].append(pos)
-            if somec != self.color and somecolor == -2:
-                "IT CAN BE A -1, does that make sense?"
+            if -1 < somec != self.color and somecolor == -2:
+                "if all are -1 then we may get in trouble"
                 somecolor = somec
         selfc = visib[self.color]
 
