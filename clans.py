@@ -118,6 +118,35 @@ class Clan(list):
                 self.visib.new_edge(self.name, item, c + 2)
                 return c
 
+    def _color_lists(self, item, v = ddict(list))
+        '''
+        With complete in mind. Caveat: changes for primitive?
+        '''
+        for subclan in self:
+            v[subclan.how_seen(item, graph)].append(subclan)
+        pending = v[-1]
+        v[-1] = list() # those will be taken care of, don't split them again
+        for subclan in pending:
+            subclan._color_lists(item, v)
+        return v
+
+
+    def split(self, item):
+        '''
+        With complete in mind. Caveat: changes for primitive?
+        '''
+        v = self._color_lists(item)
+        out_clans = list()
+        for color in v:
+            if len(v[color]) == 1:
+                'must add new edge item - v[color][0] of color color'
+                out_clans.append(v[color][0])
+            else:
+                'must add new edges, which ones?'
+                out_clans.append(Clan(v[color], dontknowwhichcoloryet))
+        return Clan(out_clans, dontknowwhichcoloreither)
+            
+
 
     def add(self, item, graph):
         '''
@@ -190,23 +219,26 @@ class Clan(list):
             # ~ self.append(new_cl)
             return self
 
-        if len(self) == len(visib_dict[somecolor]):
+        if len(self) == len(visib_dict[somecolor]): # and self.color > -1, cf 2b
             '''
             case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
             because no clans would remain in self;
-            might encompass case 2c and/or the init case of sgton self
-            also: somecolor might still be -2 w/ len zero != len(self)
+            might encompass case 2c and/or the init case of sgton self.
+            Also: somecolor might still be -2 w/ len zero != len(self).
+            Covers 2b as well when self is primitive.
             '''
-            print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
+            if self.color == -1:
+                print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
+            else:
+                print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
             self.visib.new_edge(self.name, item, somecolor + 2)
             return Clan([self, item_cl], somecolor)
 
+        if len(visib_dict[-1]):
+            return Clan(self.split(item).append(item), -1) # mark as primitive
 
-
-
-
-        print('Unhandled case', visib_dict, self.color, somecolor)
+        print('Unhandled case', visib_dict, self.color, somecolor) # should not happen
 
 
 
