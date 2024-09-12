@@ -100,7 +100,7 @@ class Clan(list):
         for subclan in self:
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
-            print(' ... ... seen and added', self, item, -1, list(v.keys()))
+            print(' ... ... not seen', self, item, -1, list(v.keys()))
             self.visib.new_edge(self.name, item, 1)
             if guess not in [-2, -1]:
                 print(' ... ... repeated and wrong', item, self.name, -1, guess)
@@ -114,7 +114,7 @@ class Clan(list):
                     print(' ... ... repeated and wrong', item, self.name, c, guess)
                 if guess == c:
                     print(' ... ... repeated', item, self.name, c, guess)
-                print(' ... ... seen and added', self, item, c)
+                print(' ... ... seen', self, item, c)
                 self.visib.new_edge(self.name, item, c + 2)
                 return c
 
@@ -149,7 +149,8 @@ class Clan(list):
         if self.color > -1 and len(self) == len(selfc):
             'case 1a: item sees everything in self in the color of self'
             print(' ... 1a')
-            self.append(item_cl)
+            self.visib.new_edge(self.name, item, self.color + 2)
+            self.append(item_cl) # not fiddling with the name yet, should we?
             return self
 
         if self.color > -1 and 0 < len(selfc): # < len(self) o/w 1a
@@ -163,11 +164,13 @@ class Clan(list):
             print(' ... same color:', list(self[pos].name for pos in selfc))
             rest_pos = list(set(range(len(self))).difference(selfc))
             if len(rest_pos) == 1:
+                "caveat: I think this is wrong"
                 cl_rest = self[rest_pos[0]]
             else:
                 cl_rest = Clan((self[pos] for pos in rest_pos), self.color)
             cl_rest = cl_rest.add(item, graph) # recursive call
             cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
+            self.visib.new_edge(cl_same_c.name, item, self.color + 2)
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
             return cl_same_c
 
@@ -196,6 +199,7 @@ class Clan(list):
             also: somecolor might still be -2 w/ len zero != len(self)
             '''
             print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
+            self.visib.new_edge(self.name, item, somecolor + 2)
             return Clan([self, item_cl], somecolor)
 
 

@@ -138,6 +138,7 @@ class EZGraph(ddict):
         '''
         # ~ if v < u:
             # ~ u, v = v, u
+        print(' ... ... ... new edge', u, v, label)
         if u not in self.items:
             insort(self.items, u)
         if v not in self.items:
