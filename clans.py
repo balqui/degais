@@ -88,7 +88,7 @@ class Clan(list):
         if any; -1 otherwise, signals not visible.
         Color found is stored as a new edge of the graph.
         PENDING: check first on graph before deepening, just in case.
-        Tried, but then the outcome is wrong.
+        Seems to work now, refactor when sure.
         '''
         if self.is_sgton:
             p, q = min(item, self[0]), max(item, self[0])
@@ -101,7 +101,7 @@ class Clan(list):
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
             print(' ... ... seen and added', self, item, -1, list(v.keys()))
-            self.visib.new_edge(self.name, item, -1)
+            self.visib.new_edge(self.name, item, 1)
             if guess not in [-2, -1]:
                 print(' ... ... repeated and wrong', item, self.name, -1, guess)
             if guess == -1:
@@ -115,7 +115,7 @@ class Clan(list):
                 if guess == c:
                     print(' ... ... repeated', item, self.name, c, guess)
                 print(' ... ... seen and added', self, item, c)
-                self.visib.new_edge(self.name, item, c)
+                self.visib.new_edge(self.name, item, c + 2)
                 return c
 
 
@@ -145,14 +145,14 @@ class Clan(list):
                 somecolor = somec
         selfc = visib_dict[self.color]
 
-        # Case analysis
-        if len(self) == len(selfc):
+        # Case analysis, selfc > -1 iff complete clan
+        if self.color > -1 and len(self) == len(selfc):
             'case 1a: item sees everything in self in the color of self'
             print(' ... 1a')
             self.append(item_cl)
             return self
 
-        if 0 < len(selfc) < len(self):
+        if self.color > -1 and 0 < len(selfc): # < len(self) o/w 1a
             '''
             case 1b: some, but not all, seen as self.color, then clan
             reduces to these, recursive call on new clan with the rest.
@@ -197,6 +197,10 @@ class Clan(list):
             '''
             print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
             return Clan([self, item_cl], somecolor)
+
+
+
+
 
         print('Unhandled case', visib_dict, self.color, somecolor)
 
