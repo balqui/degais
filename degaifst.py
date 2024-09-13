@@ -50,12 +50,12 @@ if __name__ == "__main__":
 
     # Construct labeled graph: labels are multiplicities
     # ~ g, items = read_graph_in(fullfilename)
-    # ~ print(items)
     g = EZGraph(fullfilename)
     print(g)
 
 
     items = g.items
+    print(items)
 
 # Titanic nodes in order of edge weight, computed separately, 
 # cases 1a and 1b until Age_Child 1d:
