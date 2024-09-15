@@ -36,6 +36,11 @@ class Clan(list):
         self.name = '*' + SEP.join( e.name for e in elems ) # might be empty
         self.color = color
         self.is_sgton = False
+        print(" ... created", self.name, "with elems /", elems, "/" 
+        # ~ "with names",
+              # ~ '/' + ';'.join(str(e.name for e in elems) + '/'))
+              )
+
         # ~ self.prototype = prototype
 
     def __str__(self):
@@ -186,10 +191,6 @@ class Clan(list):
             item_cl = Clan()
             item_cl.sgton(item)
             self.append(item_cl) # not fiddling with the name yet, should we?
-
-            self.check(item)
-
-
             return self
 
         if self.color > -1 and 0 < len(selfc): # < len(self) o/w 1a
@@ -209,18 +210,16 @@ class Clan(list):
             else:
                 cl_rest = Clan((self[pos] for pos in rest_pos), self.color) # caveat: NOT TESTED YET I THINK
             cl_rest = cl_rest.add(item, graph) # recursive call
-            cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
+            
+            
+            WWWWW = list()
+            WWWWW.extend(self[pos] for pos in selfc)
+            print("\n\n\n\nWWWWW", WWWWW, "\n\n\n\n")
 
-            self.check(item, ' and just creating ' + cl_same_c.name 
-                       + ' as cl_same_c with /' + ';'.join(str(self[pos]) for pos in selfc) + '/')
 
-
+            cl_same_c = Clan(self[pos] for pos in selfc, self.color) 
             self.visib.new_edge(cl_same_c.name, item, self.color + 2)
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
-
-            self.check(item)
-
-
             return cl_same_c
 
             # earlier solution: self is reduced and one new clan is created
@@ -255,10 +254,6 @@ class Clan(list):
             self.visib.new_edge(self.name, item, somecolor + 2)
             item_cl = Clan()
             item_cl.sgton(item)
-
-            self.check(item)
-
-
             return Clan([self, item_cl], somecolor)
 
         # ~ if len(visib_dict[-1]):
