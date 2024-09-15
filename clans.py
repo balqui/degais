@@ -31,12 +31,13 @@ class Clan(list):
     visib = EZGraph()
 
     def __init__(self, elems = [], color = -1): #, prototype = None):
+        elems = list(elems) # materialize for repeated traversal in case it was an iterator
         super().__init__(self)
         self.extend(elems)
         self.name = '*' + SEP.join( e.name for e in elems ) # might be empty
         self.color = color
         self.is_sgton = False
-        print(" ... created", self.name, "with elems /", elems, "/" 
+        print(" ... created", self.name, "with elems /", list(elems), "/" 
         # ~ "with names",
               # ~ '/' + ';'.join(str(e.name for e in elems) + '/'))
               )
@@ -210,14 +211,7 @@ class Clan(list):
             else:
                 cl_rest = Clan((self[pos] for pos in rest_pos), self.color) # caveat: NOT TESTED YET I THINK
             cl_rest = cl_rest.add(item, graph) # recursive call
-            
-            
-            WWWWW = list()
-            WWWWW.extend(self[pos] for pos in selfc)
-            print("\n\n\n\nWWWWW", WWWWW, "\n\n\n\n")
-
-
-            cl_same_c = Clan(self[pos] for pos in selfc, self.color) 
+            cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
             self.visib.new_edge(cl_same_c.name, item, self.color + 2)
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
             return cl_same_c
@@ -242,10 +236,11 @@ class Clan(list):
             '''
             case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
-            because no clans would remain in self;
-            might encompass case 2c and/or the init case of sgton self.
-            Also: somecolor might still be -2 w/ len zero != len(self).
+            because no clans would remain in self, all in rest,
+            recursive call would not reduce size;
+            might encompass case 2c and/or the init case of sgton self, think.
             Covers 2b as well when self is primitive.
+            Also: somecolor might still be -2 w/ len zero != len(self).
             '''
             if self.color == -1:
                 print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
