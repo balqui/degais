@@ -31,22 +31,20 @@ class Clan(list):
     visib = EZGraph()
 
     def __init__(self, elems = [], color = -1): #, prototype = None):
-        elems = list(elems) # materialize for repeated traversal in case it was an iterator
+		'''
+		As elems is traversed repeatedly and can be an iterator,
+		need to materialize first.
+		'''
+        elems = list(elems) 
         super().__init__(self)
         self.extend(elems)
         self.name = '*' + SEP.join( e.name for e in elems ) # might be empty
         self.color = color
         self.is_sgton = False
-        print(" ... created", self.name, "with elems /", list(elems), "/" 
-        # ~ "with names",
-              # ~ '/' + ';'.join(str(e.name for e in elems) + '/'))
-              )
-
-        # ~ self.prototype = prototype
+        print(" ... created", self.name, "with elems /", elems, "/")
 
     def __str__(self):
         return (super().__str__() + " {"
-            # ~ + "prot:" + str(self.prototype) 
             + "name:" + self.name 
             + "; color:" + str(self.color) + "}")
 
@@ -57,20 +55,9 @@ class Clan(list):
         self.name = '*' + delbl(item)
         self.is_sgton = True
         print(' ... sgton name:', self.name, item)
-        # ~ self.prototype = item
 
-# Plan was to initialize with size-two clans but that will not
-# work well with recursive calls where an item is added to a sgton.
-# Thus, the second node is added using method add.
+# The second node is added using method add.
 
-    # ~ def init(self, a, b, color):
-        # ~ 'Given two clans, creates a new clan with two elements'
-        # ~ assert len(self) == 0
-        # ~ self.append(a)
-        # ~ self.append(b)
-        # ~ self.prototype = a.prototype
-        # ~ self.color = color
-        # ~ self.visib_dict = ddict(ddict)
 
 # Unclear how to do all this. Postponed.
     # ~ def visib(self, item, graph):
@@ -127,33 +114,35 @@ class Clan(list):
                 return c
 
 
-    def _color_lists(self, item, v = ddict(list)):
+    def color_lists(self, item, graph, v = ddict(list)):
         '''
         With complete in mind. Caveat: changes for primitive?
         '''
         for subclan in self:
-            v[subclan.how_seen(item, graph)].append(subclan)
-        pending = v[-1]
-        v[-1] = list() # those will be taken care of, don't split them again
+			col = subclan.how_seen(item, graph)
+            self.visib.new_edge(subclan.name, item, col + 2)
+            v[col].append(subclan, self.color)
+        pending = v[-1] # "not seen" from item: those will be taken 
+        v[-1] = list()  #  care of next, so don't split them again later
         for subclan in pending:
-            subclan._color_lists(item, v)
+            subclan.color_lists(item, graph, v)
         return v
 
 
-    def split(self, item):
-        '''
-        With complete in mind. Caveat: changes for primitive?
-        '''
-        v = self._color_lists(item)
-        out_clans = list()
-        for color in v:
-            if len(v[color]) == 1:
-                'must add new edge item - v[color][0] of color color'
-                out_clans.append(v[color][0])
-            else:
-                'must add new edges, which ones?'
-                out_clans.append(Clan(v[color], dontknowwhichcoloryet))
-        return Clan(out_clans, dontknowwhichcoloreither)
+    # ~ def split(self, item):
+        # ~ '''
+        # ~ With complete in mind. Caveat: changes for primitive?
+        # ~ '''
+        # ~ v = self.color_lists(item)
+        # ~ out_clans = list()
+        # ~ for color in v:
+            # ~ if len(v[color]) == 1:
+                # ~ 'must add new edge item - v[color][0] of color color'
+                # ~ out_clans.append(v[color][0])
+            # ~ else:
+                # ~ 'must add new edges, which ones?'
+                # ~ out_clans.append(Clan(v[color], dontknowwhichcoloryet))
+        # ~ return Clan(out_clans, dontknowwhichcoloreither)
 
 
     def add(self, item, graph):
@@ -161,109 +150,51 @@ class Clan(list):
         Adds item to the clan, assumed to be a root, and returns
         a new root, possibly the same; uses graph to check colors 
         so as to apply the correct case. 
+        Further separated by the day from algorithm in draft paper.
         '''
-        # ~ item_cl = Clan()    # WRONG HERE, CREATES REPEATED SGTONS 
-        # ~ item_cl.sgton(item) # IN RECURSIVE CALLS
-
         if self.is_sgton:
             'second item, new root with both'
             print(' ... ... second item', item, 'for', self[0])
             item_cl = Clan()
             item_cl.sgton(item)
-            return Clan([self, item_cl], graph[min(item, self[0])][max(item, self[0])]  ) #, item)
+            return Clan([self, item_cl], graph[min(item, self[0])][max(item, self[0])]  )
 
-        # Set up subclan visibility lists, by colors, -1 for not visible subclans
-        # They contain POSITIONS of the clan list, not the subclans proper
-        visib_dict = ddict(list)
-        somecolor = -2 # some color different from self.color if one such appears 
-        for pos, subclan in enumerate(self):
-            'len(self) > 1 here'
-            visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
-            if -1 < somec != self.color and somecolor == -2:
-                "if all are -1 then we may get in trouble"
-                somecolor = somec
-        selfc = visib_dict[self.color]
+        # ~ # Set up subclan visibility lists, by colors, -1 for not visible subclans
+        # ~ # They contain POSITIONS of the clan list, not the subclans proper
+        # ~ visib_dict = ddict(list)
+        # ~ somecolor = -2 # some color different from self.color if one such appears 
+        # ~ for pos, subclan in enumerate(self):
+            # ~ 'len(self) > 1 here'
+            # ~ visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
+            # ~ if -1 < somec != self.color and somecolor == -2:
+                # ~ "if all are -1 then we may get in trouble"
+                # ~ somecolor = somec
+        # ~ selfc = visib_dict[self.color]
+        # Case analysis, selfc > -1 iff complete clan... 
+        
+        
+        # See clans_earlier if necessary.
+        # Alternative approach, starts by calling colorlists.
+        vlists = self.color_lists(item, graph)
 
-        # Case analysis, selfc > -1 iff complete clan
-        if self.color > -1 and len(self) == len(selfc):
-            'case 1a: item sees everything in self in the color of self'
-            print(' ... 1a')
-            self.visib.new_edge(self.name, item, self.color + 2)
-            item_cl = Clan()
-            item_cl.sgton(item)
-            self.append(item_cl) # not fiddling with the name yet, should we?
-            return self
-
-        if self.color > -1 and 0 < len(selfc): # < len(self) o/w 1a
-            '''
-            case 1b: some, but not all, seen as self.color, then clan
-            reduces to these, recursive call on new clan with the rest.
-            '''
-            print(' ... 1b')
-
-            # current solution: self is left alone, two new clans are created
-            rest_pos = list(set(range(len(self))).difference(selfc))
-            print(' ... same color:', list(self[pos].name for pos in selfc))
-            print(' ... rest:', list(self[pos].name for pos in rest_pos))
-            if len(rest_pos) == 1:
-                "caveat: make sure I want this instead of checking for singleton"
-                cl_rest = self[rest_pos[0]]
+        split_clans = list()
+        nonempty = set()
+        for color in vlists:
+            if len(vlists[color]):
+				nonempty.add(color)
+            if len(vlists[color]) == 1:
+                split_clans.append(vlists[color][0][0]) # first half of single member
             else:
-                cl_rest = Clan((self[pos] for pos in rest_pos), self.color) # caveat: NOT TESTED YET I THINK
-            cl_rest = cl_rest.add(item, graph) # recursive call
-            cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
-            self.visib.new_edge(cl_same_c.name, item, self.color + 2)
-            cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
-            return cl_same_c
+                '''
+                Caveat: A subclan of a primitive clan might be complete,
+                so second parameter likely to be wrong in certain cases.
+                ALSO: In mapping here case 1a we do not join them all into a single clan.
+                '''
+                split_clans.append(Clan((pair[0] for pair in vlists[color]), vlists[color][0][1]))
+        
 
-            # earlier solution: self is reduced and one new clan is created
-            # ~ to_new_cl_pos = sorted(set(range(len(self))).difference(selfc), 
-                                   # ~ reverse = True)
-            # ~ to_new_cl = list()
-            # ~ print(' ...clan', self)
-            # ~ for pos in to_new_cl_pos:
-                # ~ print(' ...switching pos', pos, self[pos])
-                # ~ to_new_cl.append(self[pos])
-                # ~ del self[pos]
-            # ~ new_cl = Clan(to_new_cl, self.color)
-            # ~ print(' ...new_cl auxiliar', new_cl)
-            # ~ print(' ...reduced clan', self)
-            # ~ new_cl = new_cl.add(item, graph) # recursive call
-            # ~ self.append(new_cl)
-            # ~ return self
 
-        if len(self) == len(visib_dict[somecolor]): # and self.color > -1, cf 2b
-            '''
-            case 1c: all same color but different from self.color, 
-            seems a particular case of 1b but subtly different
-            because no clans would remain in self, all in rest,
-            recursive call would not reduce size;
-            might encompass case 2c and/or the init case of sgton self, think.
-            Covers 2b as well when self is primitive.
-            Also: somecolor might still be -2 w/ len zero != len(self).
-            '''
-            if self.color == -1:
-                print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
-            else:
-                print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
-            self.visib.new_edge(self.name, item, somecolor + 2)
-            item_cl = Clan()
-            item_cl.sgton(item)
-            return Clan([self, item_cl], somecolor)
-
-        # ~ if len(visib_dict[-1]):
-            # ~ return Clan(self.split(item).append(item), -1) # mark as primitive
 
         print('Unhandled case', visib_dict, self.color, somecolor) # at end, should not happen
 
 
-
-'''
-Planned to subclass but now I find it is likely to be overkill.
-
-class PrimClan(Clan):
-    pass
-
-class ComplClan(Clan):
-    pass
-'''

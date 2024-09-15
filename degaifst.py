@@ -16,8 +16,9 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
+    filename = "e6"
     # ~ filename = "e7r"
-    filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
+    # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
     # ~ argp = ArgumentParser(
@@ -54,7 +55,8 @@ if __name__ == "__main__":
     print(g)
 
 
-    items = g.items
+    # ~ items = g.items
+    items = list('abcde') # 'abcdef'
     print(items)
 
 # Titanic nodes in order of edge weight, computed separately, 
@@ -62,9 +64,9 @@ if __name__ == "__main__":
     # ~ ittit = ['Age_Adult', 'Sex_Male', 'Survived_No', 'Class_Crew', 
     # ~ 'SurvivedYes', 'Class_3rd', 'Sex_Female', 'Class_1st', 
     # ~ 'Class_2nd', 'Age_Child']
-    items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
-    'Age_Adult', 'Sex_Male', 'Survived_No',
-    'Survived_Yes', 'Sex_Female' ]  
+    # ~ items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
+    # ~ 'Age_Adult', 'Sex_Male', 'Survived_No',
+    # ~ 'Survived_Yes', 'Sex_Female' ]  
     # , 'Age_Child']
 
 
