@@ -31,10 +31,10 @@ class Clan(list):
     visib = EZGraph()
 
     def __init__(self, elems = [], color = -1): #, prototype = None):
-		'''
-		As elems is traversed repeatedly and can be an iterator,
-		need to materialize first.
-		'''
+        '''
+        As elems is traversed repeatedly and can be an iterator,
+        need to materialize first.
+        '''
         elems = list(elems) 
         super().__init__(self)
         self.extend(elems)
@@ -120,7 +120,7 @@ class Clan(list):
         With complete in mind. Caveat: changes for primitive?
         '''
         for subclan in self:
-			col = subclan.how_seen(item, graph)
+            col = subclan.how_seen(item, graph)
             self.visib.new_edge(subclan.name, item, col + 2)
             v[col].append(subclan, self.color)
         pending = v[-1] # "not seen" from item: those will be taken 
@@ -182,7 +182,7 @@ class Clan(list):
         nonempty = set()
         for color in vlists:
             if len(vlists[color]):
-				nonempty.add(color)
+                nonempty.add(color)
             if len(vlists[color]) == 1:
                 split_clans.append(vlists[color][0][0]) # first half of single member
             else:
