@@ -83,7 +83,8 @@ class Clan(list):
         Color found is stored as a new edge of the graph.
         PENDING: check first on local visib graph before 
         deepening, just in case.
-        Seems to work now, refactor when sure.
+        Caveat: Seems to work now, refactor when sure.
+        Caveat: Maybe instead of item it should be any clan... ?
         '''
         if self.is_sgton:
             p, q = min(item, self[0]), max(item, self[0])
@@ -188,7 +189,8 @@ class Clan(list):
                 '''
                 Caveat: A subclan of a primitive clan might be complete,
                 so second parameter likely to be wrong in certain cases.
-                ALSO: In mapping here case 1a we do not join them all into a single clan.
+                ALSO caveat: In mapping here case 1a we do not join 
+                them all into a single clan.
                 '''
                 split_clans.append(Clan((pair[0] for pair in vlists[color]), vlists[color][0][1]))
         
