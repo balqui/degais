@@ -232,7 +232,7 @@ class Clan(list):
             # ~ self.append(new_cl)
             # ~ return self
 
-        if len(self) == len(visib_dict[somecolor]): # and self.color > -1, cf 2b
+        if len(self) == len(visib_dict[somecolor]): # and self.color > -1, cf 2b? or 2c?, CHECK
             '''
             case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
@@ -243,7 +243,7 @@ class Clan(list):
             Also: somecolor might still be -2 w/ len zero != len(self).
             '''
             if self.color == -1:
-                print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
+                print(' ... 2b?', item, somecolor, visib_dict[somecolor], len(self))
             else:
                 print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
             self.visib.new_edge(self.name, item, somecolor + 2)
@@ -253,6 +253,24 @@ class Clan(list):
 
         # ~ if len(visib_dict[-1]):
             # ~ return Clan(self.split(item).append(item), -1) # mark as primitive
+
+        # ~ NOT
+        # ~ (if self.color > -1 and len(self) == len(selfc)   OR
+        # ~ if self.color > -1 and 0 < len(selfc)             OR # < len(self) o/w 1a
+        # ~ if len(self) == len(visib_dict[somecolor])    )      # and self.color > -1, cf 2b? or 2c?, CHECK
+
+        # ~ UNDER if self.color > -1 STILL, I.E. COMPLETE CASE,
+        # ~ EQUIVALENT TO
+        # ~ len(self) != len(selfc) AND
+        # ~ 0 >= len(selfc) AND
+        # ~ len(self) != len(visib_dict[somecolor])
+        # ~ GIVEN len(self) > 0 AND len(*) >= 0, 0 >= len(selfc) IMPLIES 0 == len(selfc) != len(self) SO
+        # ~ len(selfc) == 0 AND len(self) != len(visib_dict[somecolor]) FOR ALL somecolor != -1
+        # ~ THUS EITHER some nonvisible, maybe all, OR at least 2 different colors present
+        # ~ RECHECK NEXT AGAIN THE COMPLETE CASE ON ELY'S
+
+
+
 
         print('Unhandled case', visib_dict, self.color, somecolor) # at end, should not happen
 
