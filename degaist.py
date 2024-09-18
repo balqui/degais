@@ -1,5 +1,6 @@
 from ezGraph import EZGraph
-from clans import Clan
+# ~ from clans import Clan
+from clans_earlier import Clan
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
@@ -16,8 +17,9 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    filename = "e6"
+    # ~ filename = "e6"
     # ~ filename = "e7r"
+    filename = "e7alt"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
@@ -55,8 +57,8 @@ if __name__ == "__main__":
     print(g)
 
 
-    # ~ items = g.items
-    items = list('abcde') # 'abcdef'
+    items = g.items
+    # ~ items = list('abcde') # 'abcdef'
     print(items)
 
 # Titanic nodes in order of edge weight, computed separately, 

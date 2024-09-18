@@ -26,7 +26,7 @@ Alpha chars in filename used as dot graph name.
 
 from collections import Counter, defaultdict
 from itertools import combinations
-# ~ from sgton import Sgton
+# ~ from sgton import Sgton # TO BE SIMPLIFIED SOON
 from auxfun import delbl, q
 
 VERSION = "0.2 alpha"
