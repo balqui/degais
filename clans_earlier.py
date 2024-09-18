@@ -209,7 +209,8 @@ class Clan(list):
                 "caveat: make sure I want this instead of checking for singleton"
                 cl_rest = self[rest_pos[0]]
             else:
-                cl_rest = Clan((self[pos] for pos in rest_pos), self.color) # caveat: NOT TESTED YET I THINK
+				"caveat: this Clan may already exist, created along"
+                cl_rest = Clan((self[pos] for pos in rest_pos), self.color)
             cl_rest = cl_rest.add(item, graph) # recursive call
             cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
             self.visib.new_edge(cl_same_c.name, item, self.color + 2)

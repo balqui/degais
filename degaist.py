@@ -1,5 +1,6 @@
 from ezGraph import EZGraph
-from clans import Clan
+# ~ from clans import Clan
+from clans_earlier import Clan
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
