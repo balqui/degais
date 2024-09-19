@@ -130,7 +130,7 @@ class EZGraph(ddict):
                     # ~ self[u][v] = -2
         # ~ print("|")
 
-    def new_edge(self, u, v, label):
+    def new_edge(self, u, v, label, src = ''):
         '''
         Employed only on visibility graphs; u is a clan name 
         and v an item, hence u < v due to asterisk.
@@ -138,7 +138,7 @@ class EZGraph(ddict):
         '''
         # ~ if v < u:
             # ~ u, v = v, u
-        print(' ... ... ... new edge', u, v, label)
+        print(' ... ... ... new edge', u, v, label, src)
         if u not in self.items:
             insort(self.items, u)
         if v not in self.items:

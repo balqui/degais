@@ -30,7 +30,7 @@ class Clan(list):
 
     visib = EZGraph()
 
-    def __init__(self, elems = [], color = -1): #, prototype = None):
+    def __init__(self, elems = [], color = -1):
         '''
         As elems is traversed repeatedly and can be an iterator,
         need to materialize first.
@@ -41,7 +41,8 @@ class Clan(list):
         self.name = '*' + SEP.join( e.name for e in elems ) # might be empty
         self.color = color
         self.is_sgton = False
-        print(" ... created", self.name, "with elems /", elems, "/")
+        print(" ... created", self.name, "with elems /", elems, 
+              "/ color", color)
 
     def __str__(self):
         return (super().__str__() + " {"
@@ -90,6 +91,7 @@ class Clan(list):
             p, q = min(item, self[0]), max(item, self[0])
             print(' ... ... seen', self, p, q, graph[p][q])
             return graph[p][q]
+
         # test whether already found out earlier, -2 if not
         guess = self.visib[self.name][item] - 2 
         v = ddict(int)
@@ -97,7 +99,7 @@ class Clan(list):
             v[subclan.how_seen(item, graph)] += 1
         if -1 in v or len(v) > 1:
             print(' ... ... not seen', self, item, -1, list(v.keys()))
-            self.visib.new_edge(self.name, item, 1)
+            self.visib.new_edge(self.name, item, 1, 'how_seen_not_seen')
             if guess not in [-2, -1]:
                 print(' ... ... repeated and wrong', item, self.name, -1, guess)
             if guess == -1:
@@ -111,7 +113,7 @@ class Clan(list):
                 if guess == c:
                     print(' ... ... repeated', item, self.name, c, guess)
                 print(' ... ... seen', self, item, c)
-                self.visib.new_edge(self.name, item, c + 2)
+                self.visib.new_edge(self.name, item, c + 2, 'how_seen_seen')
                 return c
 
 
@@ -122,9 +124,10 @@ class Clan(list):
         v = ddict(list)
         for subclan in self:
             col = subclan.how_seen(item, graph)
-            self.visib.new_edge(subclan.name, item, col + 2)
+            self.visib.new_edge(subclan.name, item, col + 2, 
+                'color_lists ' + subclan.name) # REPEATED ?????
             v[col].append((subclan, self.color))
-        return v
+        return v 
 
 
     def split(self, item, graph, k = 1):
@@ -132,16 +135,18 @@ class Clan(list):
         With complete in mind. Caveat: changes for primitive?
         k: recursion depth for report-printing
         '''
-        print(" ---"*k, "splitting", self.name)
+        print(" ---"*k, "splitting", self.name, "from", item)
         v = self._color_lists(item, graph)
         out_clans = list()
         for color in v:
+            "visib edges already set up in _color_lists"
             if color > -1:
                 "handle first visible clans"
-                for a_clan, a_col in v[color]:
-                    'must add new edges item - v[color][i] of color color'
-                    self.visib.new_edge(a_clan.name, item, color + 2)
+                # ~ for a_clan, a_col in v[color]:
+                    # ~ 'must add new edges item - v[color][i] of color color REPEATED ???'
+                    # ~ self.visib.new_edge(a_clan.name, item, color + 2, 'split ' + a_clan.name)
                 if len(v[color]) == 1:
+                    "caveat: this case untested so far"
                     out_clans.append(v[color][0][0]) 
                     print(" ---"*k, "output includes", v[color][0][0].name)
                     print(" ---"*k, "found together with color", v[color][0][1])
@@ -152,7 +157,7 @@ class Clan(list):
                     print(" ---"*k, "found together with colors", ';'.join(str(cl[0]) for cl in v[color]))
         # and now split the rest, nonvisibile subclans
         print(" ---"*k, "pending calls on:", ' '.join(cl[0].name for cl in v[-1]))
-        print(" ---"*k, "with colors", ';'.join(str(cl[1]) for cl in v[-1]))
+        print(" ---"*k, "with colors:", ';'.join(str(cl[1]) for cl in v[-1]))
         out_clans.extend( cl for a_clan in v[-1]
                              for cl in a_clan[0].split(item, graph, k + 1) )
         print(" ---"*k, "answer is:", out_clans)
@@ -165,7 +170,7 @@ class Clan(list):
         so as to apply the correct case. 
         '''
         if self.is_sgton:
-            'second item, new root with both'
+            'second item, new root with both, caveat: update self.visib'
             print(' ... ... second item', item, 'for', self[0])
             item_cl = Clan()
             item_cl.sgton(item)
@@ -183,11 +188,15 @@ class Clan(list):
                 somecolor = somec
         selfc = visib_dict[self.color]
 
+        if visib_dict[-1]:
+            print(" ...", ','.join(self[cl].name for cl in visib_dict[-1]), 
+                  "not seen from", item, "at", self.name)
+
         # Case analysis, selfc > -1 iff complete clan
         if self.color > -1 and len(self) == len(selfc):
             'case 1a: item sees everything in self in the color of self'
             print(' ... 1a')
-            self.visib.new_edge(self.name, item, self.color + 2)
+            self.visib.new_edge(self.name, item, self.color + 2, '1a')
             item_cl = Clan()
             item_cl.sgton(item)
             self.append(item_cl) # not fiddling with the name yet, should we?
@@ -212,7 +221,7 @@ class Clan(list):
                 cl_rest = Clan((self[pos] for pos in rest_pos), self.color)
             cl_rest = cl_rest.add(item, graph) # recursive call
             cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
-            self.visib.new_edge(cl_same_c.name, item, self.color + 2)
+            self.visib.new_edge(cl_same_c.name, item, self.color + 2, '1b')
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
             return cl_same_c
 
@@ -246,7 +255,7 @@ class Clan(list):
                 print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
             else:
                 print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
-            self.visib.new_edge(self.name, item, somecolor + 2)
+            self.visib.new_edge(self.name, item, somecolor + 2, '1c')
             item_cl = Clan()
             item_cl.sgton(item)
             return Clan([self, item_cl], somecolor)
@@ -264,7 +273,10 @@ class Clan(list):
             new_cl_list = [ item_cl  ] + list( 
                          self[pos_visib] for col in visib_dict if col > -1 
                                          for pos_visib in visib_dict[col]
-                         ) + self.split(item, graph)
+                         ) + list(
+                         spl_cl for pos_no_visib in visib_dict[-1]
+                                for spl_cl in self[pos_no_visib].split(item, graph)
+                         )
             print(' ... contents of current clan:')
             for e in new_cl_list:
                 print('    ', e)
