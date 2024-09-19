@@ -1,6 +1,6 @@
 from ezGraph import EZGraph
-# ~ from clans import Clan
-from clans_earlier import Clan
+from clans import Clan
+# ~ from clans_earlier import Clan
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # ~ argp.add_argument('dataset', nargs = '?', default = None, 
                       # ~ help = "name of optional dataset file (default: none, ask user)")
-    
+
     # ~ args = argp.parse_args()
 
     # ~ if args.dataset:
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # ~ else:
         # ~ print("No dataset file specified.")
         # ~ filename = input("Dataset File Name? ")
-    
+
     if '.' in filename:
         fullfilename = filename
         filename, ext = filename.split('.', maxsplit = 1)
@@ -55,7 +55,6 @@ if __name__ == "__main__":
     # ~ g, items = read_graph_in(fullfilename)
     g = EZGraph(fullfilename)
     print(g)
-
 
     items = g.items
     # ~ items = list('abcde') # 'abcdef'
@@ -70,7 +69,6 @@ if __name__ == "__main__":
     # ~ 'Age_Adult', 'Sex_Male', 'Survived_No',
     # ~ 'Survived_Yes', 'Sex_Female' ]  
     # , 'Age_Child']
-
 
     # Initialize the decomposition tree
     assert len(items) > 0
@@ -90,5 +88,3 @@ if __name__ == "__main__":
     # ~ g.to_dot("tt")
 
     # Convert the decomposition tree into a GV graph for drawing
-
-
