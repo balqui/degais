@@ -17,9 +17,10 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    # ~ filename = "e6"
+    filename = "e6b"
+    # ~ filename = "e8a" NEXT
     # ~ filename = "e7r"
-    filename = "e7alt"
+    # ~ filename = "e7alt"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
@@ -58,7 +59,6 @@ if __name__ == "__main__":
 
     items = g.items
     # ~ items = list('abcde') # 'abcdef'
-    print(items)
 
 # Titanic nodes in order of edge weight, computed separately, 
 # cases 1a and 1b until Age_Child 1d:
@@ -66,9 +66,10 @@ if __name__ == "__main__":
     # ~ 'SurvivedYes', 'Class_3rd', 'Sex_Female', 'Class_1st', 
     # ~ 'Class_2nd', 'Age_Child']
     # ~ items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
-    # ~ 'Age_Adult', 'Sex_Male', 'Survived_No',
-    # ~ 'Survived_Yes', 'Sex_Female' ]  
-    # , 'Age_Child']
+    # ~ 'Age_Adult' ] #, 'Sex_Male', 'Survived_No',
+    # 'Survived_Yes', 'Sex_Female', 'Age_Child'] 4Classes and Adult good for t coloring
+
+    print(items)
 
     # Initialize the decomposition tree
     assert len(items) > 0

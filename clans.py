@@ -125,7 +125,7 @@ class Clan(list):
         for subclan in self:
             col = subclan.how_seen(item, graph)
             self.visib.new_edge(subclan.name, item, col + 2, 
-                'color_lists ' + subclan.name) # REPEATED ?????
+                'color_lists ' + subclan.name)
             v[col].append((subclan, self.color))
         return v 
 
@@ -155,7 +155,7 @@ class Clan(list):
                     out_clans.append(r := Clan((cl[0] for cl in v[color]), self.color))
                     print(" ---"*k, "output includes", r.name, "is", self.color, "correct?")
                     print(" ---"*k, "found together with colors", ';'.join(str(cl[0]) for cl in v[color]))
-        # and now split the rest, nonvisibile subclans
+        # and now split the rest, nonvisible subclans
         print(" ---"*k, "pending calls on:", ' '.join(cl[0].name for cl in v[-1]))
         print(" ---"*k, "with colors:", ';'.join(str(cl[1]) for cl in v[-1]))
         out_clans.extend( cl for a_clan in v[-1]
@@ -209,7 +209,7 @@ class Clan(list):
             '''
             print(' ... 1b')
 
-            # current solution: self is left alone, two new clans are created
+            # current solution: self is left alone, two new clans are created instead
             rest_pos = list(set(range(len(self))).difference(selfc))
             print(' ... same color:', list(self[pos].name for pos in selfc))
             print(' ... rest:', list(self[pos].name for pos in rest_pos))
@@ -277,6 +277,7 @@ class Clan(list):
                          spl_cl for pos_no_visib in visib_dict[-1]
                                 for spl_cl in self[pos_no_visib].split(item, graph)
                          )
+            # caveat: WRONG, must group them into clans according to how item sees them
             print(' ... contents of current clan:')
             for e in new_cl_list:
                 print('    ', e)
