@@ -13,6 +13,7 @@ if __name__ == "__main__":
     '''
     
     # ~ color = binary # Standard graph-theoretic module decomposition
+                       # This issue moved to EZGraph import as coloring
 
     # Handle the input
     # ~ filename = "e7"

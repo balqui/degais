@@ -57,26 +57,6 @@ class Clan(list):
         self.is_sgton = True
         print(' ... sgton name:', self.name, item)
 
-# The second node is added using method add.
-
-
-# Unclear how to do all this. Postponed.
-    # ~ def visib(self, item, graph):
-        # ~ '''
-        # ~ Constructs visibility dict for item if necessary and returns it
-        # ~ '''
-        # ~ assert len(self) > 1
-        # ~ if not self.visib_dict[item]:
-            # ~ v = ddict(list)
-            # ~ for subclan in self:
-                # ~ if ls := len(subclan) == 1:
-                    # ~ v[graph[subclan.prototype][item]].append(subclan)
-                # ~ else: 
-                    # ~ v = subclan.visib(item, graph)
-                    # what now?
-            # ~ self.visib_dict[item] = v
-        # ~ return self.visib_dict[item]
-
     def how_seen(self, item, graph):
         '''
         Graph color with which the clan is seen from item,
@@ -116,6 +96,31 @@ class Clan(list):
                 self.visib.new_edge(self.name, item, c + 2, 'how_seen_seen')
                 return c
 
+    def sibling(self, item):
+        '''
+        Skip the graph parameter and try to get all the info
+        through self.visib (unclear whether possible).
+        '''
+        print(" --- pursuing a sibling to", item, "in", self)
+        for pos_cand, cand_sib in enumerate(self):
+            for other in range(len(self)):
+                if other != pos_cand:
+                    print(" --- from", self[other], "to", item, self.visib[self[other].name][item])
+                    "ignore the -2 at both sides of inequality"
+                    if self.visib[self[other].name][item] == 0:
+                        print(" !!! no visib", self[other], item)
+                        print(1/0)
+                    if self.visib[self[other].name][cand_sib.name] == 0:
+                        print(" !!! no visib", self[other], cand_sib)
+                        print(1/0)
+                    if (self.visib[self[other].name][item] != 
+                        self.visib[self[other].name][cand_sib.name]):
+                        "cand not a sibling"
+                        print(" --- not", cand_sib, "due to", self[other], self.visib[self[other].name][cand_sib.name])
+                        break
+            else:
+                "if this never happens, no return is like returning None"
+                return pos_cand
 
 # Sept 19th: lists of subclans
     # ~ def _color_lists(self, item, graph):
@@ -129,7 +134,6 @@ class Clan(list):
                 # ~ 'color_lists ' + subclan.name)
             # ~ v[col].append((subclan, self.color))
         # ~ return v 
-
 
 # Sept 20th: the process was already done inside self.add to 
 # find the color-split lists of POSITIONS so we now do it
@@ -187,10 +191,11 @@ class Clan(list):
         so as to apply the correct case. 
         '''
         if self.is_sgton:
-            'second item, new root with both, caveat: update self.visib'
+            'second item, new root with both, caveat: not sure about update self.visib'
             print(' ... ... second item', item, 'for', self[0])
             item_cl = Clan()
             item_cl.sgton(item)
+            self.visib.new_edge(self.name, item_cl.name, self.color + 2, '1b')
             return Clan([self, item_cl], graph[min(item, self[0])][max(item, self[0])]  )
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans.
@@ -213,6 +218,7 @@ class Clan(list):
             self.visib.new_edge(self.name, item, self.color + 2, '1a')
             item_cl = Clan()
             item_cl.sgton(item)
+            self.visib.new_edge(self.name, item_cl.name, self.color + 2, '1a')
             self.append(item_cl) # not fiddling with the name yet, should we?
             return self
 
@@ -254,9 +260,9 @@ class Clan(list):
                 print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
             else:
                 print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
-            self.visib.new_edge(self.name, item, somecolor + 2, '1c/2b')
             item_cl = Clan()
             item_cl.sgton(item)
+            self.visib.new_edge(self.name, item_cl.name, somecolor + 2, '1c/2b')
             return Clan([self, item_cl], somecolor)
 
         if self.color > -1:
@@ -297,7 +303,7 @@ class Clan(list):
             red_cl = Clan((self[i] for i in range(len(self)) if i != pos_sib), -1)
             item_cl = Clan()
             item_cl.sgton(item)
-            return Clan([red_cl, item_cl], self[pos_sibl].how_seen(item, graph))
+            return Clan([red_cl, item_cl], self[pos_sibl].how_seen(item, graph)) # NEEDS self.visib update
 
         else:
             '''
@@ -320,6 +326,7 @@ class Clan(list):
                     "just get the clans as they are"
                     for pos_visib in visib_dict[col]:
                         new_cls.append(self[pos_visib])
+                # NEEDS self.visib update ???
                 # else potential empty list added in the test of 1a, to be ignored
             return Clan(new_cls, -1)
 
