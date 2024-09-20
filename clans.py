@@ -159,7 +159,7 @@ class Clan(list):
         k: recursion depth for report-printing
         Older pairs clan+color now changed into single clan positions
         '''
-        print(" ---"*k, "splitting", self.name, "from", item)
+        print(" ---"*k, "splitting", self.name, "of color", self.color, "from", item)
         v, _ = self._color_lists(item, graph)
         out_clans = list()
         for color in v:
@@ -168,8 +168,8 @@ class Clan(list):
                 "handle a visible clan"
                 if len(v[color]) == 1 or self.color == -1:
                     "the primitive case works this way"
-                    out_clans.append(self[v[color][0]]) 
-                    print(" ---"*k, "output includes", self[v[color][0]].name)
+                    out_clans.extend(self[pos_vis] for pos_vis in v[color]) 
+                    print(" ---"*k, "output includes", list(self[pos_vis].name for pos_vis in v[color]))
                 else:
                     out_clans.append(r := Clan((self[cl] for cl in v[color]), self.color))
                     print(" ---"*k, "output includes", r.name, "with", self.color)
@@ -224,17 +224,16 @@ class Clan(list):
             print(' ... 1b')
 
             # current solution: self is left alone, two new clans are created instead
-            rest_pos = list(set(range(len(self))).difference(selfc))
-            print(' ... same color:', list(self[pos].name for pos in selfc))
+            rest_pos = list(set(range(len(self))).difference(visib_dict[self.color]))
+            print(' ... same color:', list(self[pos].name for pos in visib_dict[self.color]))
             print(' ... rest:', list(self[pos].name for pos in rest_pos))
             if len(rest_pos) == 1:
-                "caveat: make sure I want this instead of checking for singleton"
                 cl_rest = self[rest_pos[0]]
             else:
                 "caveat: this Clan may already exist, created along"
                 cl_rest = Clan((self[pos] for pos in rest_pos), self.color)
             cl_rest = cl_rest.add(item, graph) # recursive call
-            cl_same_c = Clan((self[pos] for pos in selfc), self.color) 
+            cl_same_c = Clan((self[pos] for pos in visib_dict[self.color]), self.color) 
             self.visib.new_edge(cl_same_c.name, item, self.color + 2, '1b')
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
             return cl_same_c
@@ -246,15 +245,16 @@ class Clan(list):
             Case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
             because no clans would remain in self, all in rest,
-            recursive call would not reduce size;
-            might encompass case 2c and/or the init case of sgton self, think.
+            recursive call would not reduce size.
+            Caveat: might encompass the init case of sgton self,
+            if I find a way to handle the color.
             Covers 2b as well when self is primitive.
             '''
             if self.color == -1:
                 print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
             else:
                 print(' ... 1c', item, somecolor, visib_dict[somecolor], len(self))
-            self.visib.new_edge(self.name, item, somecolor + 2, '1c')
+            self.visib.new_edge(self.name, item, somecolor + 2, '1c/2b')
             item_cl = Clan()
             item_cl.sgton(item)
             return Clan([self, item_cl], somecolor)
@@ -285,10 +285,42 @@ class Clan(list):
                         Clan((self[pos_visib] for pos_visib in visib_dict[col]), self.color)
                         )
                 # else potential empty list added in the test of 1a, to be ignored
+            return Clan(new_cls, -1)
 
-            print(' ... contents of current clan:')
-            for e in new_cls:
-                print('    ', e)
+        elif pos_sibl := self.sibling(item) is not None:
+            '''
+            Case 2a: self is primitive and a sibling is found 
+            that sees everyone else in self in the same way as item.
+            PENDING TO TEST
+            '''
+            print(' ... 2a, sibling is', self[pos_sibl], "in position", pos_sibl)
+            red_cl = Clan((self[i] for i in range(len(self)) if i != pos_sib), -1)
+            item_cl = Clan()
+            item_cl.sgton(item)
+            return Clan([red_cl, item_cl], self[pos_sibl].how_seen(item, graph))
+
+        else:
+            '''
+            Case 2c: very similar to 1d, caveat: MUST TRY TO UNIFY THEM
+            All previous conditions failing must imply somehow that 
+            after the splits we keep having a single primitive clan: THINK.
+            '''
+            print(' ... 2c')
+            print(' ... must split:', list(self[pos].name for pos in visib_dict[-1]))
+            item_cl = Clan()
+            item_cl.sgton(item)
+            new_cls = [ item_cl ]
+            print(" ... traverse visib_dict next:", visib_dict) 
+            for col in visib_dict:
+                if col == -1:
+                    "must split"
+                    for pos_no_visib in visib_dict[col]:
+                        new_cls.extend(self[pos_no_visib].split(item, graph))
+                elif visib_dict[col]:
+                    "just get the clans as they are"
+                    for pos_visib in visib_dict[col]:
+                        new_cls.append(self[pos_visib])
+                # else potential empty list added in the test of 1a, to be ignored
             return Clan(new_cls, -1)
 
 

@@ -1,6 +1,5 @@
 from ezGraph import EZGraph
 from clans import Clan
-# ~ from clans_earlier import Clan
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
@@ -17,8 +16,10 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    # ~ filename = "e6c"
-    filename = "e8b"
+    filename = "e4a"
+    # ~ filename = "e6a"
+    # ~ filename = "e6"
+    # ~ filename = "e8b"
     # ~ filename = "e7r"
     # ~ filename = "e7alt"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
@@ -82,6 +83,9 @@ if __name__ == "__main__":
     for it in items[1:]:
         print(" ... adding", it, "to", root)
         root = root.add(it, g)
+        print(" ... added", it, "and the current root of color", root.color, "is:")
+        for e in root:
+            print('    ', e)
 
     print(root)
     print(g)
