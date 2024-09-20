@@ -17,8 +17,8 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    # ~ filename = "e6a"
-    filename = "e8a"
+    # ~ filename = "e6c"
+    filename = "e8b"
     # ~ filename = "e7r"
     # ~ filename = "e7alt"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
