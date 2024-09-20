@@ -117,51 +117,95 @@ class Clan(list):
                 return c
 
 
+# Sept 19th: lists of subclans
+    # ~ def _color_lists(self, item, graph):
+        # ~ '''
+        # ~ With complete in mind. Caveat: changes for primitive?
+        # ~ '''
+        # ~ v = ddict(list)
+        # ~ for subclan in self:
+            # ~ col = subclan.how_seen(item, graph)
+            # ~ self.visib.new_edge(subclan.name, item, col + 2, 
+                # ~ 'color_lists ' + subclan.name)
+            # ~ v[col].append((subclan, self.color))
+        # ~ return v 
+
+
+# Sept 20th: the process was already done inside self.add to 
+# find the color-split lists of POSITIONS so we now do it
+# consistently and avoid the repetition
     def _color_lists(self, item, graph):
         '''
         With complete in mind. Caveat: changes for primitive?
         '''
-        v = ddict(list)
-        for subclan in self:
-            col = subclan.how_seen(item, graph)
-            self.visib.new_edge(subclan.name, item, col + 2, 
-                'color_lists ' + subclan.name)
-            v[col].append((subclan, self.color))
-        return v 
+        visib_dict = ddict(list)
+        somecolor = -2 # some color different from self.color if one such appears 
+        for pos, subclan in enumerate(self):
+            'len(self) > 1 here'
+            visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
+            self.visib.new_edge(subclan.name, item, somec + 2, 
+                '_color_lists ' + subclan.name)
+            if -1 < somec != self.color and somecolor == -2:
+                "if all are -1 then we may get in trouble"
+                somecolor = somec
+        selfc = visib_dict[self.color]
+        return visib_dict, selfc, somecolor
 
 
-    def split(self, item, graph, k = 1):
+    def split(self, item, graph, visib_dict):
         '''
         With complete in mind. Caveat: changes for primitive?
-        k: recursion depth for report-printing
+        No return value, changes visib_dict along the way.
         '''
-        print(" ---"*k, "splitting", self.name, "from", item)
-        v = self._color_lists(item, graph)
-        out_clans = list()
-        for color in v:
-            "visib edges already set up in _color_lists"
-            if color > -1:
-                "handle first visible clans"
-                # ~ for a_clan, a_col in v[color]:
-                    # ~ 'must add new edges item - v[color][i] of color color REPEATED ???'
-                    # ~ self.visib.new_edge(a_clan.name, item, color + 2, 'split ' + a_clan.name)
-                if len(v[color]) == 1:
-                    "caveat: this case untested so far"
-                    out_clans.append(v[color][0][0]) 
-                    print(" ---"*k, "output includes", v[color][0][0].name)
-                    print(" ---"*k, "found together with color", v[color][0][1])
-                else:
-                    'is here self.color right?'
-                    out_clans.append(r := Clan((cl[0] for cl in v[color]), self.color))
-                    print(" ---"*k, "output includes", r.name, "is", self.color, "correct?")
-                    print(" ---"*k, "found together with colors", ';'.join(str(cl[0]) for cl in v[color]))
-        # and now split the rest, nonvisible subclans
-        print(" ---"*k, "pending calls on:", ' '.join(cl[0].name for cl in v[-1]))
-        print(" ---"*k, "with colors:", ';'.join(str(cl[1]) for cl in v[-1]))
-        out_clans.extend( cl for a_clan in v[-1]
-                             for cl in a_clan[0].split(item, graph, k + 1) )
-        print(" ---"*k, "answer is:", out_clans)
-        return out_clans
+        pass
+
+    # ~ def split(self, item, graph, visib_dict):
+        # ~ '''
+        # ~ With complete in mind. Caveat: changes for primitive?
+        # ~ No return value, changes visib_dict along the way.
+        # ~ '''
+        # ~ to_split = list( self[pos] for pos in visib_dict[-1] )
+        # ~ visib_dict[-1] = list() # they will be taken care of right next
+        # ~ while to_split:
+            # ~ vd, _, __ = to_split.pop()._color_lists(item, graph)
+            # ~ to_split.extend( self[pos] for pos in vd[-1] )
+            # ~ print("... ... adding", vd[-1], "to to_split on", self, item)
+            # ~ vd[-1] = list()
+            # ~ for color in vd:
+                # ~ visib_dict[color].extend(vd[color]) # BUT THIS MERGING IS WRONG !!
+
+    # ~ def split(self, item, graph, visib_dict):
+        # ~ '''
+        # ~ With complete in mind. Caveat: changes for primitive?
+        # ~ k: recursion depth for report-printing
+        # ~ '''
+        # ~ print(" ---"*k, "splitting", self.name, "from", item)
+        # ~ visib_dict, selfc, somecolor = self._color_lists(item, graph)
+        # ~ out_clans = list()
+        # ~ for color in v:
+            # ~ "visib edges already set up in _color_lists"
+            # ~ if color > -1:
+                # ~ "handle first visible clans"
+                # ~ # for a_clan, a_col in v[color]:
+                # ~ #    'must add new edges item - v[color][i] of color color REPEATED ???'
+                # ~ #     self.visib.new_edge(a_clan.name, item, color + 2, 'split ' + a_clan.name)
+                # ~ if len(v[color]) == 1:
+                    # ~ "caveat: this case untested so far"
+                    # ~ out_clans.append(v[color][0][0]) 
+                    # ~ print(" ---"*k, "output includes", v[color][0][0].name)
+                    # ~ print(" ---"*k, "found together with color", v[color][0][1])
+                # ~ else:
+                    # ~ 'is here self.color right?'
+                    # ~ out_clans.append(r := Clan((cl[0] for cl in v[color]), self.color))
+                    # ~ print(" ---"*k, "output includes", r.name, "is", self.color, "correct?") # ONLY IN COMPLETE CASES I BELIEVE NOW
+                    # ~ print(" ---"*k, "found together with colors", ';'.join(str(cl[0]) for cl in v[color]))
+        # ~ # and now split the rest, nonvisible subclans
+        # ~ print(" ---"*k, "pending calls on:", ' '.join(cl[0].name for cl in v[-1]))
+        # ~ print(" ---"*k, "with colors:", ';'.join(str(cl[1]) for cl in v[-1]))
+        # ~ out_clans.extend( cl for a_clan in v[-1]
+                             # ~ for cl in a_clan[0].split(item, graph, k + 1) )
+        # ~ print(" ---"*k, "answer is:", out_clans)
+        # ~ return out_clans
 
     def add(self, item, graph):
         '''
@@ -177,17 +221,19 @@ class Clan(list):
             return Clan([self, item_cl], graph[min(item, self[0])][max(item, self[0])]  )
 
         # Set up subclan visibility lists, by colors, -1 for not visible subclans
-        # They contain POSITIONS of the clan list, not the subclans proper
-        visib_dict = ddict(list)
-        somecolor = -2 # some color different from self.color if one such appears 
-        for pos, subclan in enumerate(self):
-            'len(self) > 1 here'
-            visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
-            if -1 < somec != self.color and somecolor == -2:
-                "if all are -1 then we may get in trouble"
-                somecolor = somec
-        selfc = visib_dict[self.color]
-
+        # They contain POSITIONS of the clan list, not the subclans proper:
+        # reason is to profit from set difference in case 1b
+        # Sept 20th: call new _color_lists instead
+        # ~ visib_dict = ddict(list)
+        # ~ somecolor = -2 # some color different from self.color if one such appears 
+        # ~ for pos, subclan in enumerate(self):
+            # ~ 'len(self) > 1 here'
+            # ~ visib_dict[somec := subclan.how_seen(item, graph)].append(pos)
+            # ~ if -1 < somec != self.color and somecolor == -2:
+                # ~ "if all are -1 then we may get in trouble"
+                # ~ somecolor = somec
+        # ~ selfc = visib_dict[self.color]
+        visib_dict, selfc, somecolor = self._color_lists(item, graph)
         if visib_dict[-1]:
             print(" ...", ','.join(self[cl].name for cl in visib_dict[-1]), 
                   "not seen from", item, "at", self.name)
@@ -225,31 +271,15 @@ class Clan(list):
             cl_same_c.append(cl_rest) # not fiddling with the name yet, should we?
             return cl_same_c
 
-            # earlier solution: self is reduced and one new clan is created
-            # ~ to_new_cl_pos = sorted(set(range(len(self))).difference(selfc), 
-                                   # ~ reverse = True)
-            # ~ to_new_cl = list()
-            # ~ print(' ...clan', self)
-            # ~ for pos in to_new_cl_pos:
-                # ~ print(' ...switching pos', pos, self[pos])
-                # ~ to_new_cl.append(self[pos])
-                # ~ del self[pos]
-            # ~ new_cl = Clan(to_new_cl, self.color)
-            # ~ print(' ...new_cl auxiliar', new_cl)
-            # ~ print(' ...reduced clan', self)
-            # ~ new_cl = new_cl.add(item, graph) # recursive call
-            # ~ self.append(new_cl)
-            # ~ return self
-
         if len(self) == len(visib_dict[somecolor]): # if self.color > -1 then 1c, o/w 2b
             '''
+            Note: if somecolor still -2 w/ len zero, != len(self).
             case 1c: all same color but different from self.color, 
             seems a particular case of 1b but subtly different
             because no clans would remain in self, all in rest,
             recursive call would not reduce size;
             might encompass case 2c and/or the init case of sgton self, think.
             Covers 2b as well when self is primitive.
-            Also: somecolor might still be -2 w/ len zero != len(self).
             '''
             if self.color == -1:
                 print(' ... 2b', item, somecolor, visib_dict[somecolor], len(self))
@@ -270,29 +300,35 @@ class Clan(list):
             print(' ... must split:', list(self[pos].name for pos in visib_dict[-1]))
             item_cl = Clan()
             item_cl.sgton(item)
-            new_cl_list = [ item_cl  ] + list( 
-                         self[pos_visib] for col in visib_dict if col > -1 
-                                         for pos_visib in visib_dict[col]
-                         ) + list(
-                         spl_cl for pos_no_visib in visib_dict[-1]
-                                for spl_cl in self[pos_no_visib].split(item, graph)
-                         )
+# Sept 19th
+            # ~ new_cl_list = [ item_cl  ] + list( 
+                         # ~ self[pos_visib] for col in visib_dict if col > -1 
+                                         # ~ for pos_visib in visib_dict[col]
+                         # ~ ) + list(
+                         # ~ spl_cl for pos_no_visib in visib_dict[-1]
+                                # ~ for spl_cl in self[pos_no_visib].split(item, graph)
+                         # ~ )
             # caveat: WRONG, must group them into clans according to how item sees them
+# Sept 20th
+# updates the visib dict instead - THAT SEEMS NOW WRONG
+            self.split(item, graph, visib_dict)
+            # ~ new_cl_list = [ item_cl  ] + list( 
+# ~ Clan( visib_dict[color]
+                            # ~ for color in visib_dict if color > -1 # maybe guard unnecessary
+                         # ~ )
+            # ~ new_cl_list = [ item_cl  ] + list( 
+                         # ~ cl for color in visib_dict
+                            # ~ for cl in visib_dict[color] if color > -1 # maybe guard unnecessary
+                         # ~ )
+
             print(' ... contents of current clan:')
             for e in new_cl_list:
                 print('    ', e)
             return Clan(new_cl_list, -1)
-            # ~ return Clan( [ item_cl  ] + list( 
-                         # ~ self[pos_visib] for col in visib_dict if col > -1 
-                                         # ~ for pos_visib in visib_dict[col]
-                         # ~ ) + self.split(item, graph), -1) # -1 marks as primitive
 
 
 
 
-
-        
-        
         print('Unhandled case', visib_dict, self.color, somecolor) # at end, should not happen
 
         # ~ # Alternative approach, starts by calling colorlists.
