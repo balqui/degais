@@ -19,12 +19,13 @@ if __name__ == "__main__":
     # Handle the input
     # ~ filename = "e7"
     # ~ filename = "e4a"
-    filename = "e4b"
+    # ~ filename = "e4b"
     # ~ filename = "e6a"
     # ~ filename = "e6"
-    # ~ filename = "e8b"
+    # ~ filename = "e8a"
     # ~ filename = "e7r"
     # ~ filename = "e7alt"
+    filename = "ex_dec_0.td"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
@@ -70,8 +71,8 @@ if __name__ == "__main__":
     # ~ 'SurvivedYes', 'Class_3rd', 'Sex_Female', 'Class_1st', 
     # ~ 'Class_2nd', 'Age_Child']
     # ~ items = ['Class_1st', 'Class_Crew', 'Class_3rd', 'Class_2nd',
-    # ~ 'Age_Adult' ] #, 'Sex_Male', 'Survived_No',
-    # 'Survived_Yes', 'Sex_Female', 'Age_Child'] 4Classes and Adult good for t coloring
+    # ~ 'Age_Adult', 'Sex_Male', 'Survived_No',
+    # ~ 'Survived_Yes', 'Sex_Female', 'Age_Child'] # 4Classes and Adult good for t coloring
 
     print(items)
 
@@ -84,8 +85,7 @@ if __name__ == "__main__":
     dt = DecTree(g)
     rootname = dt.store_clan(root)
 
-    # Add all items to the decomposition tree
-    # ~ root = Clan()
+    # Add each item in turn to the decomposition tree
     for it in items[1:]:
         print(" ... adding", it, "to", rootname)
         item_cl = Clan()
@@ -99,6 +99,8 @@ if __name__ == "__main__":
     print(root)
     print(g)
     print(dt.visib)
+    for name in dt:
+        print(name, dt[name])
     # ~ g.to_dot("tt")
 
     # Convert the decomposition tree into a GV graph for drawing

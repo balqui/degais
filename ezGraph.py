@@ -22,10 +22,10 @@ from auxfun import delbl, q
 from bisect import bisect, insort
 
 # keeps multiplicities as labels
-# ~ from binning import ident as coloring 
+from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
-from binning import binary as coloring 
+# ~ from binning import binary as coloring 
 
 # labels manually decided for Titanic
 # ~ from binning import t as coloring 
@@ -101,13 +101,13 @@ class EZGraph(ddict):
         print(sorted(self[u][v] for u in self for v in self[u])) # to see Titanic labels
         return r
 
-    def has(self, item):
-        '''
-        Search among dict keys unreliable due to edges only from min to max.
-        Bisect for binary search on items.
-        '''
-        pos = bisect(self.items, item)
-        return pos > 0 and self.items[pos - 1] == item
+    # ~ def has(self, item):
+        # ~ '''
+        # ~ Search among dict keys unreliable due to edges only from min to max.
+        # ~ Bisect for binary search on items.
+        # ~ '''
+        # ~ pos = bisect(self.items, item)
+        # ~ return pos > 0 and self.items[pos - 1] == item
 
     # ~ def new_node(self, u):
         # ~ '''
@@ -147,12 +147,19 @@ class EZGraph(ddict):
             # ~ insort(self.items, v)
         # ~ self[u][v] = label
 
+    # ~ def edge_label(self, u, v):
+        # ~ '''
+        # ~ '''
+        # ~ p, q = min(u, v), max(u, v)
+        # ~ return self[p][q]
+
     def new_edge(self, u, v, label, src = ''):
         '''
-        Employed only on data items; avoid usage on visibility 
-        graphs where vertices are not anymore items but clan names.
+        Items in self.items might be data items or clan names.
+        Avoid setting labels directly on the dict as that
+        may lead to missing items.
         '''
-        print(' ... ... ... new edge on data items:', u, v, label, src)
+        print(' ... ... ... new edge:', u, v, label, src)
         if u not in self.items:
             insort(self.items, u)
         if v not in self.items:
