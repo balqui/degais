@@ -28,13 +28,12 @@ class Clan(list):
     and then the info gets added to the shared graph.
     '''
 
-    # ~ visib = EZGraph()
+    visib = EZGraph()
 
     def __init__(self, elems = [], color = -1):
         '''
         As elems is traversed repeatedly and can be an iterator,
         need to materialize first.
-        Asterisk chosen for being smaller than any letter or digit.
         '''
         elems = list(elems) 
         super().__init__(self)
@@ -58,44 +57,44 @@ class Clan(list):
         self.is_sgton = True
         print(' ... sgton name:', self.name, item)
 
-    # ~ def how_seen(self, item, graph):
-        # ~ '''
-        # ~ Graph color with which the clan is seen from item,
-        # ~ if any; -1 otherwise, signals not visible.
-        # ~ Color found is stored as a new edge of the graph.
-        # ~ PENDING: check first on local visib graph before 
-        # ~ deepening, just in case.
-        # ~ Caveat: Seems to work now, refactor when sure.
-        # ~ Caveat: Maybe instead of item it should be any clan... ?
-        # ~ '''
-        # ~ if self.is_sgton:
-            # ~ p, q = min(item, self[0]), max(item, self[0])
-            # ~ print(' ... ... seen', self, p, q, graph[p][q])
-            # ~ return graph[p][q]
+    def how_seen(self, item, graph):
+        '''
+        Graph color with which the clan is seen from item,
+        if any; -1 otherwise, signals not visible.
+        Color found is stored as a new edge of the graph.
+        PENDING: check first on local visib graph before 
+        deepening, just in case.
+        Caveat: Seems to work now, refactor when sure.
+        Caveat: Maybe instead of item it should be any clan... ?
+        '''
+        if self.is_sgton:
+            p, q = min(item, self[0]), max(item, self[0])
+            print(' ... ... seen', self, p, q, graph[p][q])
+            return graph[p][q]
 
-        # ~ # test whether already found out earlier, -2 if not
-        # ~ guess = self.visib[self.name][item] - 2 
-        # ~ v = ddict(int)
-        # ~ for subclan in self:
-            # ~ v[subclan.how_seen(item, graph)] += 1
-        # ~ if -1 in v or len(v) > 1:
-            # ~ print(' ... ... not seen', self, item, -1, list(v.keys()))
-            # ~ self.visib.new_edge(self.name, item, 1, 'how_seen_not_seen')
-            # ~ if guess not in [-2, -1]:
-                # ~ print(' ... ... repeated and wrong', item, self.name, -1, guess)
-            # ~ if guess == -1:
-                # ~ print(' ... ... repeated', item, self.name, -1, guess)
-            # ~ return -1
-        # ~ else:
-            # ~ for c in v:
-                # ~ 'loop grabs the single element'
-                # ~ if guess not in [-2, c]:
-                    # ~ print(' ... ... repeated and wrong', item, self.name, c, guess)
-                # ~ if guess == c:
-                    # ~ print(' ... ... repeated', item, self.name, c, guess)
-                # ~ print(' ... ... seen', self, item, c)
-                # ~ self.visib.new_edge(self.name, item, c + 2, 'how_seen_seen')
-                # ~ return c
+        # test whether already found out earlier, -2 if not
+        guess = self.visib[self.name][item] - 2 
+        v = ddict(int)
+        for subclan in self:
+            v[subclan.how_seen(item, graph)] += 1
+        if -1 in v or len(v) > 1:
+            print(' ... ... not seen', self, item, -1, list(v.keys()))
+            self.visib.new_edge(self.name, item, 1, 'how_seen_not_seen')
+            if guess not in [-2, -1]:
+                print(' ... ... repeated and wrong', item, self.name, -1, guess)
+            if guess == -1:
+                print(' ... ... repeated', item, self.name, -1, guess)
+            return -1
+        else:
+            for c in v:
+                'loop grabs the single element'
+                if guess not in [-2, c]:
+                    print(' ... ... repeated and wrong', item, self.name, c, guess)
+                if guess == c:
+                    print(' ... ... repeated', item, self.name, c, guess)
+                print(' ... ... seen', self, item, c)
+                self.visib.new_edge(self.name, item, c + 2, 'how_seen_seen')
+                return c
 
     def sibling(self, item, graph):
         '''
