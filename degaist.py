@@ -1,5 +1,6 @@
 from ezGraph import EZGraph
 from clans import Clan
+from dectree import DecTree
 from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
@@ -17,7 +18,8 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    filename = "e4a"
+    # ~ filename = "e4a"
+    filename = "e4b"
     # ~ filename = "e6a"
     # ~ filename = "e6"
     # ~ filename = "e8b"
@@ -77,20 +79,26 @@ if __name__ == "__main__":
     assert len(items) > 0
     root = Clan()
     root.sgton(items[0])
-    print(root)
+    print("root:", root)
+    
+    dt = DecTree(g)
+    rootname = dt.store_clan(root)
 
     # Add all items to the decomposition tree
     # ~ root = Clan()
     for it in items[1:]:
-        print(" ... adding", it, "to", root)
-        root = root.add(it, g)
+        print(" ... adding", it, "to", rootname)
+        item_cl = Clan()
+        item_cl.sgton(it)
+        item_cl_name = dt.store_clan(item_cl)
+        root = root.add(item_cl, dt)
         print(" ... added", it, "and the current root of color", root.color, "is:")
         for e in root:
             print('    ', e)
 
     print(root)
     print(g)
-    print(root.visib)
+    print(dt.visib)
     # ~ g.to_dot("tt")
 
     # Convert the decomposition tree into a GV graph for drawing

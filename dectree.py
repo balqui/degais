@@ -6,7 +6,9 @@ class DecTree(dict):
     names as keys. Only part of them belong to the tree but the
     splitting may fish back in an older clan and we do not want
     to recreate it with all its visibility properties already
-    known.
+    known. This means that adding an item to a clan (like in case
+    1a of Clan.add() and such) requires making a duplicate then
+    updating it.
 
     This class keeps as well the visibility graph recording all
     colors between clan names.
@@ -16,14 +18,16 @@ class DecTree(dict):
     part of the current tree.
     '''
 
-    def __init__(self):
+    def __init__(self, graph):
         super().__init__(self)
         self.visib = EZGraph()
-        
+        self.graph = graph # the data/input Gaifman graph
+
     def store_clan(self, clan):
         self[clan.name] = clan
+        return clan.name
 
-    def how_seen(self, source, target, graph):
+    def how_seen(self, source, target):
         '''
         Color with which the target clan is seen from the 
         source clan, if any; colors are stored here under 
@@ -32,63 +36,39 @@ class DecTree(dict):
         visible from each other and, as EZGraph is a ddict 
         of Counter, 0 signals that we still don't have a 
         color recorded and must check the graph. 
-        If one is a 
         '''
-        p, q = min(source.name, target.name), max(source.name, target.name)
-        guess = self.visib[p][q] - 2 
-        print(' ... ... visibility guess', p, q, guess)
+        s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
+        guess = self.visib[s_nm][t_nm] - 2 
+        print(' ... ... visibility guess', s_nm, t_nm, guess)
         if guess > -2:
+            "otherwise, set it up correctly and only then return it"
             return guess
-        if len(source) < len(target):
-            "make sure target is not longer than source"
-            source, target = target, source_synopsis
-        if target.is_sgton:
-                "then source too, fall back into the graph"
-                self.visib[p][q] = graph[p][q]
+        if len(target) < len(source):
+            "make sure source is not longer than target"
+            source, target = target, source
+        if source.is_sgton:
+                '''
+                then target too, fall back into the graph, items to 
+                test are first and only elements of the singletons
+                '''
+                s_it, t_it = min(source[0], target[0]), max(source[0], target[0])
+                self.visib[s_nm][t_nm] = self.graph[s_it][t_it] + 2
         else:
-            "at least 2 subclans of target, traverse them"
+            "at least 2 subclans in source, traverse them"
             c = None
-            for subclan in target:
-                d = self.how_seen(source, subclan, graph)
-                # ~ if c is not None :
-                    # ~ c = d
-                # ~ elif c != d:
-                    # ~ "two different colors found, maybe one was -1"
-                    # ~ c = -1
-                    # ~ break            
-
-# ~ MUST THINK THAT OUT MORE CAREFULLY !!!
-
-
+            for subclan in source:
+                d = self.how_seen(subclan, target)
+                if c is None:
+                    "first color found, could be -1 or not"
+                    c = d
+                if c != d or d == -1:
+                    "two different colors found at some recursion depth"
+                    c = -1
+                    break
             if c == -1:
                 print(' ... ... not seen', source.name, target.name)
-            self.visib.new_edge(source, target, c) # PENDING TO HANDLE CORRECTLY
-            
-
-
-
-
-
-
-
-        if self.is_sgton:
-            p, q = min(item, self[0]), max(item, self[0])
-            return graph[p][q]
-
-        # test whether already found out earlier, -2 if not
-            if guess not in [-2, -1]:
-                print(' ... ... repeated and wrong', item, self.name, -1, guess)
-            if guess == -1:
-                print(' ... ... repeated', item, self.name, -1, guess)
-            return -1
-        else:
-            for c in v:
-                'loop grabs the single element'
-                if guess not in [-2, c]:
-                    print(' ... ... repeated and wrong', item, self.name, c, guess)
-                if guess == c:
-                    print(' ... ... repeated', item, self.name, c, guess)
-                print(' ... ... seen', self, item, c)
-                self.visib.new_edge(self.name, item, c + 2, 'how_seen_seen')
-                return c
+            else:
+                print(' ... ... seen', source.name, target.name, c)
+            self.visib[s_nm][t_nm] = c + 2
+        return self.visib[s_nm][t_nm] - 2
 

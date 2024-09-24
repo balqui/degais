@@ -10,7 +10,7 @@ far more complications than preparing it from scratch.
 Pending: smarter iterator on .td file to handle comments and such.
 
 Items must not start with an asterisk and must not contain SEP
-which defaults to '-'.
+which defaults to '-'. Caveat: THESE CONDITIONS MUST CHANGE.
 '''
 
 VERSION = "0.0 alpha"
@@ -22,10 +22,10 @@ from auxfun import delbl, q
 from bisect import bisect, insort
 
 # keeps multiplicities as labels
-from binning import ident as coloring 
+# ~ from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
-# ~ from binning import binary as coloring 
+from binning import binary as coloring 
 
 # labels manually decided for Titanic
 # ~ from binning import t as coloring 
@@ -76,6 +76,7 @@ class EZGraph(ddict):
                           '(please change separator SEP in source code).')
                     exit()
                 if u.startswith('*'):
+                    "caveat: THIS NOT VALID ANYMORE, NEW CRITERION FOR CLAN NAMES!" 
                     print('Initial asterisk not valid in item', u)
                     exit()
                 for v in self.items:
@@ -83,7 +84,7 @@ class EZGraph(ddict):
                         self[u][v] = coloring(self[u][v])
 
     def __str__(self):
-        "Tuned for 1-digit colors, improve some day"
+        "Tuned for 1-digit colors, improve some day - also, make sure we can print the visibility graph as well"
         mxlen = 0
         for u in self.items:
             mxlen = max(mxlen, len(u))
@@ -148,14 +149,14 @@ class EZGraph(ddict):
 
     def new_edge(self, u, v, label, src = ''):
         '''
-        Employed only on visibility graphs.
-        No need to cater for adding isolated vertices. (????????)
+        Employed only on data items; avoid usage on visibility 
+        graphs where vertices are not anymore items but clan names.
         '''
-        print(' ... ... ... new edge CALLED but not sure it was correctly done:', u, v, label, src)
-        # ~ if u not in self.items:
-            # ~ insort(self.items, u)
-        # ~ if v not in self.items:
-            # ~ insort(self.items, v)
+        print(' ... ... ... new edge on data items:', u, v, label, src)
+        if u not in self.items:
+            insort(self.items, u)
+        if v not in self.items:
+            insort(self.items, v)
         self[u][v] = label
 
     def to_dot(self, filename = None):
