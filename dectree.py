@@ -1,4 +1,5 @@
 from ezGraph import EZGraph
+import gv
 
 class DecTree(dict):
     '''
@@ -80,3 +81,14 @@ class DecTree(dict):
             self.visib.new_edge(s_nm, t_nm, c + 2)
         return self.visib[s_nm][t_nm] - 2
 
+
+    def draw(self, root, name):
+        gvgraph = gv.strictdigraph(name) # a graph handle
+        self._add_clan(gvgraph, root)
+        ok = gv.layout(gvgraph, "dot")
+        if not ok:
+            print("Layout failed.")
+            exit()
+        ok = gv.render(gvgraph, "dot", name + ".gv")
+        if not ok:
+            print("Render failed.")
