@@ -1,5 +1,5 @@
 from ezGraph import EZGraph
-import gv
+import gv # official Python bindings to Graphviz, apt install python3-gv
 
 class DecTree(dict):
     '''
@@ -17,12 +17,22 @@ class DecTree(dict):
     A separate variable will be recording the current root at
     all times. Only clans reachable from there are actually 
     part of the current tree.
+
+    Caveat: palette as originally designed by Ely, must be 
+    reconsidered at some point.
     '''
 
     def __init__(self, graph):
         super().__init__(self)
         self.visib = EZGraph()
         self.graph = graph # the data/input Gaifman graph
+        self.palette = ('white', 'black', 'blue', 'blueviolet',
+                        'brown', 'burlywood', 'cadetblue', 
+                        'chartreuse', 'coral', 'crimson', 'cyan',
+                        'darkorange', 'deeppink', 'deepskyblue', 
+                        'forestgreen', 'gold', 'greenyellow',
+                        'hotpink', 'orangered', 'pink', 'red',
+                        'seagreen', 'yellow') # original color sequence by Ely
 
     def store_clan(self, clan):
         "caveat: it may be there already, consistently or not"
@@ -82,13 +92,81 @@ class DecTree(dict):
         return self.visib[s_nm][t_nm] - 2
 
 
+    def _add_clan(self, gvgraph, clan, is_root = False):
+        '''
+        Add the whole subtree below that clan to the Graphviz graph,
+        return the node handle for the point that represents the clan.
+        Caveat: flattening applied to complete clans of color 0,
+        this should depend on whether that color is to be left undrawn, 
+        not yet decided how to find out that. Affects self.palette[0].
+        Must add a big clan node or singleton plus a stand-in.
+        '''
+        print(" +++ Adding clan:", clan)
+        print(" +++ Currently in graph:")
+        sss = gv.firstsubg(gvgraph)
+        while gv.ok(sss):
+            print(" +++", gv.nameof(sss))
+            sss = gv.nextsubg(gvgraph, sss)
+        if clan.is_sgton:
+            headnode = gv.node(gvgraph, clan[0])
+        else:
+            "gather back the subtree points"
+            the_nodes = list()
+            for subclan in clan:
+                "one of them (e.g. first) taken to receive the edge head"
+                the_nodes.append(self._add_clan(gvgraph, subclan))
+            headnode = the_nodes[0]
+            clus_contents = zip(clan, the_nodes)
+            print(" +++ In clus_contents, zip of:")
+            print(" +++ +++", list(cl.name for cl in clan))
+            print(" +++ +++", list(gv.nameof(cl) for cl in the_nodes))
+            for left in clus_contents:
+                for right in clus_contents:
+                    "Set up edges"
+                    if left[0].name < right[0].name:
+                        ed = gv.edge(left[1], right[1])
+                        _ = gv.setv(ed, "arrowhead", "none")
+                        _ = gv.setv(ed, "penwidth", "2.0") # double thickness
+                        _ = gv.setv(ed, "color", 
+                            self.palette[self.how_seen(left[0], right[0])])
+            the_subgraph = gv.graph(gvgraph, "C_" + clan.name)
+            _ = gv.setv(the_subgraph, "cluster", "true")
+            if len(clan) <= 2 or clan.color == 0:
+                "flatten the cluster"
+                _ = gv.setv(the_subgraph, "rank", "same")
+                print(" +++ Flattened", clan)
+        stand_in = None
+        if not is_root:
+            stand_in = gv.node(gvgraph, 'PT_' + clan.name)
+            _ = gv.setv(stand_in, "shape", "point")
+            local_edge = gv.edge(stand_in, headnode)
+            _ = gv.setv(local_edge, "arrowhead", "none")
+            _ = gv.setv(local_edge, "penwidth", "1.3") # slightly thicker
+            if not clan.is_sgton:
+                _ = gv.setv(local_edge, "lhead", gv.nameof(the_subgraph))
+        return stand_in
+
+
     def draw(self, root, name):
         gvgraph = gv.strictdigraph(name) # a graph handle
-        self._add_clan(gvgraph, root)
+        gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
+        _ = self._add_clan(gvgraph, root, is_root = True)
+        ok = gv.write(gvgraph, name + "_PRE_layout.gv")
+        print("First write answer:", ok)
         ok = gv.layout(gvgraph, "dot")
-        if not ok:
-            print("Layout failed.")
-            exit()
+        print("Layout answer:", ok)
+        ok = gv.write(gvgraph, name + "_POST_layout.gv")
+        print("Second write answer:", ok)
         ok = gv.render(gvgraph, "dot", name + ".gv")
-        if not ok:
-            print("Render failed.")
+        print("Render answer:", ok)
+        # ~ ok = gv.write(gvgraph, "dot")
+        # ~ if not ok:
+            # ~ print("Layout failed.")
+            # ~ exit()
+        # ~ ok = gv.layout(gvgraph, "dot")
+        # ~ if not ok:
+            # ~ print("Layout failed.")
+            # ~ exit()
+        # ~ ok = gv.render(gvgraph, "dot", name + ".gv")
+        # ~ if not ok:
+            # ~ print("Render failed.")
