@@ -111,37 +111,48 @@ class DecTree(dict):
             headnode = gv.node(gvgraph, clan[0])
         else:
             "gather back the subtree points"
-            the_subgraph = gv.graph(gvgraph, "C_" + clan.name)
+            the_subgraph = gv.graph(gvgraph, "CL_" + clan.name)
             the_nodes = list()
-            for subclan in clan:
-                "one of them (e.g. first) taken to receive the edge head"
+            sortedclans = list()
+            for subclan in sorted(clan, key = len, reverse = True):
                 the_nodes.append(self._add_clan(gvgraph, subclan))
-            headnode = the_nodes[0]
-            clus_contents = zip(clan, the_nodes)
-            print(" +++ In clus_contents, zip of:")
-            print(" +++ +++", list(cl.name for cl in clan))
-            print(" +++ +++", list(gv.nameof(cl) for cl in the_nodes))
+                sortedclans.append(subclan)
+            if clan.color == 0:
+                "will be flattened, aim at near middle"
+                headnode = the_nodes[len(clan) // 2]
+            else:
+                "aim at the alpha-earliest, which will be on top"
+                posmin = min(range(len(sortedclans)), key = lambda pos: sortedclans[pos].name)
+                headnode = the_nodes[posmin]
+                print(" +++ +++ +++ headnode:", gv.nameof(the_nodes[posmin]), "among", clan)
+            clus_contents = list(zip(sortedclans, the_nodes))
             _ = gv.setv(the_subgraph, "cluster", "true")
             for node in the_nodes:
-                _ = gv.node(the_subgraph, node)
+                _ = gv.node(the_subgraph, gv.nameof(node))
             for left in clus_contents:
+                "had to be materialized in order to do double traversal"
+                print(" +++ +++ +++ left:", left[0].name)
                 for right in clus_contents:
                     "Set up edges"
+                    print(" +++ +++ +++ +++ right:", right[0].name)
                     if left[0].name < right[0].name:
+                        print(" +++ +++ +++ +++ edge!")
                         ed = gv.edge(left[1], right[1])
                         _ = gv.setv(ed, "arrowhead", "none")
                         _ = gv.setv(ed, "penwidth", "2.0") # double thickness
                         _ = gv.setv(ed, "color", 
                             self.palette[self.how_seen(left[0], right[0])])
             if len(clan) <= 2 or clan.color == 0:
-                "flatten the cluster"
+                "flatten the cluster - having a hard time to make it work"
                 _ = gv.setv(the_subgraph, "rank", "same")
-                print(" +++ Flattened", clan)
+                print(" +++ Flattened", clan.color, len(clan), clan, gv.getv(the_subgraph, "rank"))
+            else:
+                print(" +++ +++ Not flattened:", clan.color, len(clan), clan)
         stand_in = None
         if not is_root:
             stand_in = gv.node(gvgraph, 'PT_' + clan.name)
             _ = gv.setv(stand_in, "shape", "point")
-            local_edge = gv.edge(stand_in, headnode)
+            local_edge = gv.edge(stand_in, headnode) # try to have the cluster as head
             _ = gv.setv(local_edge, "arrowhead", "none")
             _ = gv.setv(local_edge, "penwidth", "1.3") # slightly thicker
             if not clan.is_sgton:
@@ -152,23 +163,24 @@ class DecTree(dict):
     def draw(self, root, name):
         gvgraph = gv.strictdigraph(name) # a graph handle
         gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
+        gv.setv(gvgraph, "newrank", "true") # o/w rank=same in flattening doesn't work
         _ = self._add_clan(gvgraph, root, is_root = True)
-        ok = gv.write(gvgraph, name + "_PRE_layout.gv")
-        print("First write answer:", ok)
-        ok = gv.layout(gvgraph, "dot")
-        print("Layout answer:", ok)
-        ok = gv.write(gvgraph, name + "_POST_layout.gv")
-        print("Second write answer:", ok)
-        ok = gv.render(gvgraph, "dot", name + ".gv")
-        print("Render answer:", ok)
-        # ~ ok = gv.write(gvgraph, "dot")
-        # ~ if not ok:
-            # ~ print("Layout failed.")
-            # ~ exit()
+        # ~ ok = gv.write(gvgraph, name + "_PRE_layout.gv")
+        # ~ print("First write answer:", ok)
         # ~ ok = gv.layout(gvgraph, "dot")
-        # ~ if not ok:
-            # ~ print("Layout failed.")
-            # ~ exit()
+        # ~ print("Layout answer:", ok)
+        # ~ ok = gv.write(gvgraph, name + "_POST_layout.gv")
+        # ~ print("Second write answer:", ok)
         # ~ ok = gv.render(gvgraph, "dot", name + ".gv")
+        # ~ print("Render answer:", ok)
+        # ~ ok = gv.write(gvgraph, name + "_PRE.gv")
         # ~ if not ok:
-            # ~ print("Render failed.")
+            # ~ print("Write failed:", name + "_PRE.gv")
+            # ~ exit()
+        ok = gv.layout(gvgraph, "dot")
+        if not ok:
+            print("Layout failed for", name)
+            exit()
+        ok = gv.render(gvgraph, "dot", name + ".gv")
+        if not ok:
+            print("Render failed for", name + ".gv")

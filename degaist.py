@@ -18,13 +18,13 @@ if __name__ == "__main__":
 
     # Handle the input
     # ~ filename = "e7"
-    filename = "e4a"
+    # ~ filename = "e7r"
+    filename = "e7alt"
+    # ~ filename = "e4a"
     # ~ filename = "e4b"
     # ~ filename = "e6a"
     # ~ filename = "e6"
     # ~ filename = "e8a"
-    # ~ filename = "e7r"
-    # ~ filename = "e7alt"
     # ~ filename = "ex_dec_0.td"
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
