@@ -119,7 +119,7 @@ class DecTree(dict):
                 sortedclans.append(subclan)
             if clan.color == 0:
                 "will be flattened, aim at near middle"
-                headnode = the_nodes[len(clan) // 2]
+                headnode = the_nodes[(len(clan)+1) // 2]
             else:
                 "aim at the alpha-earliest, which will be on top"
                 posmin = min(range(len(sortedclans)), key = lambda pos: sortedclans[pos].name)
