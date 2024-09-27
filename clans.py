@@ -285,7 +285,7 @@ class Clan(list):
                     new_cls.append(a_cl)
                 # else potential empty list added in the test of 1a, to be ignored
             new_cls.append(item_cl)
-            res_cl = Clan(new_cls, -1)
+            res_cl = Clan(new_cls, -1) # caveat: I BELIEVE THIS -1 IS WRONG
             dt.store_clan(res_cl)
             return res_cl
 
