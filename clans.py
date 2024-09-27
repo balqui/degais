@@ -285,7 +285,7 @@ class Clan(list):
                     new_cls.append(a_cl)
                 # else potential empty list added in the test of 1a, to be ignored
             new_cls.append(item_cl)
-            res_cl = Clan(new_cls, -1) # caveat: I BELIEVE THIS -1 IS WRONG
+            res_cl = Clan(new_cls, -1)
             dt.store_clan(res_cl)
             return res_cl
 
@@ -316,7 +316,7 @@ class Clan(list):
                 if col == -1:
                     "must split"
                     for pos_no_visib in visib_dict[col]:
-                        new_cls.extend(self[pos_no_visib].split(item, dt))
+                        new_cls.extend(self[pos_no_visib].split(item_cl, dt))
                 elif visib_dict[col]:
                     "just get the clans as they are"
                     for pos_visib in visib_dict[col]:
