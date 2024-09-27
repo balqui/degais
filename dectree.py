@@ -111,6 +111,7 @@ class DecTree(dict):
             headnode = gv.node(gvgraph, clan[0])
         else:
             "gather back the subtree points"
+            the_subgraph = gv.graph(gvgraph, "C_" + clan.name)
             the_nodes = list()
             for subclan in clan:
                 "one of them (e.g. first) taken to receive the edge head"
@@ -120,6 +121,9 @@ class DecTree(dict):
             print(" +++ In clus_contents, zip of:")
             print(" +++ +++", list(cl.name for cl in clan))
             print(" +++ +++", list(gv.nameof(cl) for cl in the_nodes))
+            _ = gv.setv(the_subgraph, "cluster", "true")
+            for node in the_nodes:
+                _ = gv.node(the_subgraph, node)
             for left in clus_contents:
                 for right in clus_contents:
                     "Set up edges"
@@ -129,8 +133,6 @@ class DecTree(dict):
                         _ = gv.setv(ed, "penwidth", "2.0") # double thickness
                         _ = gv.setv(ed, "color", 
                             self.palette[self.how_seen(left[0], right[0])])
-            the_subgraph = gv.graph(gvgraph, "C_" + clan.name)
-            _ = gv.setv(the_subgraph, "cluster", "true")
             if len(clan) <= 2 or clan.color == 0:
                 "flatten the cluster"
                 _ = gv.setv(the_subgraph, "rank", "same")
