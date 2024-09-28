@@ -86,10 +86,10 @@ if __name__ == "__main__":
 
     # Add each item in turn to the decomposition tree
     for it in items[1:]:
-        print(" ... adding", it, "to", rootname)
-        item_cl = Clan()
-        item_cl.sgton(it)
-        item_cl_name = dt.store_clan(item_cl)
+        print(" ... adding", it, "to", root.name)
+        item_cl = Clan(dt)
+        item_cl.sgton(it, dt)
+        # ~ item_cl_name = dt.store_clan(item_cl)
         root = root.add(item_cl, dt)
         print(" ... added", it, "and the current root of color", root.color, "is:")
         for e in root:

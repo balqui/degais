@@ -43,20 +43,20 @@ class Clan(list):
         Names are immutable surrogates of clans for use in dicts like
         dt and its visibility graph.
         '''
-        elems = sorted(elems) 
+        print(" ... ... Creating clan with: |", elems, "|")
+        elems = sorted(elems, key = lambda e: e.name) 
         super().__init__(self)
         self.name = '(' + SEP.join( e.name for e in elems ) + ')' # might be empty
         self.color = color
         self.is_sgton = False
         if self.name in dt:
             self = dt[self.name]
-            print(" ... avoided repeating", self.name)
+            print(" ... avoided repeating", self.name, self)
         elif elems:
             "don't store empty nor repeated clans"
             self.extend(elems) # list.extend does not depend on overriden append
             dt.store_clan(self)
         print(" ... created", self.name, "of color", color)
-
 
 
     def __str__(self):
@@ -74,10 +74,11 @@ class Clan(list):
     def sgton(self, item, dt):
         'Creates a singleton clan out of an empty one'
         assert len(self) == 0
-        self.append(item, dt)
+        self.extend([item]) # list's append just overridden
         self.name = '*' + delbl(item) # remove maybe the asterisk?
         self.is_sgton = True
-        print(' ... sgton name:', self.name, item)
+        nm = dt.store_clan(self)
+        print(' ... sgton name:', self.name, nm, item)
 
     # ~ def how_seen(self, item, graph):
         # ~ '''
@@ -219,19 +220,20 @@ class Clan(list):
             Careful: the test might add self.color to the keys of 
             visib_dict even if it is with an empty list as value.
             '''
-            print(' ... 1a', self, item_cl)
+            print(' ... 1a', self, item_cl, "APPENDING")
             self.append(item_cl, dt) 
+            print(' ...   ', self, "APPENDED")
             # ~ new_cl = Clan(self + [item_cl], self.color)
             # ~ print(' ... results in', new_cl)
             # ~ dt.store_clan(new_cl)
-            return self # probably unnecessary
+            return self # necessary (why?) DOES NOT REALLY WORK, SHOULD WORK WITHOUT BUT DOESNOT
 
         if self.color > -1 and 0 < len(visib_dict[self.color]): # < len(self) o/w 1a
             '''
             Case 1b: some, but not all, seen as self.color, then clan
             reduces to these, recursive call on new clan with the rest.
             '''
-            print(' ... 1b')
+            print(' ... 1b', self, item_cl)
 
             # current solution: self is left alone, two new clans are created instead
             rest_pos = list(set(range(len(self))).difference(visib_dict[self.color]))
@@ -242,9 +244,10 @@ class Clan(list):
             else:
                 cl_rest = Clan(dt, (self[pos] for pos in rest_pos), self.color)
                 # ~ dt.store_clan(cl_rest)
-            cl_rest = cl_rest.add(item_cl, dt) # recursive call
-            cl_same_c = Clan(dt, (self[pos] for pos in visib_dict[self.color]) + [ cl_rest ], 
-                             self.color) # caveat: not sure that this will work
+            cl_rest = cl_rest.add(item_cl, dt) # recursive call # NEXT STEP FAILS BADLY
+            print("LIST SENT:", list(self[pos] for pos in visib_dict[self.color]) + [ cl_rest ])
+            cl_same_c = Clan(dt, list(self[pos] for pos in visib_dict[self.color]) + [ cl_rest ], 
+                             self.color)
             dt.visib.new_edge(cl_same_c.name, item_cl.name, self.color + 2, '1b')
             # ~ cl_same_c.append(cl_rest)
             # ~ dt.store_clan(cl_same_c)
