@@ -77,12 +77,12 @@ if __name__ == "__main__":
 
     # Initialize the decomposition tree
     assert len(items) > 0
-    root = Clan()
-    root.sgton(items[0])
+    dt = DecTree(g)
+    root = Clan(dt)
+    root.sgton(items[0], dt)
     print("root:", root)
     
-    dt = DecTree(g)
-    rootname = dt.store_clan(root)
+    # ~ rootname = dt.store_clan(root)
 
     # Add each item in turn to the decomposition tree
     for it in items[1:]:

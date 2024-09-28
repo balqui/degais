@@ -12,7 +12,8 @@ class DecTree(dict):
     then updating it. Caveat: worth it?
 
     This class keeps as well the visibility graph recording all
-    colors between clan names.
+    colors between clan names and includes the method that calls
+    GraphViz to create the image.
 
     A separate variable will be recording the current root at
     all times. Only clans reachable from there are actually 
