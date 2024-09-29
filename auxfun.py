@@ -23,6 +23,8 @@ def grab_one(something):
 	(probably there is some standard way to do this);
 	if empty will return None
 	Hopefully not necessary anymore since clans maintain prototypes.
+	But not anymore, they don't maintain prototypes anymore. 
+	Do we need it?
 	'''
 	for e in something:
 		return e

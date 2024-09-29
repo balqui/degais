@@ -22,13 +22,13 @@ from auxfun import delbl, q
 from bisect import bisect, insort
 
 # keeps multiplicities as labels
-# ~ from binning import ident as coloring 
+from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
 # ~ from binning import binary as coloring 
 
 # labels manually decided for Titanic
-from binning import t as coloring 
+# ~ from binning import t as coloring 
 
 SEP = '-' # constant to make up clan names, forbidden in items
 

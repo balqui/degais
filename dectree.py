@@ -1,15 +1,17 @@
-from ezGraph import EZGraph
+from auxfun import delbl
+from ezGraph import EZGraph, SEP
+from clans import Clan
 import gv # official Python bindings to Graphviz, apt install python3-gv
 
 class DecTree(dict):
     '''
-    The dict keeps all the clans that get created along, with their
-    names as keys. Only part of them belong to the tree but the
-    splitting may fish back in an older clan and we do not want
-    to recreate it with all its visibility properties already
-    known. The price is that adding an item to a clan in case 1a 
-    of Clan.add() requires making a duplicate, then updating it. 
-    Right now we pay this price. Caveat: worth it?
+    The dict keeps a clan pool with all the clans that get created 
+    along, with their names as keys. Only part of them belong to the 
+    tree. Splitting may fish back in an older clan: now we don't need
+    to recreate it with all its visibility properties already known. 
+    The price is that adding an item to a clan in case 1a of Clan.add() 
+    requires making a duplicate, then updating it. Right now we pay 
+    this price. Caveat: worth it?
 
     This class keeps as well the visibility graph recording all
     colors between clan names and includes the method that calls
@@ -17,7 +19,8 @@ class DecTree(dict):
 
     A separate variable will be recording the current root at
     all times. Only clans reachable from there are actually 
-    part of the current tree.
+    part of the current tree. Of course this class acts as well
+    as a Clan factory to create new, non-repeated ones.
 
     Caveat: palette as originally designed by Ely, must be 
     reconsidered at some point.
@@ -35,8 +38,44 @@ class DecTree(dict):
                         'hotpink', 'orangered', 'pink', 'red',
                         'seagreen', 'yellow') # original color sequence by Ely
 
+    def clan(self, elems, color = -1):
+        '''
+        Only place where non-singleton clans are created.
+        Return a nonempty, nonsingleton clan out of the pool if already
+        exists in it, or a freshly constructed one.
+        Names are immutable surrogates of clans for use in dicts like
+        dt and its visibility graph. Parentheses chosen for names 
+        due to being smaller than any letter or digit.
+        Possibly elems is any iterable, materialized at sorting.
+        '''
+        elems = sorted(elems, key = lambda e: e.name) # always a list
+        assert len(elems) > 1
+        name = '(' + SEP.join( e.name for e in elems ) + ')' # might be empty
+        print(" ... Clan", name, end = ' ')
+        if name in self:
+            print("found.")
+            return self[name]
+        cl = Clan(name, elems, color)
+        print("constructed.")
+        self[name] = cl
+        return cl
+
+
+    def sgton(self, item):
+        '''
+        Only place where singleton clans are created.
+        Return a singleton clan out of the pool if already
+        exists in it, or a freshly constructed one.
+        '''
+        name = delbl(item) # used to precede with an asterisk, maybe not necessary
+        cl = Clan(name, [ item ])
+        cl.is_sgton = True
+        self[name] = cl
+        return cl
+
+
     def store_clan(self, clan):
-        "caveat: it may be there already, consistently or not"
+        "caveat: it may be there already, consistently or not - CAN WE GET RID OF THIS METHOD?"
         if clan.name in self:
             print(" +++ WARNING: repeated clan name", clan.name, "changed from", self[clan.name], "to", clan) 
         self[clan.name] = clan
@@ -186,3 +225,6 @@ class DecTree(dict):
         ok = gv.render(gvgraph, "dot", name + ".gv")
         if not ok:
             print("Render failed for", name + ".gv")
+            exit()
+        print("Wrote", name + ".gv")
+

@@ -15,6 +15,7 @@ if __name__ == "__main__":
     
     # ~ color = binary # Standard graph-theoretic module decomposition
                        # This issue moved to EZGraph import as coloring
+                       # Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
     # Handle the input
     # ~ filename = "e7"
@@ -23,10 +24,10 @@ if __name__ == "__main__":
     # ~ filename = "e4a"
     # ~ filename = "e4b"
     # ~ filename = "e6a"
-    # ~ filename = "e6"
+    filename = "e6"
     # ~ filename = "e8a"
     # ~ filename = "ex_dec_0.td"
-    filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
+    # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser
     # ~ argp = ArgumentParser(
@@ -61,7 +62,8 @@ if __name__ == "__main__":
     # ~ g, items = read_graph_in(fullfilename)
     g = EZGraph(fullfilename)
     print(g)
-    items = list(reversed(g.items))
+    items = g.items
+    # ~ items = list(reversed(g.items))
     # ~ items = list('abcde') # 'abcdef'
 
 # Titanic nodes in order of edge weight, computed separately, 
@@ -78,8 +80,7 @@ if __name__ == "__main__":
     # Initialize the decomposition tree
     assert len(items) > 0
     dt = DecTree(g)
-    root = Clan(dt)
-    root.sgton(items[0], dt)
+    root = dt.sgton(items[0])
     print("root:", root)
     
     # ~ rootname = dt.store_clan(root)
@@ -87,8 +88,7 @@ if __name__ == "__main__":
     # Add each item in turn to the decomposition tree
     for it in items[1:]:
         print(" ... adding", it, "to", root.name)
-        item_cl = Clan(dt)
-        item_cl.sgton(it, dt)
+        item_cl = dt.sgton(it)
         # ~ item_cl_name = dt.store_clan(item_cl)
         root = root.add(item_cl, dt)
         print(" ... added", it, "and the current root of color", root.color, "is:")
