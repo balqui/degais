@@ -18,15 +18,15 @@ if __name__ == "__main__":
                        # Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
     # Handle the input
-    # ~ filename = "e7"
-    # ~ filename = "e7r"
-    # ~ filename = "e7alt"
-    # ~ filename = "e4a"
-    # ~ filename = "e4b"
-    # ~ filename = "e6a"
-    filename = "e6"
-    # ~ filename = "e8a"
-    # ~ filename = "ex_dec_0.td"
+    # ~ filename = "e4a" # binary: ok, ident: ok
+    # ~ filename = "e4b" # binary = ident: ok
+    # ~ filename = "e6" # binary: ok, ident: ok
+    # ~ filename = "e6a" # binary: ok, ident: ok
+    # ~ filename = "e7" # binary: ok, ident: ok
+    # ~ filename = "e7r" # binary: ok, ident: ok
+    # ~ filename = "e7alt" # binary: ok, ident: ok
+    # ~ filename = "e8a" # binary: ok, ident: ok
+    filename = "ex_dec_0" # ident: ok, binary: redecomp incomplete, unavailable
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser

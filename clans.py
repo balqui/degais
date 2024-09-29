@@ -215,11 +215,12 @@ class Clan(list):
         '''
         if self.is_sgton:
             '''
-            second item, new root with both;
-            identical to 1a except that the call to _color_lists
-            may cause trouble and is necessary before 1a: THINK MORE
+            Second item, new root with both; could be merged with
+            other cases below, but these other cases do need the 
+            call to _color_lists, which gets unnecessarily complicated
+            if it has to work for singletons yielding empty dicts.
             '''
-            print(' ... ... second item', item_cl, 'for', self)
+            # print(' ... ... second item', item_cl, 'for', self)
             return dt.clan([self, item_cl], dt.how_seen(self, item_cl))
             # ~ dt.store_clan(new_cl)
 
@@ -228,11 +229,6 @@ class Clan(list):
         # They contain POSITIONS of the clan list, not the subclans proper:
         # reason is to profit from set difference in case 1b
         visib_dict, somecolor = self._color_lists(item_cl, dt)
-
-        if somecolor == -2:
-            "caveat: this case untested so far where all to be split"
-            print("AT", self, "WITH", item_cl, "NO DIFFERENT COLOR WAS AVAILABLE, SEE WHAT TO DO")
-            exit()
 
         # ~ if visib_dict[-1]:
             # ~ print(" ...", ','.join(self[cl].name for cl in visib_dict[-1]), 
