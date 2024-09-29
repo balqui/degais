@@ -4,11 +4,9 @@ from collections import Counter, defaultdict as ddict
 
 class Clan(list):
     '''
-    CAVEAT: MUST RE-READ AND UPDATE ALL COMMENTS AND DOCSTRINGS
-    AFTER THE REFACTORING OF THE CLAN NAMES.
     A clan is a list plus a name and a singleton flag.
     Clan names start always with an asterisk '*'.
-    (Caveat: THAT MUST CHANGE.)
+    (Caveat: THAT MAY CHANGE.)
     In nonsigleton clans, the list contains subclans.
 
     (They could be alternatively sets. I set up a GitHub issue
@@ -43,20 +41,21 @@ class Clan(list):
         Names are immutable surrogates of clans for use in dicts like
         dt and its visibility graph.
         '''
-        print(" ... ... Creating clan with: |", elems, "|")
+        # print(" ... ... Creating clan with: |", elems, "|")
         elems = sorted(elems, key = lambda e: e.name) 
         super().__init__(self)
         self.name = '(' + SEP.join( e.name for e in elems ) + ')' # might be empty
         self.color = color
         self.is_sgton = False
         if self.name in dt:
+            "caveat: THIS CASE DOES NOT WORK"
+            print(" ... WARNING: avoided repeating", self.name, self, dt[self.name])
             self = dt[self.name]
-            print(" ... avoided repeating", self.name, self)
         elif elems:
             "don't store empty nor repeated clans"
-            self.extend(elems) # list.extend does not depend on overriden append
+            self.extend(elems) 
             dt.store_clan(self)
-        print(" ... created", self.name, "of color", color)
+        # print(" ... created", self.name, "of color", color)
 
 
     def __str__(self):
@@ -66,19 +65,21 @@ class Clan(list):
             + "; color:" + str(self.color) + " :]")
 
 
-    def append(self, cl, dt):
-        "overrides list's, creates new larger clan with own name"
-        self = Clan(dt, self + [ cl ], self.color)
+    # ~ def append(self, cl, dt):
+        # ~ "overrides list's, creates new larger clan with own name"
+        # ~ self = Clan(dt, self + [ cl ], self.color)
+    # FINALLY DECIDED AGAINST THE OVERRIDING
 
 
     def sgton(self, item, dt):
         'Creates a singleton clan out of an empty one'
         assert len(self) == 0
-        self.extend([item]) # list's append just overridden
+        self.append(item)
         self.name = '*' + delbl(item) # remove maybe the asterisk?
         self.is_sgton = True
         nm = dt.store_clan(self)
-        print(' ... sgton name:', self.name, nm, item)
+        # print(' ... sgton name:', self.name, nm, item)
+
 
     # ~ def how_seen(self, item, graph):
         # ~ '''
@@ -125,24 +126,24 @@ class Clan(list):
         very same way as item_cl, return it if found, don't return o/w.
         Caveat: THIS IS A SOURCE OF QUADRATIC COST.
         '''
-        print(" --- pursuing a sibling to", item_cl, "in", self)
+        # print(" --- pursuing a sibling to", item_cl, "in", self)
         for pos_cand, cand_sib in enumerate(self):
-            print(" --- candidate", cand_sib, "in position", pos_cand)
+            # print(" --- candidate", cand_sib, "in position", pos_cand)
             for other in range(len(self)):
                 if other != pos_cand:
                     col_ext = dt.how_seen(self[other], item_cl)
                     col_int = dt.how_seen(self[other], cand_sib)
-                    print(" --- from", self[other], "to", item_cl, col_ext)
-                    print(" --- from", self[other], "to", cand_sib, col_int)
+                    # print(" --- from", self[other], "to", item_cl, col_ext)
+                    # print(" --- from", self[other], "to", cand_sib, col_int)
                     if col_ext != col_int:
                         "cand not a sibling"
-                        print(" --- not", cand_sib, "due to", self[other], col_int, col_ext)
+                        # print(" --- not", cand_sib, "due to", self[other], col_int, col_ext)
                         break
             else:
                 "if this never happens, no return is like returning None"
-                print(" --- found sibling", cand_sib, "in position", pos_cand)
+                # print(" --- found sibling", cand_sib, "in position", pos_cand)
                 return pos_cand
-        print(" --- no sibling found")
+        # print(" --- no sibling found")
 
 # Need to call from split AND from self.add where we need 
 # lists of POSITIONS so we do it that way.
@@ -169,7 +170,7 @@ class Clan(list):
         k: recursion depth for report-printing, remove some day
         Older pairs clan+color now changed into single clan positions
         '''
-        print(" ---"*k, "splitting", self.name, "of color", self.color, "from", item_cl.name)
+        # print(" ---"*k, "splitting", self.name, "of color", self.color, "from", item_cl.name)
         v, _ = self._color_lists(item_cl, dt)
         out_clans = list()
         for color in v:
@@ -179,15 +180,15 @@ class Clan(list):
                 if len(v[color]) == 1 or self.color == -1:
                     "the primitive case works this way"
                     out_clans.extend(self[pos_vis] for pos_vis in v[color]) 
-                    print(" ---"*k, "output includes", list(self[pos_vis].name for pos_vis in v[color]))
+                    # print(" ---"*k, "output includes", list(self[pos_vis].name for pos_vis in v[color]))
                 else:
                     out_clans.append(Clan(dt, (self[cl] for cl in v[color]), self.color))
                     # ~ dt.store_clan(r)
         # and now split the rest, nonvisible subclans
-        print(" ---"*k, "pending calls on:", ' '.join(self[cl].name for cl in v[-1]))
+        # print(" ---"*k, "pending calls on:", ' '.join(self[cl].name for cl in v[-1]))
         out_clans.extend( cl for pos_not_v in v[-1]
                              for cl in self[pos_not_v].split(item_cl, dt, k + 1) )
-        print(" ---"*k, "answer is:", out_clans)
+        # print(" ---"*k, "answer is:", out_clans)
         return out_clans
 
     def add(self, item_cl, dt):
@@ -200,18 +201,18 @@ class Clan(list):
         '''
         if self.is_sgton:
             'second item, new root with both - caveat: maybe particular case of some other case below?'
-            print(' ... ... second item', item_cl, 'for', self)
+            # print(' ... ... second item', item_cl, 'for', self)
             return Clan(dt, [self, item_cl], dt.how_seen(self, item_cl))
             # ~ dt.store_clan(new_cl)
 
-        # Set up subclan visibility lists, by colors, -1 for not visible subclans.
+        # Call _color_lists to set up subclan visibility lists, by colors, 
+        # -1 for not visible subclans.
         # They contain POSITIONS of the clan list, not the subclans proper:
         # reason is to profit from set difference in case 1b
-        # Sept 20th: call new _color_lists instead
         visib_dict, somecolor = self._color_lists(item_cl, dt)
-        if visib_dict[-1]:
-            print(" ...", ','.join(self[cl].name for cl in visib_dict[-1]), 
-                  "not seen from", item_cl, "at", self.name)
+        # ~ if visib_dict[-1]:
+            # ~ print(" ...", ','.join(self[cl].name for cl in visib_dict[-1]), 
+                  # ~ "not seen from", item_cl, "at", self.name)
 
         # Case analysis, selfc > -1 iff complete clan
         if self.color > -1 and len(self) == len(visib_dict[self.color]):
@@ -220,32 +221,31 @@ class Clan(list):
             Careful: the test might add self.color to the keys of 
             visib_dict even if it is with an empty list as value.
             '''
-            print(' ... 1a', self, item_cl, "APPENDING")
-            self.append(item_cl, dt) 
-            print(' ...   ', self, "APPENDED")
+            print(' ... 1a', self, item_cl)
+            return Clan(dt, self + [ item_cl ], dt.how_seen(self, item_cl))
             # ~ new_cl = Clan(self + [item_cl], self.color)
             # ~ print(' ... results in', new_cl)
             # ~ dt.store_clan(new_cl)
-            return self # necessary (why?) DOES NOT REALLY WORK, SHOULD WORK WITHOUT BUT DOESNOT
+            # ~ return self # necessary (why?) DOES NOT REALLY WORK, SHOULD WORK WITHOUT BUT DOESNOT
 
         if self.color > -1 and 0 < len(visib_dict[self.color]): # < len(self) o/w 1a
             '''
             Case 1b: some, but not all, seen as self.color, then clan
             reduces to these, recursive call on new clan with the rest.
+            Caveat: the current handling of the dt makes this case fail.
             '''
             print(' ... 1b', self, item_cl)
 
             # current solution: self is left alone, two new clans are created instead
             rest_pos = list(set(range(len(self))).difference(visib_dict[self.color]))
-            print(' ... same color:', list(self[pos].name for pos in visib_dict[self.color]))
-            print(' ... rest:', list(self[pos].name for pos in rest_pos))
+            # print(' ... same color:', list(self[pos].name for pos in visib_dict[self.color]))
+            # print(' ... rest:', list(self[pos].name for pos in rest_pos))
             if len(rest_pos) == 1:
                 cl_rest = self[rest_pos[0]]
             else:
                 cl_rest = Clan(dt, (self[pos] for pos in rest_pos), self.color)
                 # ~ dt.store_clan(cl_rest)
-            cl_rest = cl_rest.add(item_cl, dt) # recursive call # NEXT STEP FAILS BADLY
-            print("LIST SENT:", list(self[pos] for pos in visib_dict[self.color]) + [ cl_rest ])
+            cl_rest = cl_rest.add(item_cl, dt) # recursive call
             cl_same_c = Clan(dt, list(self[pos] for pos in visib_dict[self.color]) + [ cl_rest ], 
                              self.color)
             dt.visib.new_edge(cl_same_c.name, item_cl.name, self.color + 2, '1b')
@@ -266,9 +266,9 @@ class Clan(list):
             Covers 2b as well when self is primitive.
             '''
             if self.color == -1:
-                print(' ... 2b', item_cl, somecolor, visib_dict[somecolor], len(self))
+                print(' ... 2b', self, item_cl) # , somecolor, visib_dict[somecolor], len(self))
             else:
-                print(' ... 1c', item_cl, somecolor, visib_dict[somecolor], len(self))
+                print(' ... 1c', self, item_cl) # , somecolor, visib_dict[somecolor], len(self))
             dt.visib.new_edge(self.name, item_cl.name, somecolor + 2, '1c/2b')
             new_cl = Clan(dt, [self, item_cl], somecolor)
             # ~ dt.store_clan(new_cl)
@@ -280,11 +280,11 @@ class Clan(list):
             either some are nonvisible, maybe all, 
             or at least 2 different colors present.
             '''
-            print(' ... 1d')
-            print(' ... must split:', list(self[pos].name for pos in visib_dict[-1]))
+            print(' ... 1d', self, item_cl, end = ' ')
+            print('must split:', list(self[pos].name for pos in visib_dict[-1]))
             # ~ new_cls = [ item_cl ]
             new_cls = list()
-            print(" ... traverse visib_dict:", visib_dict) 
+            # print(" ... traverse visib_dict:", visib_dict) 
             for col in visib_dict:
                 if col == -1:
                     "must split"
@@ -309,7 +309,7 @@ class Clan(list):
             Case 2a: self is primitive and a sibling is found 
             that sees everyone else in self in the same way as item.
             '''
-            print(' ... 2a, sibling is', self[pos_sibl], "in position", pos_sibl)
+            print(' ... 2a', self, item_cl, 'sibling is', self[pos_sibl]) # , "in position", pos_sibl)
             added_cl = self[pos_sibl].add(item_cl, dt)
             # ~ dt.store_clan(added_cl) # clans returned from add are all stored
             new_cl = Clan(dt, [added_cl] + list(self[i] for i in range(len(self)) if i != pos_sibl), -1)
@@ -323,10 +323,10 @@ class Clan(list):
             All previous conditions failing must imply somehow that 
             after the splits we keep having a single primitive clan: THINK.
             '''
-            print(' ... 2c')
-            print(' ... must split:', list(self[pos].name for pos in visib_dict[-1]))
+            print(' ... 2c', self, item_cl, end = ' ')
+            print('must split:', list(self[pos].name for pos in visib_dict[-1]))
             new_cls = [ item_cl ]
-            print(" ... traverse visib_dict:", visib_dict) 
+            # print(" ... traverse visib_dict:", visib_dict) 
             for col in visib_dict:
                 if col == -1:
                     "must split"
@@ -341,4 +341,4 @@ class Clan(list):
             # ~ dt.store_clan(res_cl)
             return res_cl
 
-        print('Unhandled case', visib_dict, self.color, somecolor) # this should never happen
+        print('WARNING: unhandled case', self, item_cl, visib_dict, self.color, somecolor) # this should never happen

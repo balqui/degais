@@ -9,8 +9,8 @@ far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
 
-Items must not start with an asterisk and must not contain SEP
-which defaults to '-'. Caveat: THESE CONDITIONS MUST CHANGE.
+As of today, items must not start with an asterisk and must not contain SEP
+which defaults to '-'. Caveat: these conditions may change.
 '''
 
 VERSION = "0.0 alpha"
@@ -25,28 +25,31 @@ from bisect import bisect, insort
 # ~ from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
-from binning import binary as coloring 
+# ~ from binning import binary as coloring 
 
 # labels manually decided for Titanic
-# ~ from binning import t as coloring 
+from binning import t as coloring 
 
 SEP = '-' # constant to make up clan names, forbidden in items
 
 class EZGraph(ddict):
     '''
     Nodes are strings. A graph is a dict of counters: maps node u 
-    to g[u] which is a Counter of edges: g[u][v] gives how many 
-    occurrences we find of the pair (u, v) in a transaction or, 
-    alternatively, the outcome of an optional binning strategy 
-    (called coloring and probably imported from a binning package)
-    on that quantity. The values g[u][v] are called colors or labels. 
-    
+    to g[u] which is a Counter of edges: in the case of the Gaifman
+    structure on the input dataset, g[u][v] tells how many transactions
+    include some occurrence of the pair (u, v) or, alternatively, the 
+    outcome of an optional binning strategy (called coloring and for 
+    now imported from a binning package) on that quantity. 
+    The values g[u][v] are then called colors or labels. 
+    Another instance stores the visibility graph of the decomposition
+    tree: how each clan sees each other as we have found up to that point.
+
     As undirected graphs without self-loops, g[u][v] only exists if u < v.
 
     Contains as well the sorted list of items (strings in the nodes).
 
     Alpha chars in filename used as graph name for exporting 
-    into DOT format.
+    later into DOT format.
     '''
 
     def __init__(self, filename = None):
@@ -76,7 +79,7 @@ class EZGraph(ddict):
                           '(please change separator SEP in source code).')
                     exit()
                 if u.startswith('*'):
-                    "caveat: THIS NOT VALID ANYMORE, NEW CRITERION FOR CLAN NAMES!" 
+                    "caveat: THIS TO BE REVISED UNDER NEW CRITERION FOR CLAN NAMES!" 
                     print('Initial asterisk not valid in item', u)
                     exit()
                 for v in self.items:
@@ -84,7 +87,7 @@ class EZGraph(ddict):
                         self[u][v] = coloring(self[u][v])
 
     def __str__(self):
-        "Tuned for 1-digit colors, improve some day - also, make sure we can print the visibility graph as well"
+        "Tuned for 1-digit colors, short names and few nodes; caveat: improve some day"
         mxlen = 0
         for u in self.items:
             mxlen = max(mxlen, len(u))
@@ -98,7 +101,7 @@ class EZGraph(ddict):
                 else: 
                     r += ' ' * (mxlen + 1)
             r += '\n'
-        print(sorted(self[u][v] for u in self for v in self[u])) # to see Titanic labels
+        # print(sorted(self[u][v] for u in self for v in self[u])) 
         return r
 
     # ~ def has(self, item):
@@ -156,10 +159,8 @@ class EZGraph(ddict):
     def new_edge(self, u, v, label, src = ''):
         '''
         Items in self.items might be data items or clan names.
-        Avoid setting labels directly on the dict as that
-        may lead to missing items.
         '''
-        print(' ... ... ... new edge:', u, v, label, src)
+        # print(' ... ... ... new edge:', u, v, label, src)
         if u not in self.items:
             insort(self.items, u)
         if v not in self.items:

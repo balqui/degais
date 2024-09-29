@@ -7,13 +7,13 @@ class DecTree(dict):
     names as keys. Only part of them belong to the tree but the
     splitting may fish back in an older clan and we do not want
     to recreate it with all its visibility properties already
-    known. The price is that adding an item to a clan (like in 
-    case 1a of Clan.add() and such) requires making a duplicate, 
-    then updating it. Caveat: worth it?
+    known. The price is that adding an item to a clan in case 1a 
+    of Clan.add() requires making a duplicate, then updating it. 
+    Right now we pay this price. Caveat: worth it?
 
     This class keeps as well the visibility graph recording all
     colors between clan names and includes the method that calls
-    GraphViz to create the image.
+    GraphViz to create the image file.
 
     A separate variable will be recording the current root at
     all times. Only clans reachable from there are actually 
@@ -38,7 +38,7 @@ class DecTree(dict):
     def store_clan(self, clan):
         "caveat: it may be there already, consistently or not"
         if clan.name in self:
-            print(" +++ WARNING: clan name", clan.name, "changed from", self[clan.name], "to", clan) 
+            print(" +++ WARNING: repeated clan name", clan.name, "changed from", self[clan.name], "to", clan) 
         self[clan.name] = clan
         return clan.name
 
@@ -54,14 +54,14 @@ class DecTree(dict):
         noise confined to this particular function but a bit
         left in add().
         '''
-        print(' ... ... how seen', source, target, source.is_sgton, target.is_sgton)
+        # print(' ... ... how seen', source, target, source.is_sgton, target.is_sgton)
         s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
         guess = self.visib[s_nm][t_nm] - 2 
-        print(' ... ... visibility guess', s_nm, t_nm, guess)
+        # print(' ... ... visibility guess', s_nm, t_nm, guess)
         if guess > -2:
             "otherwise, set it up correctly and only then return it"
+            # print('avoid repeated color computation', source, target, len(source), len(target))
             return guess
-        # print(' ... ... will swap?', source, target, len(source), len(target))
         if len(source) < len(target):
             "make sure source is not longer than target"
             source, target = target, source
@@ -85,10 +85,10 @@ class DecTree(dict):
                     "two different colors found at some recursion depth"
                     c = -1
                     break
-            if c == -1:
-                print(' ... ... not seen', source.name, target.name)
-            else:
-                print(' ... ... seen', source.name, target.name, c)
+            # ~ if c == -1:
+                # ~ print(' ... ... not seen', source.name, target.name)
+            # ~ else:
+                # ~ print(' ... ... seen', source.name, target.name, c)
             self.visib.new_edge(s_nm, t_nm, c + 2)
         return self.visib[s_nm][t_nm] - 2
 
@@ -97,17 +97,18 @@ class DecTree(dict):
         '''
         Add the whole subtree below that clan to the Graphviz graph,
         return the node handle for the point that represents the clan.
+        Thus, both a big clan node or a singleton plus a point-shaped 
+        stand-in are to be added.
         Caveat: flattening applied to complete clans of color 0,
         this should depend on whether that color is to be left undrawn, 
         not yet decided how to find out that. Affects self.palette[0].
-        Must add a big clan node or singleton plus a stand-in.
         '''
-        print(" +++ Adding clan:", clan)
-        print(" +++ Currently in graph:")
-        sss = gv.firstsubg(gvgraph)
-        while gv.ok(sss):
-            print(" +++", gv.nameof(sss))
-            sss = gv.nextsubg(gvgraph, sss)
+        # ~ print(" +++ Adding clan:", clan)
+        # ~ print(" +++ Currently in graph:")
+        # ~ sss = gv.firstsubg(gvgraph)
+        # ~ while gv.ok(sss):
+            # ~ print(" +++", gv.nameof(sss))
+            # ~ sss = gv.nextsubg(gvgraph, sss)
         if clan.is_sgton:
             headnode = gv.node(gvgraph, clan[0])
         else:
@@ -119,36 +120,36 @@ class DecTree(dict):
                 the_nodes.append(self._add_clan(gvgraph, subclan))
                 sortedclans.append(subclan)
             if clan.color == 0:
-                "will be flattened, aim at near middle"
+                "will be flattened, aim at near middle, caveat: THINK"
                 headnode = the_nodes[(len(clan)+1) // 2]
             else:
                 "aim at the alpha-earliest, which will be on top"
                 posmin = min(range(len(sortedclans)), key = lambda pos: sortedclans[pos].name)
                 headnode = the_nodes[posmin]
-                print(" +++ +++ +++ headnode:", gv.nameof(the_nodes[posmin]), "among", clan)
+                # print(" +++ +++ +++ headnode:", gv.nameof(the_nodes[posmin]), "among", clan)
             clus_contents = list(zip(sortedclans, the_nodes))
             _ = gv.setv(the_subgraph, "cluster", "true")
             for node in the_nodes:
                 _ = gv.node(the_subgraph, gv.nameof(node))
             for left in clus_contents:
                 "had to be materialized in order to do double traversal"
-                print(" +++ +++ +++ left:", left[0].name)
+                # print(" +++ +++ +++ left:", left[0].name)
                 for right in clus_contents:
                     "Set up edges"
-                    print(" +++ +++ +++ +++ right:", right[0].name)
+                    # print(" +++ +++ +++ +++ right:", right[0].name)
                     if left[0].name < right[0].name:
-                        print(" +++ +++ +++ +++ edge!")
+                        # print(" +++ +++ +++ +++ edge!")
                         ed = gv.edge(left[1], right[1])
                         _ = gv.setv(ed, "arrowhead", "none")
                         _ = gv.setv(ed, "penwidth", "2.0") # double thickness
                         _ = gv.setv(ed, "color", 
                             self.palette[self.how_seen(left[0], right[0])])
             if len(clan) <= 2 or clan.color == 0:
-                "flatten the cluster - having a hard time to make it work"
+                "flatten the cluster - caveat: some more flattening cases should be added"
                 _ = gv.setv(the_subgraph, "rank", "same")
-                print(" +++ Flattened", clan.color, len(clan), clan, gv.getv(the_subgraph, "rank"))
-            else:
-                print(" +++ +++ Not flattened:", clan.color, len(clan), clan)
+                # ~ print(" +++ Flattened", clan.color, len(clan), clan, gv.getv(the_subgraph, "rank"))
+            # ~ else:
+                # ~ print(" +++ +++ Not flattened:", clan.color, len(clan), clan)
         stand_in = None
         if not is_root:
             stand_in = gv.node(gvgraph, 'PT_' + clan.name)

@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # ~ g, items = read_graph_in(fullfilename)
     g = EZGraph(fullfilename)
     print(g)
-    items = g.items
+    items = list(reversed(g.items))
     # ~ items = list('abcde') # 'abcdef'
 
 # Titanic nodes in order of edge weight, computed separately, 
@@ -95,12 +95,12 @@ if __name__ == "__main__":
         for e in root:
             print('    ', e)
 
-    print(root)
-    print(g)
+    # ~ print(root)
+    # ~ print(g)
     print(dt.visib)
-    for name in dt:
-        print(name, dt[name])
+    # ~ for name in dt:
+        # ~ print(name, dt[name])
     # ~ g.to_dot("tt")
-    dt.draw(root, filename)
 
     # Convert the decomposition tree into a GV graph for drawing
+    dt.draw(root, filename)
