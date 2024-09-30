@@ -18,7 +18,7 @@ binary = lambda x: int(x > 0)
     # ~ return 1
     # marks that few children overall, and that few people in 1st and 2nd class
 def t(x):
-    if x < 1000: return 0 
+    if x < 1000: return 0 # displays the Birkenhead Drill
     return 1
 
 # manually decided for Titanic on the basis of increase over 20% to next one
