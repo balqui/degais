@@ -217,8 +217,9 @@ class Clan(list):
             '''
             Second item, new root with both; could be merged with
             other cases below, but these other cases do need the 
-            call to _color_lists, which gets unnecessarily complicated
-            if it has to work for singletons yielding empty dicts.
+            call to _color_lists, which then has to work for 
+            singletons so we just change the place of the test
+            but don't simplify the code.
             '''
             # print(' ... ... second item', item_cl, 'for', self)
             return dt.clan([self, item_cl], dt.how_seen(self, item_cl))
