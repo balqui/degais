@@ -11,7 +11,7 @@ class DecTree(dict):
     to recreate it with all its visibility properties already known. 
     The price is that adding an item to a clan in case 1a of Clan.add() 
     requires making a duplicate, then updating it. Right now we pay 
-    this price. Caveat: worth it?
+    this price. Worth it? Maybe with profiling we can find out.
 
     This class keeps as well the visibility graph recording all
     colors between clan names and includes the method that calls
@@ -22,8 +22,8 @@ class DecTree(dict):
     part of the current tree. Of course this class acts as well
     as a Clan factory to create new, non-repeated ones.
 
-    Caveat: palette as originally designed by Ely, must be 
-    reconsidered at some point.
+    Palette as originally designed by Ely, must be reconsidered 
+    at some point.
     '''
 
     def __init__(self, graph):
@@ -74,12 +74,12 @@ class DecTree(dict):
         return cl
 
 
-    def store_clan(self, clan):
-        "caveat: it may be there already, consistently or not - CAN WE GET RID OF THIS METHOD?"
-        if clan.name in self:
-            print(" +++ WARNING: repeated clan name", clan.name, "changed from", self[clan.name], "to", clan) 
-        self[clan.name] = clan
-        return clan.name
+    # ~ def store_clan(self, clan):
+        # ~ "caveat: it may be there already, consistently or not - CAN WE GET RID OF THIS METHOD?"
+        # ~ if clan.name in self:
+            # ~ print(" +++ WARNING: repeated clan name", clan.name, "changed from", self[clan.name], "to", clan) 
+        # ~ self[clan.name] = clan
+        # ~ return clan.name
 
     def how_seen(self, source, target):
         '''

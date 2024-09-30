@@ -252,7 +252,6 @@ class Clan(list):
             '''
             Case 1b: some, but not all, seen as self.color, then clan
             reduces to these, recursive call on new clan with the rest.
-            Caveat: the current handling of the dt makes this case fail.
             '''
             print(' ... 1b', self, item_cl)
 
@@ -335,7 +334,7 @@ class Clan(list):
             new_cl = dt.clan( list(self[i] for i in range(len(self)) if i != pos_sibl) + [added_cl], -1)
             # ~ dt.store_clan(new_cl)
             return new_cl
-            # caveat: Alternative self[pos_sibl] = self[pos_sibl].add(item_cl, dt) but then not tracked
+            # Alternative self[pos_sibl] = self[pos_sibl].add(item_cl, dt) but then not tracked
 
         else:
             '''

@@ -5,8 +5,19 @@ from td2dot import read_graph_in
 from collections import defaultdict as ddict
 from itertools import combinations
 
-VERSION = "0.0 alpha"
+VERSION = "0.1 alpha"
 
+# Pending: remove dead code, follow up caveats, try to unify more cases,
+# improve __str__ of EZGraph, run with profiler, 
+# improve the docstrings, reconsider palette, set up as an application.
+# Profiler to assess relevance of quadratic cost in sibling among
+# the general exploration.
+# Later: 
+#   - Hide large primitive clans, abstract some sets of items into "others".
+#   - The Nejada task (maybe somebody has written a gateway from 
+#     graphviz to pygame?)
+#   - Flattening issues: is palette[0] not drawn, affects flattening
+#     of complete clans of color 0, paths could be flattened too.
 
 if __name__ == "__main__":
     '''
@@ -22,11 +33,11 @@ if __name__ == "__main__":
     # ~ filename = "e4b" # binary = ident: ok
     # ~ filename = "e6" # binary: ok, ident: ok
     # ~ filename = "e6a" # binary: ok, ident: ok
-    # ~ filename = "e7" # binary: ok, ident: ok
+    filename = "e7" # binary: ok, ident: ok
     # ~ filename = "e7r" # binary: ok, ident: ok
     # ~ filename = "e7alt" # binary: ok, ident: ok
     # ~ filename = "e8a" # binary: ok, ident: ok
-    filename = "ex_dec_0" # ident: ok, binary: redecomp incomplete, unavailable
+    # ~ filename = "ex_dec_0" # ident: ok, binary: redecomp incomplete, unavailable
     # ~ filename = "titanic_" # TO BE REPLACED BY ARGUMENT PARSING AS FOLLOWS
 
     # ~ from argparse import ArgumentParser

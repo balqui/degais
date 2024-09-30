@@ -13,10 +13,13 @@ binary = lambda x: int(x > 0)
 # ~ def t(x):
     # ~ if x < 23: return 0 # just forgets about the 6 children in 1st class
     # ~ return 1
+# ~ def t(x):
+    # ~ if x < 212: return 0 # there is a bend there hitting some exp-like
+    # ~ return 1
+    # marks that few children overall, and that few people in 1st and 2nd class
 def t(x):
-    if x < 212: return 0 # there is a bend there hitting some exp-like
+    if x < 1000: return 0 
     return 1
-# marks that few children overall, and that few people in 1st and 2nd class
 
 # manually decided for Titanic on the basis of increase over 20% to next one
 # ~ def t(x):

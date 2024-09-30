@@ -9,8 +9,8 @@ far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
 
-As of today, items must not start with an asterisk and must not contain SEP
-which defaults to '-'. Caveat: these conditions may change.
+As of recently, items must not start with an asterisk and must not contain SEP
+which defaults to '-'. Caveat: these conditions are a-changing.
 '''
 
 VERSION = "0.0 alpha"
