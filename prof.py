@@ -14,8 +14,9 @@ from itertools import combinations
 # ~ filename = "e7r" # binary: ok, ident: ok
 # ~ filename = "e7alt" # binary: ok, ident: ok
 # ~ filename = "e8a" # binary: ok, ident: ok
-filename = "ex_dec_0" # ident: ok, binary: redecomp incomplete, unavailable
+# ~ filename = "ex_dec_0" # ident: ok, binary: redecomp incomplete, unavailable
 # ~ filename = "titanic_" # 
+filename = "lenses" # 
 
 
 def run(filename):

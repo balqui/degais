@@ -9,11 +9,15 @@ far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
 
-As of recently, items must not start with an asterisk and must not contain SEP
-which defaults to '-'. Caveat: these conditions are a-changing.
+As of recently, items and must not contain SEP which defaults to '-',
+see https://github.com/balqui/degais/issues/3 about that. 
+
+
+
+Caveat: no constraint anymore that they must not start with an asterisk .
 '''
 
-VERSION = "0.0 alpha"
+# ~ VERSION = "0.0 alpha"
 
 # ~ from sys import exit
 from collections import Counter, defaultdict as ddict
@@ -21,14 +25,18 @@ from itertools import combinations
 from auxfun import delbl, q
 from bisect import bisect, insort
 
+# Not sure that this is the right place to handle the coloring
+
 # keeps multiplicities as labels
-from binning import ident as coloring 
+# ~ from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
-# ~ from binning import binary as coloring 
+from binning import binary as coloring 
 
 # labels manually decided for Titanic
 # ~ from binning import t as coloring 
+
+# Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
 SEP = '-' # constant to make up clan names, forbidden in items
 
@@ -39,12 +47,12 @@ class EZGraph(ddict):
     structure on the input dataset, g[u][v] tells how many transactions
     include some occurrence of the pair (u, v) or, alternatively, the 
     outcome of an optional binning strategy (called coloring and for 
-    now imported from a binning package) on that quantity. 
-    The values g[u][v] are then called colors or labels. 
-    Another instance stores the visibility graph of the decomposition
-    tree: how each clan sees each other as we have found up to that point.
+    now imported from a binning package) on that quantity. The values 
+    g[u][v] are then called colors or labels. Another instance stores 
+    the visibility graph of the decomposition tree: how each clan sees 
+    each other as we have found up to that point.
 
-    As undirected graphs without self-loops, g[u][v] only exists if u < v.
+    As undirected graphs without self-loops, g[u][v] only kept for u<v.
 
     Contains as well the sorted list of items (strings in the nodes).
 
@@ -54,9 +62,10 @@ class EZGraph(ddict):
 
     def __init__(self, filename = None):
         '''
-        The filename must be a .td file containing only transactions:
-        comments and other variations not supported yet;
-        initializes colored Gaifman graph and adds to it sorted list of items.
+        The filename must be a .td file containing only transactions,
+        but see https://github.com/balqui/degais/issues/12 about it;
+        initializes colored Gaifman graph and adds to it the sorted 
+        list of items.
         '''
         super().__init__(Counter)
         if filename is None:
@@ -78,10 +87,10 @@ class EZGraph(ddict):
                     print(q(SEP), 'not valid in item', u, 
                           '(please change separator SEP in source code).')
                     exit()
-                if u.startswith('*'):
-                    "caveat: THIS TO BE REVISED UNDER NEW CRITERION FOR CLAN NAMES!" 
-                    print('Initial asterisk not valid in item', u)
-                    exit()
+                # ~ if u.startswith('*'):
+                    # ~ "caveat: did we remove this constraint definitely?" 
+                    # ~ print('Initial asterisk not valid in item', u)
+                    # ~ exit()
                 for v in self.items:
                     if u < v:
                         self[u][v] = coloring(self[u][v])

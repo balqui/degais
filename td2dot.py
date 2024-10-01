@@ -8,7 +8,7 @@ Construct labeled Gaifman graph of a transactional dataset.
 
 Able to produce either DOT output on stdout for the Gaifman graph
 or an AGraph from pygraphviz that we are no longer using (see
-the labgaif repository if necessary).
+the labgaif earlier repository if necessary).
 
 Pending: smarter iterator on .td file to handle comments and such
 

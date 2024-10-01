@@ -9,9 +9,8 @@ class DecTree(dict):
     along, with their names as keys. Only part of them belong to the 
     tree. Splitting may fish back in an older clan: now we don't need
     to recreate it with all its visibility properties already known. 
-    The price is that adding an item to a clan in case 1a of Clan.add() 
-    requires making a duplicate, then updating it. Right now we pay 
-    this price. Worth it? Maybe with profiling we can find out.
+    Thus, this class acts as a Clan factory to create new ones when
+    non-repeated.
 
     This class keeps as well the visibility graph recording all
     colors between clan names and includes the method that calls
@@ -19,11 +18,15 @@ class DecTree(dict):
 
     A separate variable will be recording the current root at
     all times. Only clans reachable from there are actually 
-    part of the current tree. Of course this class acts as well
-    as a Clan factory to create new, non-repeated ones.
+    part of the current tree. 
 
     Palette as originally designed by Ely, must be reconsidered 
     at some point.
+
+    In the self.visib EZGraph, clan names get added as vertices to 
+    record their visibility. As zero is a valid color of the input 
+    graph but here zero means no information, and -1 represents 
+    "not visible", colors are coded by adding 2 to the value instead. 
     '''
 
     def __init__(self, graph):
@@ -41,22 +44,20 @@ class DecTree(dict):
     def clan(self, elems, color = -1):
         '''
         Only place where non-singleton clans are created.
-        Return a nonempty, nonsingleton clan out of the pool if already
-        exists in it, or a freshly constructed one.
-        Names are immutable surrogates of clans for use in dicts like
-        dt and its visibility graph. Parentheses chosen for names 
-        due to being smaller than any letter or digit.
+        Returns the nonempty, nonsingleton clan out of the pool if 
+        the clan with these elements already exists in it, or a 
+        freshly constructed one otherwise. 
         Possibly elems is any iterable, materialized at sorting.
         '''
         elems = sorted(elems, key = lambda e: e.name) # always a list
         assert len(elems) > 1
         name = '(' + SEP.join( e.name for e in elems ) + ')' # might be empty
-        print(" ... Clan", name, end = ' ')
+        # print(" ... Clan", name, end = ' ')
         if name in self:
-            print("found.")
+            # print("found.")
             return self[name]
         cl = Clan(name, elems, color)
-        print("constructed.")
+        # print("constructed.")
         self[name] = cl
         return cl
 
@@ -67,7 +68,9 @@ class DecTree(dict):
         Return a singleton clan out of the pool if already
         exists in it, or a freshly constructed one.
         '''
-        name = delbl(item) # used to precede with an asterisk, maybe not necessary
+        name = delbl(item) 
+        if name in self:
+            return self[name]
         cl = Clan(name, [ item ])
         cl.is_sgton = True
         self[name] = cl
@@ -91,7 +94,7 @@ class DecTree(dict):
         of Counter, 0 signals that we still don't have a 
         color recorded and must check the graph. Most +2/-2 
         noise confined to this particular function but a bit
-        left in add().
+        left in Clan.add().
         '''
         # print(' ... ... how seen', source, target, source.is_sgton, target.is_sgton)
         s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
@@ -136,11 +139,10 @@ class DecTree(dict):
         '''
         Add the whole subtree below that clan to the Graphviz graph,
         return the node handle for the point that represents the clan.
-        Thus, both a big clan node or a singleton plus a point-shaped 
-        stand-in are to be added.
-        Caveat: flattening applied to complete clans of color 0,
-        this should depend on whether that color is to be left undrawn, 
-        not yet decided how to find out that. Affects self.palette[0].
+        Thus, both a big clan node or a singleton, plus a point-shaped 
+        stand-in, are to be added.
+        Caveat on flattening: 
+        see https://github.com/balqui/degais/issues/10
         '''
         # ~ print(" +++ Adding clan:", clan)
         # ~ print(" +++ Currently in graph:")
@@ -159,7 +161,7 @@ class DecTree(dict):
                 the_nodes.append(self._add_clan(gvgraph, subclan))
                 sortedclans.append(subclan)
             if clan.color == 0:
-                "will be flattened, aim at near middle, caveat: THINK"
+                "will be flattened, aim at near middle"
                 headnode = the_nodes[(len(clan)+1) // 2]
             else:
                 "aim at the alpha-earliest, which will be on top"
@@ -193,7 +195,7 @@ class DecTree(dict):
         if not is_root:
             stand_in = gv.node(gvgraph, 'PT_' + clan.name)
             _ = gv.setv(stand_in, "shape", "point")
-            local_edge = gv.edge(stand_in, headnode) # try to have the cluster as head
+            local_edge = gv.edge(stand_in, headnode) # cluster as head
             _ = gv.setv(local_edge, "arrowhead", "none")
             _ = gv.setv(local_edge, "penwidth", "1.3") # slightly thicker
             if not clan.is_sgton:
@@ -226,5 +228,4 @@ class DecTree(dict):
         if not ok:
             print("Render failed for", name + ".gv")
             exit()
-        print("Wrote", name + ".gv")
 
