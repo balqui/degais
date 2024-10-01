@@ -14,7 +14,13 @@ different manifestations from 2017 onwards. The present
 incarnation had its first few correct and complete runs
 by early Vendemiaire 2024.
 
-
+PUSH THIS WITH SIMPLIFIED CASES, THEN MOVE ON TO DELETING
+DEAD CODE AND CALL IT GAMMA, THEN SEE WHAT ELSE IS 
+NEEDED BEFORE SETTING UP AN APP AND GENERATING IT.
+MAYBE OPTIONAL OUTPUT MESSAGE AND CALL CLI COMMAND
+TO SHOW THE PNG. ALSO, TRY EVERYTHING ON VENV AT THE
+OFFICE MACHINE TO CHECK THE DEPENDENCIES. ALSO IT MAY
+BE THAT conda HAS EVERYTHING SET UP ALSO ON WINDOWS.
 '''
 
 from ezGraph import EZGraph
@@ -25,8 +31,6 @@ from collections import defaultdict as ddict
 from itertools import combinations
 
 VERSION = "0.1 beta"
-
-# Pending: remove dead code, set up as an application.
 
 def run():
     '''

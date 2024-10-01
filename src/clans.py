@@ -126,6 +126,8 @@ class Clan(list):
         '''
         Find among the clans in self one that sees all the rest in the
         very same way as item_cl, return it if found, don't return o/w.
+        If self is complete, all are siblings but we would have run case
+        1a before checking it out.
         Caveat: this is a potential source of quadratic cost.
         '''
         # print(" --- pursuing a sibling to", item_cl, "in", self)
@@ -279,37 +281,11 @@ class Clan(list):
             # ~ dt.store_clan(new_cl)
             return new_cl
 
-        if self.color > -1:
-            '''
-            case 1d: negations of previous conditions lead to:
-            either some are nonvisible, maybe all, 
-            or at least 2 different colors present.
-            '''
-            # ~ print(' ... 1d', self, item_cl, end = ' ')
-            # ~ print('must split:', list(self[pos].name for pos in visib_dict[-1]))
-            # ~ new_cls = [ item_cl ]
-            new_cls = list()
-            # print(" ... traverse visib_dict:", visib_dict) 
-            for col in visib_dict:
-                if col == -1:
-                    "must split"
-                    for pos_no_visib in visib_dict[col]:
-                        new_cls.extend(self[pos_no_visib].split(item_cl, dt))
-                elif len(visib_dict[col]) == 1:
-                    "just get the clan"
-                    new_cls.append(self[visib_dict[col][0]])
-                elif visib_dict[col]:
-                    "make a single clan with them all"
-                    a_cl = dt.clan( (self[pos_visib] for pos_visib in visib_dict[col]), self.color )
-                    # ~ dt.store_clan(a_cl)
-                    new_cls.append(a_cl)
-                # else potential empty list added in the test of 1a, to be ignored
-            new_cls.append(item_cl)
-            res_cl = dt.clan(new_cls, -1)
-            # ~ dt.store_clan(res_cl)
-            return res_cl
+        pos_sibl = None
+        if self.color == -1:
+            pos_sibl = self.sibling(item_cl, dt)
 
-        elif (pos_sibl := self.sibling(item_cl, dt)) is not None:
+        if pos_sibl is not None:
             '''
             Case 2a: self is primitive and a sibling is found 
             that sees everyone else in self in the same way as item.
@@ -322,28 +298,58 @@ class Clan(list):
             return new_cl
             # Alternative self[pos_sibl] = self[pos_sibl].add(item_cl, dt) but then not tracked
 
-        else:
-            '''
-            Case 2c: very similar to 1d, but simpler.
-            All previous conditions failing must imply somehow that 
-            after the splits we keep having a single primitive clan: THINK.
-            '''
+        # ~ if self.color > -1:
+        '''
+        If none of them, then cases 1d or 2c.
+        If complete, negations of previous conditions lead to:
+        either some are nonvisible, maybe all, 
+        or at least 2 different colors present.
+        '''
+        # ~ print(' ... 1d', self, item_cl, end = ' ')
+        # ~ print('must split:', list(self[pos].name for pos in visib_dict[-1]))
+        new_cls = [ item_cl ]
+        # print(" ... traverse visib_dict:", visib_dict) 
+        for col in visib_dict:
+            if col == -1:
+                "must split"
+                for pos_no_visib in visib_dict[col]:
+                    new_cls.extend(self[pos_no_visib].split(item_cl, dt))
+            elif (visib_dict[col] and 
+                 (len(visib_dict[col]) == 1 or self.color == -1)):
+                "just get the clans as they are, 2c or 1d with only one"
+                for pos_visib in visib_dict[col]:
+                    new_cls.append(self[pos_visib])
+            elif visib_dict[col]:
+                "1d, make a single clan with them all"
+                a_cl = dt.clan( (self[pos_visib] for pos_visib in visib_dict[col]), self.color )
+                # ~ dt.store_clan(a_cl)
+                new_cls.append(a_cl)
+            # else potential empty list added in the test of 1a, to be ignored
+        res_cl = dt.clan(new_cls, -1)
+        return res_cl
+
+# CASE 2c JOINED WITH 1d ABOVE, REMOVE THIS IN DUE TIME
+        # ~ else:
+            # ~ '''
+            # ~ Case 2c: very similar to 1d, but simpler.
+            # ~ All previous conditions failing must imply somehow that 
+            # ~ after the splits we keep having a single primitive clan: THINK.
+            # ~ '''
             # ~ print(' ... 2c', self, item_cl, end = ' ')
             # ~ print('must split:', list(self[pos].name for pos in visib_dict[-1]))
-            new_cls = [ item_cl ]
-            # print(" ... traverse visib_dict:", visib_dict) 
-            for col in visib_dict:
-                if col == -1:
-                    "must split"
-                    for pos_no_visib in visib_dict[col]:
-                        new_cls.extend(self[pos_no_visib].split(item_cl, dt))
-                elif visib_dict[col]:
-                    "just get the clans as they are"
-                    for pos_visib in visib_dict[col]:
-                        new_cls.append(self[pos_visib])
-                # else potential empty list added in the test of 1a, to be ignored
-            res_cl = dt.clan(new_cls, -1)
-            # ~ dt.store_clan(res_cl)
-            return res_cl
+            # ~ new_cls = [ item_cl ]
+            # ~ # print(" ... traverse visib_dict:", visib_dict) 
+            # ~ for col in visib_dict:
+                # ~ if col == -1:
+                    # ~ "must split"
+                    # ~ for pos_no_visib in visib_dict[col]:
+                        # ~ new_cls.extend(self[pos_no_visib].split(item_cl, dt))
+                # ~ elif visib_dict[col]:
+                    # ~ "just get the clans as they are"
+                    # ~ for pos_visib in visib_dict[col]:
+                        # ~ new_cls.append(self[pos_visib])
+                # ~ # else potential empty list added in the test of 1a, to be ignored
+            # ~ res_cl = dt.clan(new_cls, -1)
+            # ~ return res_cl
 
-        print('WARNING: unhandled case', self, item_cl, visib_dict, self.color, somecolor) # this should never happen
+        # ~ print('WARNING: unhandled case', self, item_cl, visib_dict, self.color, somecolor) # this should never happen

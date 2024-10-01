@@ -94,7 +94,8 @@ class DecTree(dict):
         of Counter, 0 signals that we still don't have a 
         color recorded and must check the graph. Most +2/-2 
         noise confined to this particular function but a bit
-        left in Clan.add().
+        left in Clan.add(). Caveat: would be good to refactor 
+        that. Answer from here is never -2.
         '''
         # print(' ... ... how seen', source, target, source.is_sgton, target.is_sgton)
         s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
