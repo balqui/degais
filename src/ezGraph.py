@@ -9,15 +9,11 @@ far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
 
-As of recently, items and must not contain SEP which defaults to '-',
+As of recently, items must not contain SEP which defaults to '-',
 see https://github.com/balqui/degais/issues/3 about that. 
-
-
-
-Caveat: no constraint anymore that they must not start with an asterisk .
+Earlier constraint that items must not start with an asterisk not
+enforced anymore.
 '''
-
-# ~ VERSION = "0.0 alpha"
 
 # ~ from sys import exit
 from collections import Counter, defaultdict as ddict
