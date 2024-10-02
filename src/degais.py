@@ -57,26 +57,26 @@ def run():
         )
 
     argp.add_argument('-V', '--version', action = 'version', 
-                                         version = "degais " + VERSION,
-                                         help = "print version and exit")
+       version = "degais " + VERSION,
+       help = "print version and exit")
 
     argp.add_argument('dataset', nargs = '?', default = None, 
-                  help = "name of optional dataset file (default: none, ask user)")
+       help = "name of optional dataset file (default: none, ask user)")
 
-    argp.add_argument('-f', '--freq_thr', nargs = '?', default = 1, 
-                  help = "discard items with frequency below it (default: 1)")
+    argp.add_argument('-f', '--freq_thr', nargs = '?', default = '1', 
+       help = "discard items with frequency below it (default: 1)")
 
     argp.add_argument('-c', '--coloring', nargs = '?', default = 'ident', 
-                  help = "label/color scheme on multiplicities (default: ident)")
+       help = "label/color scheme on multiplicities (default: ident)")
+
+# there should be a list but not hardcoded, taken from some dict or...
 
     argp.add_argument('-l', '--label_thr', nargs = '?', default = '1', 
-                  help = "set binary labels according to >= / < the label threshold")
+       help = "set binary labels according to whether >= / < the " +
+              "label threshold (only for -c thresh, default 1)")
 
     args = argp.parse_args()
     
-    print(args.freq_thr, args.coloring, args.label_thr, 
-    type(args.freq_thr), type(args.coloring), type(args.label_thr))
-
     if args.dataset:
         filename = args.dataset
     else:
@@ -91,18 +91,29 @@ def run():
     else:
         fullfilename = filename + ".td"
 
+    # ~ print(" ... types:", type(fullfilename), type(args.coloring),
+          # ~ type(args.label_thr), type(args.freq_thr + ")") )
+
     # Construct labeled graph: labels are multiplicities by default but
     # we can request a thresholded graph, discarding items below also
-    if (thr := int(args.label_thr)) > 1:
-        g = EZGraph(fullfilename, partial(thresh, thr), args.freq_thr)
+    if (thr := int(args.label_thr)) > 1 and args.coloring == 'thresh':
+        g = EZGraph(fullfilename, partial(thresh, int(args.label_thr)), 
+                    int(args.freq_thr) )
     else:
         # ~ g = EZGraph(fullfilename)
-        g = EZGraph(fullfilename, binary)
+        g = EZGraph(fullfilename, eval(args.coloring), 
+                    int(args.freq_thr)) # eval gets function from name
         # ~ g = EZGraph(fullfilename, binlog)
     # print(g)
     items = g.items # maybe we want to use a different list of items
     # print(items)
-    filename += '_' + str(thr)
+    print(" ... loaded " + fullfilename + " (coloring " + args.coloring
+          + "; freq_thr " + args.freq_thr + ")")
+    if args.coloring == thresh:
+          print(" ... ... label_thr " + args.label_thr)
+
+    filename += '_' + args.freq_thr # for output
+
 
     # Initialize the decomposition tree
     assert len(items) > 0
