@@ -63,11 +63,19 @@ def run():
     argp.add_argument('dataset', nargs = '?', default = None, 
                   help = "name of optional dataset file (default: none, ask user)")
 
-    argp.add_argument('threshold', nargs = '?', default = 1, 
-                  help = "frequency for change of color; discard" + 
-                         " items with frequency below it (default: 1)")
+    argp.add_argument('-f', '--freq_thr', nargs = '?', default = 1, 
+                  help = "discard items with frequency below it (default: 1)")
+
+    argp.add_argument('-c', '--coloring', nargs = '?', default = 'ident', 
+                  help = "label/color scheme on multiplicities (default: ident)")
+
+    argp.add_argument('-l', '--label_thr', nargs = '?', default = '1', 
+                  help = "set binary labels according to >= / < the label threshold")
 
     args = argp.parse_args()
+    
+    print(args.freq_thr, args.coloring, args.label_thr, 
+    type(args.freq_thr), type(args.coloring), type(args.label_thr))
 
     if args.dataset:
         filename = args.dataset
@@ -85,8 +93,8 @@ def run():
 
     # Construct labeled graph: labels are multiplicities by default but
     # we can request a thresholded graph, discarding items below also
-    if (thr := int(args.threshold)) > 1:
-        g = EZGraph(fullfilename, partial(thresh, thr), thr)
+    if (thr := int(args.label_thr)) > 1:
+        g = EZGraph(fullfilename, partial(thresh, thr), args.freq_thr)
     else:
         # ~ g = EZGraph(fullfilename)
         g = EZGraph(fullfilename, binary)
