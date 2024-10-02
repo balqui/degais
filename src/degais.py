@@ -80,7 +80,7 @@ def run():
     
     # Add each item in turn to the decomposition tree
     for it in items[1:]:
-        # print(" ... adding", it, "to", root.name)
+        # print(" ... adding", it, "to", root.name) # , "root size", len(root))
         item_cl = dt.sgton(it)
         root = root.add(item_cl, dt)
         # print(" ... added", it, "and the current root of color", root.color, "is:")

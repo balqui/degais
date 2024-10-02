@@ -3,11 +3,14 @@ Binning functions to reduce the quantity of labels in a
 Gaifman structure as labeling with frequencies may be
 too rigid.
 '''
+from math import floor, log
 
 ident = lambda x: x
 
 # binary binning labels 0/1 give, essentially, a standard Gaifman graph
 binary = lambda x: int(x > 0)
+
+binlog = lambda x: floor(log(x, 2)) # handle zero; consider larger base
 
 # binary binning labels for a thresholded Gaifman graph and effect on Titanic:
 # ~ def t(x):
@@ -20,3 +23,6 @@ binary = lambda x: int(x > 0)
 def t(x):
     if x < 1000: return 0 # displays the Birkenhead Drill
     return 1
+# ~ def t(x):
+    # ~ if x < 200: return 0 # exploring cmc, 10% is 147
+    # ~ return 1

@@ -24,17 +24,19 @@ from bisect import bisect, insort
 # Not sure that this is the right place to handle the coloring
 
 # keeps multiplicities as labels
-from binning import ident as coloring 
+# ~ from binning import ident as coloring 
 
 # labels 0/1 give, essentially, a standard Gaifman graph
 # ~ from binning import binary as coloring 
 
 # labels manually decided for Titanic
-# ~ from binning import t as coloring 
+from binning import t as coloring 
 
 # Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
 SEP = '-' # constant to make up clan names, forbidden in items
+
+# ~ DIGITS = frozenset('0123456789') # to remove items with digits in cmc dataset
 
 class EZGraph(ddict):
     '''
@@ -75,6 +77,8 @@ class EZGraph(ddict):
                     transaction = set(line.split())
                     if transaction:
                         items.update(transaction)
+                        # ~ items.update( it for it in transaction 
+                          # ~ if not DIGITS.intersection(it) ) # for cmc
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(items)
