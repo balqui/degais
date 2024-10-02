@@ -21,18 +21,8 @@ from itertools import combinations
 from auxfun import delbl, q
 from bisect import bisect, insort
 
-# Not sure that this is the right place to handle the coloring
-
-# keeps multiplicities as labels
-# ~ from binning import ident as coloring 
-
-# labels 0/1 give, essentially, a standard Gaifman graph
-# ~ from binning import binary as coloring 
-
-# labels manually decided for Titanic
-from binning import t as coloring 
-
-# Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
+# default coloring, keeps multiplicities as labels
+from binning import ident
 
 SEP = '-' # constant to make up clan names, forbidden in items
 
@@ -58,12 +48,14 @@ class EZGraph(ddict):
     later into DOT format.
     '''
 
-    def __init__(self, filename = None):
+    def __init__(self, filename = None, coloring = ident, frq_thr = 0):
         '''
         The filename must be a .td file containing only transactions,
         but see https://github.com/balqui/degais/issues/12 about it;
         initializes colored Gaifman graph and adds to it the sorted 
-        list of items.
+        list of items. The coloring function is usually taken from 
+        the package binning.py and the frequency threshold allows us
+        to discard infrequent items if this is convenient.
         '''
         super().__init__(Counter)
         if filename is None:
@@ -71,17 +63,17 @@ class EZGraph(ddict):
             self.name = '' # empty name e. g. for clan visibility graph
         else:
             self.name = delbl(filename.split('.')[0])
-            items = set()
+            items = Counter()
             with open(filename) as f:
                 for line in f:
                     transaction = set(line.split())
                     if transaction:
-                        items.update(transaction)
+                        items.update(Counter(transaction))
                         # ~ items.update( it for it in transaction 
                           # ~ if not DIGITS.intersection(it) ) # for cmc
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
-            self.items = sorted(items)
+            self.items = sorted(it for it in items if items[it] > frq_thr)
             for u in self.items:
                 if SEP in u:
                     print(q(SEP), 'not valid in item', u, 

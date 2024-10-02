@@ -23,14 +23,27 @@ OFFICE MACHINE TO CHECK THE DEPENDENCIES. ALSO IT MAY
 BE THAT conda HAS EVERYTHING SET UP ALSO ON WINDOWS.
 '''
 
+from collections import defaultdict as ddict
+from itertools import combinations
+from functools import partial
+
 from ezGraph import EZGraph
 from clans import Clan
 from dectree import DecTree
+
+from binning import ident, binary, binlog, thresh
+
+# ident: keeps multiplicities as labels
+# binary: labels 0/1 give, essentially, a standard Gaifman graph
+# binlog: base-2 exponential Gaifman graph
+# partial(thresh, thr): value < thr as an int 
+# Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
+
 # from td2dot import read_graph_in
-from collections import defaultdict as ddict
-from itertools import combinations
 
 VERSION = "0.1 beta"
+
+
 
 def run():
     '''
@@ -48,7 +61,11 @@ def run():
                                          help = "print version and exit")
 
     argp.add_argument('dataset', nargs = '?', default = None, 
-                      help = "name of optional dataset file (default: none, ask user)")
+                  help = "name of optional dataset file (default: none, ask user)")
+
+    argp.add_argument('threshold', nargs = '?', default = 1, 
+                  help = "frequency for change of color; discard" + 
+                         " items with frequency below it (default: 1)")
 
     args = argp.parse_args()
 
@@ -66,11 +83,18 @@ def run():
     else:
         fullfilename = filename + ".td"
 
-    # Construct labeled graph: labels are multiplicities
-    g = EZGraph(fullfilename)
+    # Construct labeled graph: labels are multiplicities by default but
+    # we can request a thresholded graph, discarding items below also
+    if (thr := int(args.threshold)) > 1:
+        g = EZGraph(fullfilename, partial(thresh, thr), thr)
+    else:
+        # ~ g = EZGraph(fullfilename)
+        g = EZGraph(fullfilename, binary)
+        # ~ g = EZGraph(fullfilename, binlog)
     # print(g)
     items = g.items # maybe we want to use a different list of items
     # print(items)
+    filename += '_' + str(thr)
 
     # Initialize the decomposition tree
     assert len(items) > 0
