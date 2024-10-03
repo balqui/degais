@@ -48,7 +48,7 @@ class EZGraph(ddict):
     later into DOT format.
     '''
 
-    def __init__(self, filename = None, coloring = ident, frq_thr = 0):
+    def __init__(self, filename = None, coloring = lambda x: x, frq_thr = 0):
         '''
         The filename must be a .td file containing only transactions,
         but see https://github.com/balqui/degais/issues/12 about it;

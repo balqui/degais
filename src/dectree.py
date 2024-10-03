@@ -180,12 +180,17 @@ class DecTree(dict):
                     "Set up edges"
                     # print(" +++ +++ +++ +++ right:", right[0].name)
                     if left[0].name < right[0].name:
-                        # print(" +++ +++ +++ +++ edge!")
+                        if ((hs := self.how_seen(left[0], right[0])) <
+                            len(self.palette)): 
+                                color = self.palette[hs]
+                        else:
+                            print("Sorry. Too high class numbers", 
+                                  "or not enough colors.")
+                            exit()
                         ed = gv.edge(left[1], right[1])
                         _ = gv.setv(ed, "arrowhead", "none")
                         _ = gv.setv(ed, "penwidth", "2.0") # double thickness
-                        _ = gv.setv(ed, "color", 
-                            self.palette[self.how_seen(left[0], right[0])])
+                        _ = gv.setv(ed, "color", color)
             if len(clan) <= 2 or clan.color == 0:
                 "flatten the cluster - caveat: some more flattening cases should be added"
                 _ = gv.setv(the_subgraph, "rank", "same")
