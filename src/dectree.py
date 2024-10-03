@@ -52,12 +52,9 @@ class DecTree(dict):
         elems = sorted(elems, key = lambda e: e.name) # always a list
         assert len(elems) > 1
         name = '(' + SEP.join( e.name for e in elems ) + ')' # might be empty
-        # print(" ... Clan", name, end = ' ')
         if name in self:
-            # print("found.")
             return self[name]
         cl = Clan(name, elems, color)
-        # print("constructed.")
         self[name] = cl
         return cl
 
@@ -77,13 +74,6 @@ class DecTree(dict):
         return cl
 
 
-    # ~ def store_clan(self, clan):
-        # ~ "caveat: it may be there already, consistently or not - CAN WE GET RID OF THIS METHOD?"
-        # ~ if clan.name in self:
-            # ~ print(" +++ WARNING: repeated clan name", clan.name, "changed from", self[clan.name], "to", clan) 
-        # ~ self[clan.name] = clan
-        # ~ return clan.name
-
     def how_seen(self, source, target):
         '''
         Color with which the target clan is seen from the 
@@ -97,18 +87,14 @@ class DecTree(dict):
         left in Clan.add(). Caveat: would be good to refactor 
         that. Answer from here is never -2.
         '''
-        # print(' ... ... how seen', source, target, source.is_sgton, target.is_sgton)
         s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
         guess = self.visib[s_nm][t_nm] - 2 
-        # print(' ... ... visibility guess', s_nm, t_nm, guess)
         if guess > -2:
             "otherwise, set it up correctly and only then return it"
-            # print('avoid repeated color computation', source, target, len(source), len(target))
             return guess
         if len(source) < len(target):
             "make sure source is not longer than target"
             source, target = target, source
-        # print(' ... ... did swap?', source, target)
         if source.is_sgton:
                 '''
                 then target too, fall back into the graph, items to 
@@ -128,10 +114,6 @@ class DecTree(dict):
                     "two different colors found at some recursion depth"
                     c = -1
                     break
-            # ~ if c == -1:
-                # ~ print(' ... ... not seen', source.name, target.name)
-            # ~ else:
-                # ~ print(' ... ... seen', source.name, target.name, c)
             self.visib.new_edge(s_nm, t_nm, c + 2)
         return self.visib[s_nm][t_nm] - 2
 
@@ -145,12 +127,6 @@ class DecTree(dict):
         Caveat on flattening: 
         see https://github.com/balqui/degais/issues/10
         '''
-        # ~ print(" +++ Adding clan:", clan)
-        # ~ print(" +++ Currently in graph:")
-        # ~ sss = gv.firstsubg(gvgraph)
-        # ~ while gv.ok(sss):
-            # ~ print(" +++", gv.nameof(sss))
-            # ~ sss = gv.nextsubg(gvgraph, sss)
         if clan.is_sgton:
             headnode = gv.node(gvgraph, clan[0])
         else:
@@ -168,17 +144,14 @@ class DecTree(dict):
                 "aim at the alpha-earliest, which will be on top"
                 posmin = min(range(len(sortedclans)), key = lambda pos: sortedclans[pos].name)
                 headnode = the_nodes[posmin]
-                # print(" +++ +++ +++ headnode:", gv.nameof(the_nodes[posmin]), "among", clan)
             clus_contents = list(zip(sortedclans, the_nodes))
             _ = gv.setv(the_subgraph, "cluster", "true")
             for node in the_nodes:
                 _ = gv.node(the_subgraph, gv.nameof(node))
             for left in clus_contents:
                 "had to be materialized in order to do double traversal"
-                # print(" +++ +++ +++ left:", left[0].name)
                 for right in clus_contents:
                     "Set up edges"
-                    # print(" +++ +++ +++ +++ right:", right[0].name)
                     if left[0].name < right[0].name:
                         if ((hs := self.how_seen(left[0], right[0])) <
                             len(self.palette)): 
@@ -194,9 +167,6 @@ class DecTree(dict):
             if len(clan) <= 2 or clan.color == 0:
                 "flatten the cluster - caveat: some more flattening cases should be added"
                 _ = gv.setv(the_subgraph, "rank", "same")
-                # ~ print(" +++ Flattened", clan.color, len(clan), clan, gv.getv(the_subgraph, "rank"))
-            # ~ else:
-                # ~ print(" +++ +++ Not flattened:", clan.color, len(clan), clan)
         stand_in = None
         if not is_root:
             stand_in = gv.node(gvgraph, 'PT_' + clan.name)
@@ -214,18 +184,6 @@ class DecTree(dict):
         gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
         gv.setv(gvgraph, "newrank", "true") # o/w rank=same in flattening doesn't work
         _ = self._add_clan(gvgraph, root, is_root = True)
-        # ~ ok = gv.write(gvgraph, name + "_PRE_layout.gv")
-        # ~ print("First write answer:", ok)
-        # ~ ok = gv.layout(gvgraph, "dot")
-        # ~ print("Layout answer:", ok)
-        # ~ ok = gv.write(gvgraph, name + "_POST_layout.gv")
-        # ~ print("Second write answer:", ok)
-        # ~ ok = gv.render(gvgraph, "dot", name + ".gv")
-        # ~ print("Render answer:", ok)
-        # ~ ok = gv.write(gvgraph, name + "_PRE.gv")
-        # ~ if not ok:
-            # ~ print("Write failed:", name + "_PRE.gv")
-            # ~ exit()
         ok = gv.layout(gvgraph, "dot")
         if not ok:
             print("Layout failed for", name)

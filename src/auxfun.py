@@ -17,14 +17,3 @@ def q(s):
     'quote string s'
     return '"' + s + '"'
 
-# ~ Do we need it? BET NOT ANYMORE.
-# ~ def grab_one(something):
-	# ~ '''
-	# ~ get some element from the something, that must be iterable and nonempty
-	# ~ (probably there is some standard way to do this);
-	# ~ if empty will return None
-	# ~ Hopefully not necessary anymore since clans maintain prototypes.
-	# ~ But not anymore, they don't maintain prototypes anymore. 
-	# ~ '''
-	# ~ for e in something:
-		# ~ return e

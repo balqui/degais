@@ -1,7 +1,7 @@
 '''
 DeGaiS: Decomposing Gaifman Structures
 
-Current version: Vendemiaire 2024
+Current version: mid Vendemiaire 2024
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
@@ -13,14 +13,6 @@ Idea started several decades ago and went through several
 different manifestations from 2017 onwards. The present 
 incarnation had its first few correct and complete runs
 by early Vendemiaire 2024.
-
-PUSH THIS WITH SIMPLIFIED CASES, THEN MOVE ON TO DELETING
-DEAD CODE AND CALL IT GAMMA, THEN SEE WHAT ELSE IS 
-NEEDED BEFORE SETTING UP AN APP AND GENERATING IT.
-MAYBE OPTIONAL OUTPUT MESSAGE AND CALL CLI COMMAND
-TO SHOW THE PNG. ALSO, TRY EVERYTHING ON VENV AT THE
-OFFICE MACHINE TO CHECK THE DEPENDENCIES. ALSO IT MAY
-BE THAT conda HAS EVERYTHING SET UP ALSO ON WINDOWS.
 '''
 
 from collections import defaultdict as ddict
@@ -36,15 +28,15 @@ from binning import ident, binary, thresh, linwidth, expwidth
 
 # ident: keeps multiplicities as labels
 # binary: labels 0/1 give, essentially, a standard Gaifman graph
-# binlog: base-2 exponential Gaifman graph
-# partial(thresh, thr): value < thr as an int 
+# thresh: thresholded Gaifman graph, threshold given as param
+# linwidth: linear Gaifman graph, interval width given as param
+# thresh: exponential Gaifman graph, base given as param
+
 # Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
 # from td2dot import read_graph_in
 
-VERSION = "0.1 beta"
-
-
+VERSION = "1.0 alpha"
 
 def run():
     '''
@@ -77,8 +69,6 @@ def run():
 
     args = argp.parse_args()
 
-
-
     # handle the dataset file
     if args.dataset:
         filename = args.dataset
@@ -94,18 +84,13 @@ def run():
     else:
         fullfilename = filename + ".td"
 
-    # ~ print(" ... types:", type(fullfilename), type(args.coloring),
-          # ~ type(args.label_thr), type(args.freq_thr + ")") )
-
     default = { 'thresh': 1, 'expwidth': 10, 'linwidth': 10,
                  'binary': 1, 'ident': 1 } # last two irrelevant
     param = default[args.coloring] if args.param is None else int(args.param)
     coloring = partial(eval(args.coloring), param)
 
     g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
-    # print(g)
     items = g.items # maybe we want to use a different list of items
-    # print(items)
     print(" ... loaded " + fullfilename + "; coloring " + args.coloring
           + "; param " + str(param)
           + "; freq_thr " + args.freq_thr + ")")
@@ -117,16 +102,15 @@ def run():
     assert len(items) > 0
     dt = DecTree(g)
     root = dt.sgton(items[0])
-    # print("root:", root)
     
     # Add each item in turn to the decomposition tree
     for it in items[1:]:
         # print(" ... adding", it, "to", root.name) # , "root size", len(root))
         item_cl = dt.sgton(it)
         root = root.add(item_cl, dt)
-        # print(" ... added", it, "and the current root of color", root.color, "is:")
-        # for e in root:
-        #     print('    ', e)
+        # ~ print(" ... added", it, "and the current root of color", root.color, "is:")
+        # ~ for e in root:
+            # ~ print('    ', e)
 
     # ~ print(root)
     # ~ print(g)
@@ -138,7 +122,7 @@ def run():
     # Convert the decomposition tree into a GV graph for drawing
     dt.draw(root, filename)
     print("Wrote", filename + ".gv")
-    call("xdot " + filename + ".gv")
+    call("xdot " + filename + ".gv") # split into dot call and mimeopen
 
 if __name__ == "__main__":
     run()
