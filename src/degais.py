@@ -102,8 +102,11 @@ def run():
     filename += '_' + args.freq_thr # for output
 
 
-    # Initialize the decomposition tree - caveat!: better message if no items pass threshold!
-    assert len(items) > 0
+    if len(items) == 0:
+		print(" . No items available at these thresholds. Exiting."
+		exit()
+
+    # Initialize the decomposition tree
     dt = DecTree(g)
     root = dt.sgton(items[0])
     
