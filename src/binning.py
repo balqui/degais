@@ -11,10 +11,13 @@ ident = lambda _, x: x
 binary = lambda _, x: int(x > 0)
 
 # binning with linear intervals
-linwidth = lambda w, x: x // w # w width of regular intervals
+linwidth = lambda w, x: x // int(w) # w width of regular intervals
+# caveat: -p value in command line is now a float
 
 # binning with exponentially growing intervals
 expwidth = lambda b, x: floor(log(x + 1, b)) # +1 to handle zero
+# caveat: 0 is to be handled in a different manner that does not
+# disturb also everybody else
 
 # binary binning labels for thresholded Gaifman graph:
 thresh = lambda thr, x: int(x >= thr)

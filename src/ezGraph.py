@@ -24,7 +24,8 @@ from bisect import bisect, insort
 # default coloring, keeps multiplicities as labels
 # ~ from binning import ident
 
-SEP = '-' # constant to make up clan names, forbidden in items
+# ~ SEP = '-' # constant to make up clan names, forbidden in items
+SEP = ':' # constant to make up clan names, forbidden in items
 
 # ~ DIGITS = frozenset('0123456789') # to remove items with digits in cmc dataset
 
@@ -63,17 +64,21 @@ class EZGraph(ddict):
             self.name = '' # empty name e. g. for clan visibility graph
         else:
             self.name = delbl(filename.split('.')[0])
+            lns = 0
             items = Counter()
             with open(filename) as f:
                 for line in f:
                     transaction = set(line.split())
                     if transaction:
+                        lns += 1
                         items.update(Counter(transaction))
                         # ~ items.update( it for it in transaction 
                           # ~ if not DIGITS.intersection(it) ) # for cmc
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(it for it in items if items[it] > frq_thr)
+            mx = 0
+            mn = lns
             for u in self.items:
                 if SEP in u:
                     print(q(SEP), 'not valid in item', u, 
@@ -81,7 +86,11 @@ class EZGraph(ddict):
                     exit()
                 for v in self.items:
                     if u < v:
+                        mx = max(mx, self[u][v])
+                        mn = min(mn, self[u][v])
                         self[u][v] = coloring(self[u][v])
+            self.mx = mx # highest frequency value seen among thresholded items
+            self.mn = mn # lowest frequency value, sometimes it is not zero
 
     def __str__(self):
         "Tuned for 1-digit colors, short names and few nodes; caveat: improve some day"

@@ -22,8 +22,8 @@ from os import system as call
 
 from ezGraph import EZGraph
 from clans import Clan
-# ~ from dectree import DecTree
-from dectree_variant import DecTree
+from dectree import DecTree
+# ~ from dectree_variant import DecTree
 
 from binning import ident, binary, thresh, linwidth, expwidth
 
@@ -81,25 +81,28 @@ def run():
         fullfilename = filename
         filename, ext = filename.split('.', maxsplit = 1)
         if ext != "td":
-            print("Found extension", ext, "instead of td for file", filename)
+            print(" . Found extension", ext, "instead of td for file", filename)
     else:
         fullfilename = filename + ".td"
 
     default = { 'thresh': 1, 'expwidth': 10, 'linwidth': 10,
                  'binary': 1, 'ident': 1 } # last two irrelevant
-    param = default[args.coloring] if args.param is None else int(args.param)
+    param = default[args.coloring] if args.param is None else float(args.param) # caveat: maybe should get back to int
     coloring = partial(eval(args.coloring), param)
 
     g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
-    print(" ... loaded " + fullfilename + "; coloring " + args.coloring
-          + "; param " + str(param)
-          + "; freq_thr " + args.freq_thr + ")")
+    print(" . Loaded " + fullfilename + "; coloring " + args.coloring
+          + "; param " + str(param) + "; freq_thr " + args.freq_thr 
+          + ";\n   items at threshold " +  str(len(items)) 
+          + "; pair frequencies: "
+          + "highest " + str(g.mx) + "; lowest " + str(g.mn)
+          )
 
     filename += '_' + args.freq_thr # for output
 
 
-    # Initialize the decomposition tree
+    # Initialize the decomposition tree - caveat!: better message if no items pass threshold!
     assert len(items) > 0
     dt = DecTree(g)
     root = dt.sgton(items[0])
@@ -122,7 +125,7 @@ def run():
 
     # Convert the decomposition tree into a GV graph for drawing
     dt.draw(root, filename)
-    print("Wrote", filename + ".gv")
+    print(" . Wrote", filename + ".gv")
     call("xdot " + filename + ".gv") # split into dot call and mimeopen
 
 if __name__ == "__main__":

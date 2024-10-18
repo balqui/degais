@@ -87,7 +87,7 @@ class Clan(list):
                     out_clans.append(dt.clan( (self[cl] for cl in v[color]), self.color ))
         # and now split the rest, nonvisible subclans
         out_clans.extend( cl for pos_not_v in v[-1]
-                             for cl in self[pos_not_v].split(item_cl, dt, k + 1) )
+                             for cl in self[pos_not_v].split(item_cl, dt) )
         return out_clans
 
     def add(self, item_cl, dt):
