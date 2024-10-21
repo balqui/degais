@@ -24,8 +24,10 @@ from bisect import bisect, insort
 # default coloring, keeps multiplicities as labels
 # ~ from binning import ident
 
-# ~ SEP = '-' # constant to make up clan names, forbidden in items
-SEP = ':' # constant to make up clan names, forbidden in items
+SEP = '-' # constant to make up clan names, forbidden in items
+# ~ SEP = ':' # constant to make up clan names, forbidden in items
+# ~ ':' must be forbidden in items anyhow because Bank's graphviz 
+# ~ uses that to mark ports and compass points of nodes
 
 # ~ DIGITS = frozenset('0123456789') # to remove items with digits in cmc dataset
 

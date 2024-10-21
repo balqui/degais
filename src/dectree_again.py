@@ -150,7 +150,7 @@ class DecTree(dict):
             for subclan in sorted(clan, key = len, reverse = True):
                 if subclan.is_sgton:
                     subhead = subclan.name
-                    gvgraph.node(subhead)
+                    gvgraph.node(subhead, label = subclan[0])
                     stand_in = "PT_" + subhead
                     subclus = None
                 else:
@@ -257,6 +257,8 @@ class DecTree(dict):
             gvgraph.node(root[0].name)
         else:
             self._add_clan(gvgraph, root)
+        # ~ gvgraph.render(view = True)
+        gvgraph.render()
 
         # ~ gv-based code:
         # ~ gvgraph = gv.strictdigraph(name) # a graph handle
