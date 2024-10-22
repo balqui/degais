@@ -51,7 +51,7 @@ class EZGraph(ddict):
     later into DOT format.
     '''
 
-    def __init__(self, filename = None, coloring = lambda x: x, frq_thr = 0):
+    def __init__(self, filename = None, coloring = lambda x: x, frq_thr = 1):
         '''
         The filename must be a .td file containing only transactions,
         but see https://github.com/balqui/degais/issues/12 about it;
@@ -78,7 +78,7 @@ class EZGraph(ddict):
                           # ~ if not DIGITS.intersection(it) ) # for cmc
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
-            self.items = sorted(it for it in items if items[it] > frq_thr)
+            self.items = sorted(it for it in items if items[it] >= frq_thr)
             mx = 0
             mn = lns
             for u in self.items:

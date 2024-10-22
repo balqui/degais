@@ -22,8 +22,8 @@ from os import system as call
 
 from ezGraph import EZGraph
 from clans import Clan
-from dectree import DecTree
-# ~ from dectree_again import DecTree
+# ~ from dectree import DecTree
+from dectree_again import DecTree
 
 from binning import ident, binary, thresh, linwidth, expwidth
 
@@ -92,11 +92,11 @@ def run():
 
     g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
-    print(" . Loaded " + fullfilename + "; coloring " + args.coloring
-          + "; param " + str(param) + "; freq_thr " + args.freq_thr 
-          + ";\n   items at threshold " +  str(len(items)) 
-          + "; pair frequencies: "
-          + "highest " + str(g.mx) + "; lowest " + str(g.mn)
+    print(" . Loaded " + fullfilename + "; coloring: " + args.coloring
+          + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
+          + ";\n   items at threshold: " +  str(len(items)) 
+          + "; pair frequencies, "
+          + "highest: " + str(g.mx) + ", lowest: " + str(g.mn) + "."
           )
 
     filename += '_' + args.freq_thr # for output
@@ -112,7 +112,6 @@ def run():
     
     # Add each item in turn to the decomposition tree
     for it in items[1:]:
-        # print(" ... adding", it, "to", root.name) # , "root size", len(root))
         item_cl = dt.sgton(it)
         root = root.add(item_cl, dt)
         # ~ print(" ... added", it, "and the current root of color", root.color, "is:")
@@ -129,7 +128,7 @@ def run():
     # Convert the decomposition tree into a GV graph for drawing
     dt.draw(root, filename)
     print(" . Wrote", filename + ".gv")
-    call("xdot " + filename + ".gv") # split into dot call and mimeopen
+    # ~ call("xdot " + filename + ".gv") # split into dot call and mimeopen
 
 if __name__ == "__main__":
     run()

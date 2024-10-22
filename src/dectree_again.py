@@ -131,7 +131,7 @@ class DecTree(dict):
         Add the whole subtree below that nonsingleton clan to the 
         Graphviz graph. Thus, both a big clan node plus a point-shaped 
         stand-in are to be added. Returns cluster and headnode names.
-        Rather ugly. Version on top of python3-gv much better but not 
+        Somewhat ugly. Version on top of python3-gv much better but not 
         available for Windows.
         '''
         clus_contents = list()
@@ -254,11 +254,12 @@ class DecTree(dict):
     def draw(self, root, name):
         gvgraph = gvz.Digraph(name, graph_attr = { "compound": "true", "newrank": "true" })
         if root.is_sgton:
+            "caveat: test this"
             gvgraph.node(root[0].name)
         else:
             self._add_clan(gvgraph, root)
-        # ~ gvgraph.render(view = True)
-        gvgraph.render()
+        gvgraph.render(view = True)
+        # ~ gvgraph.render()
 
         # ~ gv-based code:
         # ~ gvgraph = gv.strictdigraph(name) # a graph handle
