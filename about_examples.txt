@@ -120,3 +120,17 @@ def t(x):
     return 2
 
 
+===========   TESTS END OCTOBER
+
+labgaif:
+titanic
+test_1a 4 most freq Ad Male No Crew compl
+test1a1b_00 5 most freq Ad Male No Crew Yes compl + pair
+test1a1b_01 Ad Male Crew Child Male-all Ch-none Ad-Crew
+test1a1b_02 Male No Crew 3rd 1st 2nd Child Male-No-rest Crew/rest Child-rest rest
+test1a1c Ad Crew Child Ch/(Ad-Crew)
+test1abcd No Crew Yes 3rd 1st 2nd Child (No/Yes)-(Crew/(Child-rest))
+test1c1a Ad Crew Child Yes Yes-(Child/(Ad-Crew))
+test_00 Single node (plus stand_in)
+test_01 hardwired inside a-b-c/d-e
+test_02 lenses except 2x1d: soft+hard (irrelevant)
