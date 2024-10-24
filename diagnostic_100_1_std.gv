@@ -1,0 +1,82 @@
+strict digraph diagnostic_100_1 {
+	graph [bb="0,0,307.64,203.2",
+		compound=true,
+		newrank=true
+	];
+	node [label="\N"];
+	subgraph "CL_((2724-632)-3051-4019)" {
+		graph [bb="18.047,80.2,58.047,195.2",
+			cluster=true
+		];
+		"PT_(2724-632)"	[height=0.05,
+			pos="48.047,185.4",
+			shape=point,
+			width=0.05];
+		PT_3051	[height=0.05,
+			pos="48.047,145.8",
+			shape=point,
+			width=0.05];
+		"PT_(2724-632)" -> PT_3051	[arrowhead=none,
+			color=black,
+			penwidth=2.0,
+			pos="48.047,183.47 48.047,178.4 48.047,154.13 48.047,148.14"];
+		PT_4019	[height=0.05,
+			pos="37.047,90",
+			shape=point,
+			width=0.05];
+		"PT_(2724-632)" -> PT_4019	[arrowhead=none,
+			color=black,
+			penwidth=2.0,
+			pos="47.479,183.34 45.533,179.66 39.144,166.97 37.047,155.6 32.326,130.01 36.162,97.747 36.922,91.922"];
+		PT_3051 -> PT_4019	[arrowhead=none,
+			color=black,
+			penwidth=2.0,
+			pos="47.856,143.87 46.509,137.28 38.459,97.909 37.21,91.797"];
+	}
+	subgraph "CL_(2724-632)" {
+		graph [bb="185.05,136,227.05,155.6",
+			cluster=true,
+			rank=same
+		];
+		PT_2724	[height=0.05,
+			pos="195.05,145.8",
+			shape=point,
+			width=0.05];
+		PT_632	[height=0.05,
+			pos="217.05,145.8",
+			shape=point,
+			width=0.05];
+		PT_2724 -> PT_632	[arrowhead=none,
+			color=white,
+			penwidth=2.0,
+			pos="197.11,145.8 203.13,145.8 209.15,145.8 215.18,145.8"];
+	}
+	272.4	[height=0.5,
+		pos="195.05,90",
+		width=1.0291];
+	PT_2724 -> 272.4	[arrowhead=none,
+		penwidth=1.3,
+		pos="195.05,143.87 195.05,139.65 195.05,122.02 195.05,108.26"];
+	632	[height=0.5,
+		pos="279.05,90",
+		width=0.79437];
+	PT_632 -> 632	[arrowhead=none,
+		penwidth=1.3,
+		pos="218.12,143.87 223.36,139.32 246.63,119.13 262.84,105.06"];
+	"PT_(2724-632)" -> PT_632	[arrowhead=none,
+		lhead="CL_(2724-632)",
+		penwidth=1.3,
+		pos="49.693,184.4 62.414,184.34 146.17,182.88 206.05,155.6"];
+	305.1	[height=0.5,
+		pos="103.05,90",
+		width=1.0291];
+	PT_3051 -> 305.1	[arrowhead=none,
+		penwidth=1.3,
+		pos="49.001,143.87 53.509,139.46 73.039,120.35 87.332,106.37"];
+	401.9	[height=0.5,
+		pos="37.047,18",
+		width=1.0291];
+	PT_4019 -> 401.9	[arrowhead=none,
+		penwidth=1.3,
+		pos="37.047,88.01 37.047,82.46 37.047,54.784 37.047,36.211"];
+}

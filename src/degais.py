@@ -22,8 +22,8 @@ from os import system as call
 
 from ezGraph import EZGraph
 from clans import Clan
-# ~ from dectree import DecTree
-from dectree_again import DecTree
+from dectree import DecTree
+# ~ from dectree_again import DecTree
 
 from binning import ident, binary, thresh, linwidth, expwidth
 

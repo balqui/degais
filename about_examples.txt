@@ -134,3 +134,14 @@ test1c1a Ad Crew Child Yes Yes-(Child/(Ad-Crew))
 test_00 Single node (plus stand_in)
 test_01 hardwired inside a-b-c/d-e
 test_02 lenses except 2x1d: soft+hard (irrelevant)
+
+
+=======
+
+About diagnostics 100, after deleting single-diagnostic lines, 4 items
+Freqs 401.9 12425 272.4 12237 305.1 3230, 632 13
+Changes at thresholds 2 and 13, not so clear on expwidth
+[In the paper, the freq thr were taking also singleton transactions into account]
+
+About diagnostics 80, same deletion criteria, one item at 4, another at 15,
+one between 3000 and 3500, another between 3500 and 4000
