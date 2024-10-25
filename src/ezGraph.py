@@ -15,21 +15,13 @@ Earlier constraint that items must not start with an asterisk not
 enforced anymore.
 '''
 
-# ~ from sys import exit
 from collections import Counter, defaultdict as ddict
 from itertools import combinations
 from auxfun import delbl, q
 from bisect import bisect, insort
 
-# default coloring, keeps multiplicities as labels
-# ~ from binning import ident
-
-SEP = '-' # constant to make up clan names, forbidden in items
-# ~ SEP = ':' # constant to make up clan names, forbidden in items
-# ~ ':' must be forbidden in items anyhow because Bank's graphviz 
-# ~ uses that to mark ports and compass points of nodes
-
-# ~ DIGITS = frozenset('0123456789') # to remove items with digits in cmc dataset
+SEP = '-'       # constant to make up clan names, forbidden in items
+FORBIDDEN = ':' # Bank's graphviz syntax implies ':' forbidden in items  
 
 class EZGraph(ddict):
     '''
@@ -74,8 +66,6 @@ class EZGraph(ddict):
                     if transaction:
                         lns += 1
                         items.update(Counter(transaction))
-                        # ~ items.update( it for it in transaction 
-                          # ~ if not DIGITS.intersection(it) ) # for cmc
                         for (u,v) in combinations(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(it for it in items if items[it] >= frq_thr)
@@ -85,6 +75,10 @@ class EZGraph(ddict):
                 if SEP in u:
                     print(q(SEP), 'not valid in item', u, 
                           '(please change separator SEP in source code).')
+                    exit()
+                if FORBIDDEN in u:
+                    print(q(FORBIDDEN), 'not valid in item', u, 
+                          '(graphviz syntax, please change it in dataset).')
                     exit()
                 for v in self.items:
                     if u < v:

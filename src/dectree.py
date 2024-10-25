@@ -1,8 +1,14 @@
+from itertools import combinations as comb
 from auxfun import delbl
 from ezGraph import EZGraph, SEP
 from clans import Clan
-import gv # official Python bindings to Graphviz, apt install python3-gv
+import graphviz as gvz # NOT the official bindings!
+        # ~ Refactoring everything for using the pip/conda-importable 
+        # ~ graphviz instead of the python3-gv official bindings.
+        # ~ Caveat on flattening: 
+        # ~ see https://github.com/balqui/degais/issues/10
 
+# ~ ALSO: current graphviz does not support colons in node names
 class DecTree(dict):
     '''
     The dict keeps a clan pool with all the clans that get created 
@@ -118,78 +124,84 @@ class DecTree(dict):
         return self.visib[s_nm][t_nm] - 2
 
 
-    def _add_clan(self, gvgraph, clan, is_root = False):
+    def _add_clan(self, gvgraph, clan):
         '''
-        Add the whole subtree below that clan to the Graphviz graph,
-        return the node handle for the point that represents the clan.
-        Thus, both a big clan node or a singleton, plus a point-shaped 
-        stand-in, are to be added.
-        Caveat on flattening: 
-        see https://github.com/balqui/degais/issues/10
+        Add the whole subtree below that nonsingleton clan to the 
+        Graphviz graph. Thus, both a big clan node plus a point-shaped 
+        stand-in are to be added. Returns cluster and headnode names.
+        Somewhat ugly. Version on top of python3-gv much better but not 
+        available for Windows.
         '''
-        if clan.is_sgton:
-            headnode = gv.node(gvgraph, clan[0])
-        else:
+        clus_contents = list()
+        clus_name = "CL_" + clan.name
+        fl = dict()
+        if len(clan) <= 2 or clan.color == 0:
+            '''
+            flatten the cluster 
+            (caveat: some more flattening cases should be added)
+            '''
+            fl["rank"] = "same"
+        with gvgraph.subgraph(name = clus_name,
+                graph_attr = { "cluster": "true" } | fl,
+                node_attr = { "shape": "point" }) as the_subgraph:
             "gather back the subtree points"
-            the_subgraph = gv.graph(gvgraph, "CL_" + clan.name)
-            the_nodes = list()
-            sortedclans = list()
             for subclan in sorted(clan, key = len, reverse = True):
-                the_nodes.append(self._add_clan(gvgraph, subclan))
-                sortedclans.append(subclan)
-            if clan.color == 0:
-                "will be flattened, aim at near middle"
-                headnode = the_nodes[(len(clan)+1) // 2]
+                if subclan.is_sgton:
+                    subhead = subclan.name
+                    gvgraph.node(subhead, label = subclan[0])
+                    stand_in = "PT_" + subhead
+                    subclus = None
+                else:
+                    subclus, subhead = self._add_clan(gvgraph, subclan)
+                    stand_in = "PT_" + subclan.name
+                the_subgraph.node(stand_in, shape = 'point')
+                clus_contents.append( 
+                            (subclan, stand_in, subclus, subhead) )
+        clus_contents = sorted(clus_contents, 
+                               key = lambda cl: cl[0].name)
+        # singletons have been sorted also there
+        # identify own head node
+        if clan.color == 0:
+            "will be flattened, aim at near middle"
+            headnode = clus_contents[(len(clan)+1) // 2][1]
+        else:
+            "aim at the alpha-earliest, which will be on top"
+            headnode = clus_contents[0][1]
+
+        for (subclan, stand_in, subclus, subhead) in clus_contents:
+            "connect stand_in with subclus"
+            if subclan.is_sgton:
+                gvgraph.edge(stand_in, subhead, arrowhead = "none")
             else:
-                "aim at the alpha-earliest, which will be on top"
-                posmin = min(range(len(sortedclans)), key = lambda pos: sortedclans[pos].name)
-                headnode = the_nodes[posmin]
-            clus_contents = list(zip(sortedclans, the_nodes))
-            _ = gv.setv(the_subgraph, "cluster", "true")
-            for node in the_nodes:
-                _ = gv.node(the_subgraph, gv.nameof(node))
-            for left in clus_contents:
-                "had to be materialized in order to do double traversal"
-                for right in clus_contents:
-                    "Set up edges"
-                    if left[0].name < right[0].name:
-                        if ((hs := self.how_seen(left[0], right[0])) <
-                            len(self.palette)): 
-                                color = self.palette[hs]
-                        else:
-                            print("Sorry. Too high class numbers", 
-                                  "or not enough colors.")
-                            exit()
-                        ed = gv.edge(left[1], right[1])
-                        _ = gv.setv(ed, "arrowhead", "none")
-                        _ = gv.setv(ed, "penwidth", "2.0") # double thickness
-                        _ = gv.setv(ed, "color", color)
-            if len(clan) <= 2 or clan.color == 0:
-                "flatten the cluster - caveat: some more flattening cases should be added"
-                _ = gv.setv(the_subgraph, "rank", "same")
-        stand_in = None
-        if not is_root:
-            stand_in = gv.node(gvgraph, 'PT_' + clan.name)
-            _ = gv.setv(stand_in, "shape", "point")
-            local_edge = gv.edge(stand_in, headnode) # cluster as head
-            _ = gv.setv(local_edge, "arrowhead", "none")
-            _ = gv.setv(local_edge, "penwidth", "1.3") # slightly thicker
-            if not clan.is_sgton:
-                _ = gv.setv(local_edge, "lhead", gv.nameof(the_subgraph))
-        return stand_in
+                gvgraph.edge(stand_in, subhead, arrowhead = "none",
+                             lhead = subclus,   # cluster as head
+                             penwidth = "1.3")  # slightly thicker
+
+        for (left,  left_stand_in,  _, _), \
+            (right, right_stand_in, _, _)  \
+            in comb(clus_contents, 2):
+                "Set up colored edges inside current cluster"
+                if ((hs := self.how_seen(left, right)) <
+                    len(self.palette)): 
+                        color = self.palette[hs]
+                else:
+                    print("Sorry. Too high class numbers", 
+                          "or not enough colors.")
+                    exit()
+                gvgraph.edge(left_stand_in, right_stand_in, 
+                    arrowhead = "none", color = color,
+                    penwidth = "2.0") # double thickness
+
+        return clus_name, headnode
 
 
     def draw(self, root, name):
-        gvgraph = gv.strictdigraph(name) # a graph handle
-        gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
-        gv.setv(gvgraph, "newrank", "true") # o/w rank=same in flattening doesn't work
-        _ = self._add_clan(gvgraph, root, is_root = True)
-        ok = gv.layout(gvgraph, "dot")
-        if not ok:
-            print("Layout failed for", name)
-            exit()
-        ok = gv.render(gvgraph, "dot", name + ".gv")
-        if not ok:
-            print("Render failed for", name + ".gv")
-            exit()
+        gvgraph = gvz.Digraph(name, graph_attr = { "compound": "true", "newrank": "true" })
+        if root.is_sgton:
+            "caveat: test this"
+            gvgraph.node(root[0].name)
+        else:
+            self._add_clan(gvgraph, root)
+        gvgraph.render() # add view = True to launch visualizer
+
 

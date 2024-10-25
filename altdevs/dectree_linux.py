@@ -1,58 +1,7 @@
 from auxfun import delbl
 from ezGraph import EZGraph, SEP
 from clans import Clan
-# ~ import gv # official Python bindings to Graphviz, apt install python3-gv
-import graphviz as gvz # NOT the official bindings, giving it a try in this variant
-
-class gv:
-    '''
-    Try to bridge up GV so that calls are like gv but operations
-    are delegated to graphviz.
-    Everything is going to be static / classmethod.
-    '''
-
-    @classmethod
-    def init(cls, name, **attrs):
-        cls.the_graph = gvz.Digraph(name, **attrs)
-        return cls.the_graph
-
-    @classmethod
-    def setv(cls, who, attr, val):
-        '''
-        Not available for graphviz, either we set default attributes
-        with attr or set the attributes of nodes and edges at creation
-        time.
-        '''
-        pass
-
-    @classmethod
-    def layout(cls, graph, algorithm):
-        'never fails, lets render do everything'
-        return True
-
-    @classmethod
-    def render(cls, graph, algorithm, name):
-        cls.the_graph.render(view = True)
-
-    @classmethod
-    def node(cls, graph, name, **attrs):
-        'the call returns none, need to grab the node by the name'
-        cls.the_graph.node(name, **attrs)
-        return name
-
-    @classmethod
-    def graph(cls, supergraph, name):
-        pass # subgraph
-
-    @classmethod
-    def edge(cls, source, target, **attrs):
-        'graph is NOT a parameter!'
-        cls.the_graph.edge(source, target, **attrs)
-
-    @classmethod
-    def nameof(cls, name):
-        'gvz only acceses nodes via names'
-        return name
+import gv # official Python bindings to Graphviz, apt install python3-gv
 
 class DecTree(dict):
     '''
@@ -171,26 +120,21 @@ class DecTree(dict):
 
     def _add_clan(self, gvgraph, clan, is_root = False):
         '''
-        Add the whole subtree below that clan to the Graphviz graph.
+        Add the whole subtree below that clan to the Graphviz graph,
+        return the node handle for the point that represents the clan.
         Thus, both a big clan node or a singleton, plus a point-shaped 
         stand-in, are to be added.
-        Refactoring everything for using the pip/conda-importable 
-        graphviz instead of the python3-gv official bindings.
-        Caveat: methods in that library do NOT return
-        node/edge/graph handles, must use just names!
         Caveat on flattening: 
         see https://github.com/balqui/degais/issues/10
         '''
         if clan.is_sgton:
-            # ~ headnode = gv.node(gvgraph, clan[0])
-            headnode = clan[0] # name for future node not yet created
+            headnode = gv.node(gvgraph, clan[0])
         else:
             "gather back the subtree points"
             the_subgraph = gv.graph(gvgraph, "CL_" + clan.name)
             the_nodes = list()
             sortedclans = list()
             for subclan in sorted(clan, key = len, reverse = True):
-				"Very unclear how to handle the recursive call - CAVEAT, BLOCKED HERE"
                 the_nodes.append(self._add_clan(gvgraph, subclan))
                 sortedclans.append(subclan)
             if clan.color == 0:
@@ -236,15 +180,14 @@ class DecTree(dict):
 
 
     def draw(self, root, name):
-        # ~ gvgraph = gv.strictdigraph(name) # a graph handle
-        # ~ gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
-        # ~ gv.setv(gvgraph, "newrank", "true") # o/w rank=same in flattening doesn't work
-        gvgraph = gv.init(name, "compound" = "true", "newrank" = "true")
-        self._add_clan(gvgraph, root, is_root = True)
-        # ~ ok = gv.layout(gvgraph, "dot")
-        # ~ if not ok:
-            # ~ print("Layout failed for", name)
-            # ~ exit()
+        gvgraph = gv.strictdigraph(name) # a graph handle
+        gv.setv(gvgraph, "compound", "true") # o/w renderer with clusters fails
+        gv.setv(gvgraph, "newrank", "true") # o/w rank=same in flattening doesn't work
+        _ = self._add_clan(gvgraph, root, is_root = True)
+        ok = gv.layout(gvgraph, "dot")
+        if not ok:
+            print("Layout failed for", name)
+            exit()
         ok = gv.render(gvgraph, "dot", name + ".gv")
         if not ok:
             print("Render failed for", name + ".gv")

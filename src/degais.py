@@ -1,7 +1,7 @@
 '''
 DeGaiS: Decomposing Gaifman Structures
 
-Current version: mid Vendemiaire 2024
+Current version: early Brumaire 2024
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
@@ -18,12 +18,13 @@ by early Vendemiaire 2024.
 from collections import defaultdict as ddict
 from itertools import combinations
 from functools import partial
-from os import system as call
 
 from ezGraph import EZGraph
 from clans import Clan
-from dectree import DecTree
-# ~ from dectree_again import DecTree
+from dectree import DecTree # based on SB's graphviz for Python
+                            # see deadends/dectree_linux.py for 
+                            # a Linux-only variant based on the
+                            # official Graphviz bindings python3-gv
 
 from binning import ident, binary, thresh, linwidth, expwidth
 
@@ -35,9 +36,8 @@ from binning import ident, binary, thresh, linwidth, expwidth
 
 # Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
 
-# from td2dot import read_graph_in
+VERSION = "1.1"
 
-VERSION = "1.0 alpha"
 
 def run():
     '''
@@ -87,7 +87,10 @@ def run():
 
     default = { 'thresh': 1, 'expwidth': 10, 'linwidth': 10,
                  'binary': 1, 'ident': 1 } # last two irrelevant
-    param = default[args.coloring] if args.param is None else float(args.param) # caveat: maybe should get back to int
+    if args.coloring == 'expwidth' and not float(args.param) > 0:
+        print(" . Disallowed value " + args.param + " for " + args.coloring + '.')
+        exit()
+    param = default[args.coloring] if args.param is None else float(args.param) # maybe should get back to int?
     coloring = partial(eval(args.coloring), param)
 
     g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
@@ -106,7 +109,7 @@ def run():
         print(" . No items available at these thresholds. Exiting.")
         exit()
     ans = input(" . Continue? ")
-    if ans not in ['y', 'Y', 'yes', 'Yes', 'YEs', 'YES' ]: exit()
+    if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
 
     # Initialize the decomposition tree
     dt = DecTree(g)
@@ -116,21 +119,10 @@ def run():
     for it in items[1:]:
         item_cl = dt.sgton(it)
         root = root.add(item_cl, dt)
-        # ~ print(" ... added", it, "and the current root of color", root.color, "is:")
-        # ~ for e in root:
-            # ~ print('    ', e)
-
-    # ~ print(root)
-    # ~ print(g)
-    # ~ print(dt.visib)
-    # ~ for name in dt:
-        # ~ print(name, dt[name])
-    # ~ g.to_dot("tt")
 
     # Convert the decomposition tree into a GV graph for drawing
     dt.draw(root, filename)
     print(" . Wrote", filename + ".gv")
-    # ~ call("xdot " + filename + ".gv") # split into dot call and mimeopen
 
 if __name__ == "__main__":
     run()

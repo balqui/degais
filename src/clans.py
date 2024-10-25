@@ -1,4 +1,3 @@
-from ezGraph import SEP, EZGraph
 from auxfun import delbl
 from collections import Counter, defaultdict as ddict
 
@@ -123,7 +122,6 @@ class Clan(list):
             Careful: the test might add self.color to the keys of 
             visib_dict even if it is with an empty list as value.
             '''
-            # print(' ... 1a', self, item_cl)
             return dt.clan(self + [ item_cl ], dt.how_seen(self, item_cl))
 
         if self.color > -1 and 0 < len(visib_dict[self.color]): # < len(self) o/w 1a
@@ -131,7 +129,6 @@ class Clan(list):
             Case 1b: some, but not all, seen as self.color, then clan
             reduces to these, recursive call on new clan with the rest.
             '''
-            # print(' ... 1b', self, item_cl)
 
             # self is left alone, two new clans are created instead
             rest_pos = list(set(range(len(self))).difference(visib_dict[self.color]))
@@ -155,10 +152,6 @@ class Clan(list):
             recursive call would not reduce size.
             Covers 2b as well when self is primitive.
             '''
-            # ~ if self.color == -1:
-                # ~ print(' ... 2b', self, item_cl) # , somecolor, visib_dict[somecolor], len(self))
-            # ~ else:
-                # ~ print(' ... 1c', self, item_cl) # , somecolor, visib_dict[somecolor], len(self))
             dt.visib.new_edge(self.name, item_cl.name, somecolor + 2, '1c/2b')
             new_cl = dt.clan([self, item_cl], somecolor)
             return new_cl
@@ -172,7 +165,6 @@ class Clan(list):
             Case 2a: self is primitive and a sibling is found 
             that sees everyone else in self in the same way as item.
             '''
-            # ~ print(' ... 2a', self, item_cl, 'sibling is', self[pos_sibl]) # , "in position", pos_sibl)
             added_cl = self[pos_sibl].add(item_cl, dt)
             new_cl = dt.clan( list(self[i] for i in range(len(self)) if i != pos_sibl) + [added_cl], -1)
             return new_cl
@@ -183,7 +175,6 @@ class Clan(list):
         either some are nonvisible, maybe all, 
         or at least 2 different colors present.
         '''
-        # ~ print(' ... 1d/2c', self, item_cl, end = ' ')
         new_cls = [ item_cl ]
         for col in visib_dict:
             if col == -1:
