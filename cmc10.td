@@ -1,0 +1,10 @@
+age:24 wife-education:near-low husband-education:near-high children-so-far:3 wife-religion:islam wife-is-working:no husband-occupation:2 standard-of-living:near-high exposure-to-media:good contraceptive-method:none
+age:45 wife-education:low husband-education:near-high children-so-far:10 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:high exposure-to-media:good contraceptive-method:none
+age:43 wife-education:near-low husband-education:near-high children-so-far:7 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:high exposure-to-media:good contraceptive-method:none
+age:42 wife-education:near-high husband-education:near-low children-so-far:9 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:near-high exposure-to-media:good contraceptive-method:none
+age:36 wife-education:near-high husband-education:near-high children-so-far:8 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:near-low exposure-to-media:good contraceptive-method:none
+age:19 wife-education:high husband-education:high children-so-far:0 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:near-high exposure-to-media:good contraceptive-method:none
+age:38 wife-education:near-low husband-education:near-high children-so-far:6 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:near-low exposure-to-media:good contraceptive-method:none
+age:21 wife-education:near-high husband-education:near-high children-so-far:1 wife-religion:islam wife-is-working:yes husband-occupation:3 standard-of-living:near-low exposure-to-media:good contraceptive-method:none
+age:27 wife-education:near-low husband-education:near-high children-so-far:3 wife-religion:islam wife-is-working:no husband-occupation:3 standard-of-living:high exposure-to-media:good contraceptive-method:none
+age:45 wife-education:low husband-education:low children-so-far:8 wife-religion:islam wife-is-working:no husband-occupation:2 standard-of-living:near-low exposure-to-media:not-good contraceptive-method:none
