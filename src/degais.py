@@ -26,15 +26,16 @@ from dectree import DecTree # based on SB's graphviz for Python
                             # a Linux-only variant based on the
                             # official Graphviz bindings python3-gv
 
-from binning import ident, binary, thresh, linwidth, expwidth
+from binning import \
+    ident, binary, thresh, linwidth, expwidth, lguess, eguess
 
 # ident: keeps multiplicities as labels
 # binary: labels 0/1 give, essentially, a standard Gaifman graph
 # thresh: thresholded Gaifman graph, threshold given as param
-# linwidth: linear Gaifman graph, interval width given as param
-# thresh: exponential Gaifman graph, base given as param
-
-# Caveat: STRANGE BEHAVIOR HAPPENED WITH BINNING CONST ZERO
+# linwidth: linear Gaifman graph, interval width given as param,
+#   default value provided by lguess
+# expwidth: exponential Gaifman graph, base given as param,
+#   default value provided by eguess
 
 VERSION = "1.1"
 
@@ -85,17 +86,19 @@ def run():
     else:
         fullfilename = filename + ".td"
 
-    default = { 'thresh': 1, 'expwidth': 10, 'linwidth': 10,
-                 'binary': 1, 'ident': 1 } # last two irrelevant
-    if args.coloring == 'expwidth' and args.param is not None and not float(args.param) > 0:
-        print(" . Disallowed value " + args.param + " for " + args.coloring + '.')
-        exit()
-    param = default[args.coloring] if args.param is None else float(args.param) # maybe should get back to int?
-    coloring = partial(eval(args.coloring), param)
-    print(args.coloring, param, coloring(0), coloring(500))
-
-    g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
+    g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
+
+    default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
+                 'linwidth': lguess(g.mx, g.mn), 
+                 'binary': 1, 'ident': 1 } # last two irrelevant
+    if args.coloring.endswith('width') and args.param is not None and \
+        float(args.param) <= 0:
+            print(" . Disallowed value " + args.param + " for " + args.coloring + '.')
+            exit()
+    param = default[args.coloring] if args.param is None else float(args.param)
+    g.recolor(partial(eval(args.coloring), param))
+
     print(" . Loaded " + fullfilename + "; coloring: " + args.coloring
           + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 

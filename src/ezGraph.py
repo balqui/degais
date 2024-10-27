@@ -43,7 +43,7 @@ class EZGraph(ddict):
     later into DOT format.
     '''
 
-    def __init__(self, filename = None, coloring = lambda x: x, frq_thr = 1):
+    def __init__(self, filename = None, frq_thr = 1):
         '''
         The filename must be a .td file containing only transactions,
         but see https://github.com/balqui/degais/issues/12 about it;
@@ -84,9 +84,18 @@ class EZGraph(ddict):
                     if u < v:
                         mx = max(mx, self[u][v])
                         mn = min(mn, self[u][v])
-                        self[u][v] = coloring(self[u][v])
+                        # ~ self[u][v] = coloring(self[u][v]) MOVED TO SEPARATE METHOD
             self.mx = mx # highest frequency value seen among thresholded items
             self.mn = mn # lowest frequency value, sometimes it is not zero
+            # consider setting up a more informative histogram
+
+
+    def recolor(self, coloring):
+            for u in self.items:
+                for v in self.items:
+                    if u < v:
+                        self[u][v] = coloring(self[u][v])
+
 
     def __str__(self):
         "Tuned for 1-digit colors, short names and few nodes; caveat: improve some day"
