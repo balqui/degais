@@ -5,13 +5,14 @@ Current version: early Brumaire 2024
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528,
 relying in large parts on the functionality of code by 
-Marie Ely Piceno (https://github.com/balqui/labgaif)
-but fully rewritten.
+Marie Ely Piceno (https://github.com/balqui/labgaif),
+fully rewritten.
 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
-Umpteenth attempt at having a working platform on which view
-2-structure decompositions of generalized Gaifman graphs.
+Umpteenth attempt at having a working platform on which 
+we can view 2-structure decompositions of generalized 
+Gaifman graphs.
 
 ## Usage
 
@@ -36,15 +37,23 @@ between two items if they appear together in at least `T` many
 transactions, a default corresponding to one plus the minimum frequency 
 of a pair is set if `--param` is omitted;
 
-`linwidth`: edge colors correspond to intervals of `L` width if
-`--param L` is specified, otherwise an empirically determined 
-default for `L` is set;
+`linwidth`: edge colors correspond to frequencies of cooccurrence 
+falling in intervals of width `L`, if `--param L` is specified, 
+otherwise an empirically determined default for `L` is set;
 
-expwidth: edge colors correspond to intervals of exponentially
-growing width with base `B` if `--param B` is specified, otherwise 
-an empirically determined default for `B` is set.
+`expwidth`: edge colors correspond to frequencies of cooccurrence 
+falling in intervals of exponentially growing width with base `B`, 
+if `--param B` is specified, otherwise an empirically determined 
+default for `B` is set.
  
+### Hints
 
+Large primitive clans do not provide any intuition about the dataset;
+the more potential "colors" are allowed, the larger the primitive
+clans show up, hence it is recommended that only up to 4 or 5 color
+values are employed. Default values of the parameter for each option 
+may fail spectacularly: check out all the information provided to 
+provide explicit alternative values to explore.
 
 
 

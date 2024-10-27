@@ -1,4 +1,7 @@
 '''
+Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
+Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
+
 Binning functions to reduce the quantity of labels in a 
 Gaifman structure as labeling with frequencies may be
 too rigid.

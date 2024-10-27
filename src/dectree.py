@@ -1,3 +1,8 @@
+'''
+Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
+Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
+'''
+
 from itertools import combinations as comb
 from auxfun import delbl
 from ezGraph import EZGraph, SEP
