@@ -9,10 +9,12 @@ far more complications than preparing it from scratch.
 
 Pending: smarter iterator on .td file to handle comments and such.
 
-As of recently, items must not contain SEP which defaults to '-',
+Items must not contain SEP which defaults to '-',
 see https://github.com/balqui/degais/issues/3 about that. 
-Earlier constraint that items must not start with an asterisk not
-enforced anymore.
+Also, graphviz.readthedocs.io requires not to have ':' in node
+names as the syntax is employed for ports and such.
+Earlier constraint that items must not start with an asterisk
+not enforced anymore.
 '''
 
 from collections import Counter, defaultdict as ddict
@@ -98,7 +100,10 @@ class EZGraph(ddict):
 
 
     def __str__(self):
-        "Tuned for 1-digit colors, short names and few nodes; caveat: improve some day"
+        '''
+        Tuned for 1-digit colors, short names and few nodes; to
+        improve some day, see https://github.com/balqui/degais/issues/5
+        '''
         mxlen = 0
         for u in self.items:
             mxlen = max(mxlen, len(u))

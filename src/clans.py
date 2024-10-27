@@ -37,7 +37,8 @@ class Clan(list):
         very same way as item_cl, return it if found, don't return o/w.
         If self is complete, all are siblings but we would have run case
         1a before checking it out.
-        Caveat: this is a potential source of quadratic cost.
+        This might be a potential source of quadratic cost, see
+        https://github.com/balqui/degais/issues/7
         '''
         for pos_cand, cand_sib in enumerate(self):
             for other in range(len(self)):
@@ -71,7 +72,7 @@ class Clan(list):
 
     def split(self, item_cl, dt):
         '''
-        With complete in mind. Caveat: are primitive cases correct?
+        Recursive splitting.
         '''
         v, _ = self._color_lists(item_cl, dt)
         out_clans = list()

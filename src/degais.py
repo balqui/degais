@@ -125,8 +125,8 @@ def run():
         root = root.add(item_cl, dt)
 
     # Convert the decomposition tree into a GV graph for drawing
-    dt.draw(root, filename)
-    print(" . Wrote", filename + ".gv")
+    outfile = dt.draw(root, filename)
+    print(" . Wrote", filename + ".gv and " + outfile + ".")
 
 if __name__ == "__main__":
     run()

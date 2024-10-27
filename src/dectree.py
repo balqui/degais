@@ -3,9 +3,9 @@ from auxfun import delbl
 from ezGraph import EZGraph, SEP
 from clans import Clan
 import graphviz as gvz # NOT the official bindings!
-        # ~ Refactoring everything for using the pip/conda-importable 
+        # ~ Refactored everything for using the pip/conda-importable 
         # ~ graphviz instead of the python3-gv official bindings.
-        # ~ Caveat on flattening: 
+        # ~ Flattening could be extended, see: 
         # ~ see https://github.com/balqui/degais/issues/10
 
 # ~ ALSO: current graphviz does not support colons in node names
@@ -84,16 +84,17 @@ class DecTree(dict):
 
     def how_seen(self, source, target):
         '''
-        Color with which the target clan is seen from the 
-        source clan, if any; colors are stored here under 
-        a +2 increment so that original colors count from 
-        2 up. A 1 is stored to signal that clans are not 
-        visible from each other and, as EZGraph is a ddict 
-        of Counter, 0 signals that we still don't have a 
-        color recorded and must check the graph. Most +2/-2 
-        noise confined to this particular function but a bit
-        left in Clan.add(). Caveat: would be good to refactor 
-        that. Answer from here is never -2.
+        Color with which the target clan is seen from the source clan, 
+        if any.
+        HACK: colors are stored here under a +2 increment so that 
+        original colors count from 2 up. A 1 is stored to signal that 
+        clans are not visible from each other and, as EZGraph is a 
+        ddict of Counter, 0 signals that we still don't have a color 
+        recorded and must check the graph. 
+        Answer from here is never -2. 
+        Most +2/-2 noise confined to this particular function but 
+        a bit of it left in Clan.add(). 
+        Try and refactor this hack someday. 
         '''
         s_nm, t_nm = min(source.name, target.name), max(source.name, target.name)
         guess = self.visib[s_nm][t_nm] - 2 
@@ -139,8 +140,8 @@ class DecTree(dict):
         fl = dict()
         if len(clan) <= 2 or clan.color == 0:
             '''
-            flatten the cluster 
-            (caveat: some more flattening cases should be added)
+            flatten the cluster; would like to flatten path clusters
+            as well, but that is not implemented yet.
             '''
             fl["rank"] = "same"
         with gvgraph.subgraph(name = clus_name,
@@ -200,10 +201,10 @@ class DecTree(dict):
     def draw(self, root, name):
         gvgraph = gvz.Digraph(name, graph_attr = { "compound": "true", "newrank": "true" })
         if root.is_sgton:
-            "caveat: test this"
-            gvgraph.node(root[0].name)
+            gvgraph.node(root[0])
         else:
             self._add_clan(gvgraph, root)
-        gvgraph.render() # add view = True to launch visualizer
+        return gvgraph.render(format = "png", view = True) 
+        # returns output filename
 
 
