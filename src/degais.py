@@ -87,11 +87,12 @@ def run():
 
     default = { 'thresh': 1, 'expwidth': 10, 'linwidth': 10,
                  'binary': 1, 'ident': 1 } # last two irrelevant
-    if args.coloring == 'expwidth' and not float(args.param) > 0:
+    if args.coloring == 'expwidth' and args.param is not None and not float(args.param) > 0:
         print(" . Disallowed value " + args.param + " for " + args.coloring + '.')
         exit()
     param = default[args.coloring] if args.param is None else float(args.param) # maybe should get back to int?
     coloring = partial(eval(args.coloring), param)
+    print(args.coloring, param, coloring(0), coloring(500))
 
     g = EZGraph(fullfilename, coloring, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items

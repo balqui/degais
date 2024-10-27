@@ -4,6 +4,7 @@ Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
 Assorted, auxiliary little functions needed by several modules.
 '''
+from math import ceil
 
 def delbl(lbl):
     '''
@@ -15,3 +16,9 @@ def delbl(lbl):
 def q(s):
     'quote string s'
     return '"' + s + '"'
+
+def eguess(mx, mn):
+    '''
+    JLB guess of default base for expwidth coloring
+    '''
+    return ceil( (mx/mn) ** (1/3) )
