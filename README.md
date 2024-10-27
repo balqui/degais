@@ -55,9 +55,11 @@ values are employed. Default values of the parameter for each option
 may fail spectacularly: check out all the information provided to 
 provide explicit alternative values to explore.
 
+### Example
 
+An example here.
 
-### Previous developments:
+## Previous developments:
 
 Idea started several decades ago and went through several
 different manifestations from 2017 onwards. The present 
