@@ -37,7 +37,7 @@ from binning import \
 # expwidth: exponential Gaifman graph, base given as param,
 #   default value provided by eguess
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 
 def run():
