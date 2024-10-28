@@ -22,8 +22,8 @@ linwidth = lambda w, x: x // int(w) # w width of regular intervals
 # task of ensuring denominator is not null falls upon the caller
 
 # binning with exponentially growing intervals
-expwidth = lambda b, x: 1 if x <= b else floor(log(x, b))
-# zero (and potential negatives) flattened up to const 1
+expwidth = lambda b, x: 0 if x < b else floor(log(x, b))
+# zero (and potential negatives) flattened up to const 0
 
 # JLB guess of default width for linwidth coloring
 lguess = lambda mx, mn: ceil( (mx - mn)/4 )
