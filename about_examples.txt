@@ -163,3 +163,6 @@ HOWEVER:
 If singleton transactions are kept, the graph is the same BUT 
 the frequencies are not, since e. g. diagnostic 650 appears 
 143 times and always alone.
+
+Some good cases for diagnostics only: -f 4000 thresh 500, -f 3500 thresh 2000
+(particularly good if 4-paths become one day flattened)
