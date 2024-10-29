@@ -1,6 +1,8 @@
 # degais
 Decomposing Gaifman Structures (again)
 
+![Zoo dataset, freq thr 28, exp 4](zoo_28_exp_4.png)
+
 Current version: early Brumaire 2024
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528,
