@@ -3,10 +3,6 @@ Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 '''
 
-print("NOOOOOOOOOOOOO")
-exit()
-
-
 from auxfun import delbl, comb
 from ezGraph import EZGraph, SEP
 from clans import Clan
@@ -146,17 +142,28 @@ class DecTree(dict):
         clus_contents = list()
         clus_name = "CL_" + clan.name
         fl = dict()
-        if len(clan) <= 2 or clan.color == 0:
-            '''
-            flatten the cluster; would like to flatten path clusters
-            as well, but that is not implemented yet.
-            '''
+        # ~ if len(clan) <= 2 or clan.color == 0:
+        print(" ... drawing:", clan)
+        flattened = False
+        if clan.color == 0:
+            "it is disconnected complete cluster, flatten it"
             fl["rank"] = "same"
+            flattened = True
+        else:
+            nclan = clan.path(self)
+            if nclan:
+                "it is a single-color path, flatten it"
+                clan = nclan
+                fl["rank"] = "same"
+                flattened = True
+                print(" ... flattened:", clan)
         with gvgraph.subgraph(name = clus_name,
                 graph_attr = { "cluster": "true" } | fl,
                 node_attr = { "shape": "point" }) as the_subgraph:
             "gather back the subtree points"
-            for subclan in sorted(clan, key = len, reverse = True):
+            # ~ for subclan in sorted(clan, key = len, reverse = True):
+            # ~ does not allow for the order change made in paths!
+            for subclan in clan:
                 if subclan.is_sgton:
                     subhead = subclan.name
                     gvgraph.node(subhead, label = subclan[0])
@@ -168,13 +175,15 @@ class DecTree(dict):
                 the_subgraph.node(stand_in, shape = 'point')
                 clus_contents.append( 
                             (subclan, stand_in, subclus, subhead) )
-        clus_contents = sorted(clus_contents, 
-                               key = lambda cl: cl[0].name)
+        # ~ clus_contents = sorted(clus_contents, 
+                               # ~ key = lambda cl: cl[0].name)
+        # ~ does not allow for the order change made in paths!
         # singletons have been sorted also there
         # identify own head node
-        if clan.color == 0:
+        if flattened:
+        # ~ if clan.color == 0:
             "will be flattened, aim at near middle"
-            headnode = clus_contents[(len(clan)+1) // 2][1]
+            headnode = clus_contents[(len(clan)-1) // 2][1]
         else:
             "aim at the alpha-earliest, which will be on top"
             headnode = clus_contents[0][1]

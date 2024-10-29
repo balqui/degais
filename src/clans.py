@@ -3,7 +3,7 @@ Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 '''
 
-from auxfun import delbl
+from auxfun import delbl, comb
 from collections import Counter, defaultdict as ddict
 
 class Clan(list):
@@ -35,6 +35,65 @@ class Clan(list):
         self.name = name
         self.color = color
         self.is_sgton = False
+
+
+    def path(self, dt):
+        '''
+        Check whether it is a single-color path, discounting
+        the color 0, transparent; if so, reorder members so
+        that it is drawn indeed as a path later.
+        '''
+        print(" ... path test", self)
+        count = 0
+        seencol = 0
+        neigh = ddict(list) # adjacency lists on names
+        for cl_a, cl_b in comb(self, 2):
+            col = dt.how_seen(cl_a, cl_b)
+            if col > 0:
+                count += 1
+                if seencol == 0:
+                    seencol = col
+                elif col != seencol:
+                    "not a single-color path if path at all"
+                    return False
+                neigh[cl_a.name].append(cl_b.name)
+                neigh[cl_b.name].append(cl_a.name)
+        if count != len(self) - 1:
+            "not a path, wrong number of edges"
+            return False
+        for scl in neigh:
+            if len(neigh[scl]) > 2:
+                "not a path, vertex of degree higher than 2"
+                return False
+        # attempt at constructing path, name by name
+        curr = None
+        for scl in neigh:
+            "start with some vertex of deg 1"
+            if len(neigh[scl]) == 1:
+                curr = scl
+                break
+        if curr is None:
+            "not a path, no vertex of degree 1"
+            return False
+        attempt = list() # order the names following the path
+        attempt.append(dt[curr])
+        nxt = neigh[curr][0] # uniquely defined here
+        while len(neigh[nxt]) == 2:
+            "keep constructing path"
+            for scl in neigh[nxt]:
+                if scl != curr:
+                    curr = nxt
+                    attempt.append(dt[curr])
+                    nxt = scl
+                    break
+        attempt.append(dt[nxt])
+        if len(attempt) < len(self):
+            "path too short, rest may have cycles"
+            return False
+        else:
+            "path found"
+            return Clan(self.name, attempt, self.color) # color must say primitive
+
 
     def sibling(self, item_cl, dt):
         '''
