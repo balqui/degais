@@ -20,7 +20,8 @@ from functools import partial
 
 from ezGraph import EZGraph
 from clans import Clan
-from dectree import DecTree # based on SB's graphviz for Python
+from dectree_path import DecTree # based on SB's graphviz for Python
+# ~ from dectree import DecTree # based on SB's graphviz for Python
                             # see deadends/dectree_linux.py for 
                             # a Linux-only variant based on the
                             # official Graphviz bindings python3-gv

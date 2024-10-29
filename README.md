@@ -1,4 +1,4 @@
-# degaist
+# degais
 Decomposing Gaifman Structures (again)
 
 Current version: early Brumaire 2024
