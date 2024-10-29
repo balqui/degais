@@ -43,7 +43,6 @@ class Clan(list):
         the color 0, transparent; if so, reorder members so
         that it is drawn indeed as a path later.
         '''
-        print(" ... path test", self)
         count = 0
         seencol = 0
         neigh = ddict(list) # adjacency lists on names
@@ -171,7 +170,6 @@ class Clan(list):
             singletons so we just change the place of the test
             but would not really simplify the code.
             '''
-            # print(' ... ... second item', item_cl, 'for', self)
             return dt.clan([self, item_cl], dt.how_seen(self, item_cl))
 
         # Call _color_lists to set up subclan visibility lists, by colors, 

@@ -142,8 +142,6 @@ class DecTree(dict):
         clus_contents = list()
         clus_name = "CL_" + clan.name
         fl = dict()
-        # ~ if len(clan) <= 2 or clan.color == 0:
-        print(" ... drawing:", clan)
         flattened = False
         if clan.color == 0:
             "it is disconnected complete cluster, flatten it"
@@ -156,13 +154,12 @@ class DecTree(dict):
                 clan = nclan
                 fl["rank"] = "same"
                 flattened = True
-                print(" ... flattened:", clan)
         with gvgraph.subgraph(name = clus_name,
                 graph_attr = { "cluster": "true" } | fl,
                 node_attr = { "shape": "point" }) as the_subgraph:
             "gather back the subtree points"
             # ~ for subclan in sorted(clan, key = len, reverse = True):
-            # ~ does not allow for the order change made in paths!
+            # ~ would not preserve the order change made in paths!
             for subclan in clan:
                 if subclan.is_sgton:
                     subhead = subclan.name
@@ -175,17 +172,16 @@ class DecTree(dict):
                 the_subgraph.node(stand_in, shape = 'point')
                 clus_contents.append( 
                             (subclan, stand_in, subclus, subhead) )
+        # singletons sorted also now - REMOVED, because it
+        # does not preserve the order change made in paths!
         # ~ clus_contents = sorted(clus_contents, 
                                # ~ key = lambda cl: cl[0].name)
-        # ~ does not allow for the order change made in paths!
-        # singletons have been sorted also there
         # identify own head node
         if flattened:
-        # ~ if clan.color == 0:
-            "will be flattened, aim at near middle"
+            "aim at near middle"
             headnode = clus_contents[(len(clan)-1) // 2][1]
         else:
-            "aim at the alpha-earliest, which will be on top"
+            "aim at the top"
             headnode = clus_contents[0][1]
 
         for (subclan, stand_in, subclus, subhead) in clus_contents:
@@ -205,7 +201,7 @@ class DecTree(dict):
                     len(self.palette)): 
                         color = self.palette[hs]
                 else:
-                    print("Sorry. Too high class numbers", 
+                    print(" . Sorry. Too high class numbers", 
                           "or not enough colors.")
                     exit()
                 gvgraph.edge(left_stand_in, right_stand_in, 
