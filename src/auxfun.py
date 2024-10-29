@@ -5,6 +5,8 @@ Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 Assorted, auxiliary little functions needed by several modules.
 '''
 
+from itertools import combinations as comb
+
 def delbl(lbl):
     '''
     reduce lbl to only alnum chars or dot, capitalized initial 

@@ -18,8 +18,7 @@ not enforced anymore.
 '''
 
 from collections import Counter, defaultdict as ddict
-from itertools import combinations
-from auxfun import delbl, q
+from auxfun import delbl, q, comb
 from bisect import bisect, insort
 
 SEP = '-'       # constant to make up clan names, forbidden in items
@@ -68,7 +67,7 @@ class EZGraph(ddict):
                     if transaction:
                         lns += 1
                         items.update(Counter(transaction))
-                        for (u,v) in combinations(transaction, 2):
+                        for (u,v) in comb(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(it for it in items if items[it] >= frq_thr)
             mx = 0

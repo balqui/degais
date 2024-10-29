@@ -16,7 +16,6 @@ by early Vendemiaire 2024.
 '''
 
 from collections import defaultdict as ddict
-from itertools import combinations
 from functools import partial
 
 from ezGraph import EZGraph
