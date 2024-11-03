@@ -5,7 +5,7 @@ Explore discretization in 2 or 3 bins.
 from math import comb, log
 from random import gauss
 
-eps = 0.1
+eps = 0.001
 
 def initreg(n):
     reg = [0, 1]
@@ -16,8 +16,9 @@ def initreg(n):
     return reg
 
 def intlen(d, beg, end):
-    "length of left interval up to cut"
-    return d[end-1] - d[beg] + 2*eps
+    "length of interval"
+    # ~ return d[end-1] - d[beg] + 2*eps
+    return max(d[end] - d[beg], eps)
 
 def evhalf(d, beg, end):
     return (end-beg)*log((end-beg)/(lim*intlen(d, beg, end)))
@@ -46,13 +47,24 @@ except ValueError:
 reg = initreg(n)
 
 d = list()
-for _ in range(n):
+# ~ for _ in range(n):
+    # ~ d.append(gauss(0, 1))
+for _ in range(n//2):
     d.append(gauss(0, 1))
-d = sorted(d)
+for _ in range(n - n//2):
+    d.append(gauss(4, 1))
+
+if n < 25:
+    print("raw:", ' '.join(f"{dt:6.2f}" for dt in d))
 
 print("logreg:",  ' '.join(f"{log(r):6.2f}" for r in reg[1:]))
+
+d = sorted(d)
+d.append(d[-1] + eps) # artificial right extreme
+
 if n < 25:
     print("data:", ' '.join(f"{dt:6.2f}" for dt in d))
+    print("diff:", ' '.join(f"{d[i+1]-d[i]:6.2f}" for i in range(len(d)-1)))
 
 spl2loglik = list()
 spl2optcut = list()
