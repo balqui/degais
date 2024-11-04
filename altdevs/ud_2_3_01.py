@@ -50,30 +50,50 @@ except ValueError:
 
 reg = initreg(n)
 
+
+# ~ =============================
+
+from itertools import chain, pairwise
+
 d = list()
-# ~ for _ in range(n):
-    # ~ d.append(gauss(0, 1))
-for _ in range(n//2):
+for _ in range(n):
     d.append(gauss(0, 1))
-for _ in range(n - n//2):
-    d.append(gauss(4, 1))
+# ~ for _ in range(n//2):
+    # ~ d.append(gauss(0, 1))
+# ~ for _ in range(n - n//2):
+    # ~ d.append(gauss(4, 1))
 
-if n < 25:
-    print("raw:", ' '.join(f"{dt:6.2f}" for dt in d))
+# ~ if n < 25:
+    # ~ print("raw:", ' '.join(f"{dt:6.2f}" for dt in d))
 
-print("logreg:",  ' '.join(f"{log(r):6.2f}" for r in reg[1:]))
+# ~ print("logreg:",  ' '.join(f"{log(r):6.2f}" for r in reg[1:]))
 
 d = sorted(d)
-d.append(d[-1] + eps) # artificial right extreme
 
-if n < 25:
-    print("data:", ' '.join(f"{dt:6.2f}" for dt in d))
-    print("diff:", ' '.join(f"{d[i+1]-d[i]:6.2f}" for i in range(len(d)-1)))
+# minimum difference of consecutive, different values
+mindiff = min(b - a for a, b in pairwise(d) if b - a != 0)
+
+# 0.1 fraction of minimum empirical separation
+eps = mindiff/10 
+
+# candcuts[0] and candcuts[-1] always belong to the cut sequence
+candcuts = list(chain.from_iterable([a - eps, a + eps] for a in d))
+
+# a = d[i] iff candcuts[2*i] = a - eps and candcuts[2*i-1] = a + eps
+# ~ for i, a in enumerate(d):
+    # ~ print(a - eps, candcuts[2*i])
+    # ~ print(a + eps, candcuts[2*i+1])
+
+# ~ if n < 25:
+    # ~ print("data:", ' '.join(f"{dt:6.2f}" for dt in d))
+    # ~ print("diff:", ' '.join(f"{d[i+1]-d[i]:6.2f}" for i in range(len(d)-1)))
+
+exit()
 
 spl2loglik = list()
 spl2optcut = list()
 
-for lim in range(2, n):
+for lim in range(1, ):
     "best cost for a cut into d[0:cut] and d[cut:lim], cut in range(1, lim-1)"
     ll, oc = ocut(d, lim)
     spl2loglik.append(ll) # pos lim-2
