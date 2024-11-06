@@ -12,6 +12,7 @@ from math import comb, log
 from random import gauss
 
 DEFAULTSIZE = 50
+VLOW = float('-inf')
 
 def initreg(n):
     "fails for n = 1030 at i = 500, int too large to become float"
@@ -28,21 +29,19 @@ def intsum(md, b, e):
 
 def ev_int(candcuts, md, beg, end, lim):
     '''
-    CAVEAT: still to figure out a value for empty intervals, 
-            (now possible) and see whether that is what happens now
-    beg even: start adding up at beg//2 o/w at (beg+1)//2 incl
-    end even: stop  adding up at end//2 o/w at (end+1)//2 excl
+    VLOW value for empty intervals, now possible
     start adding up at (beg+1)//2 incl
     stop  adding up at (end+1)//2 excl
     '''
-    print("Evaluate", beg, end, lim, candcuts[beg], candcuts[end])
-    total = intsum(md, 0, lim)
     int_total = intsum(md, (beg+1)//2, (end+1)//2)
-    print("   int_total:", int_total)
+    if int_total == 0:
+        return VLOW
+    total = intsum(md, 0, lim)
     int_len = candcuts[end] - candcuts[beg]
     return int_total * log( int_total/(total*int_len) )
 
 def ev_cut(candcuts, md, lim, cut):
+    "VLOW absorbs addition with finite values or with VLOW"
     return ev_int(candcuts, md, 0, cut, lim) + \
            ev_int(candcuts, md, cut, lim, lim)
 
@@ -52,10 +51,11 @@ def ocut(candcuts, md, lim):
     cut in range(1, lim-1), 3 <= lim < len(candcuts)
     '''
     print("cuts up to", lim)
-    oc = 1
-    print("cut", oc, candcuts[oc])
-    mx = ev_cut(candcuts, md, lim, oc)
-    for cut in range(2, lim):
+    # ~ oc = 1
+    # ~ print("cut", oc, candcuts[oc])
+    # ~ mx = ev_cut(candcuts, md, lim, oc)
+    mx = VLOW
+    for cut in range(1, lim):
         print("cut", cut, candcuts[cut])
         m = ev_cut(candcuts, md, lim, cut)
         print(m)
