@@ -36,7 +36,7 @@ def ev_int(candcuts, md, beg, end, lim):
     int_total = intsum(md, (beg+1)//2, (end+1)//2)
     if int_total == 0:
         return VLOW
-    total = intsum(md, 0, lim)
+    total = intsum(md, 0, lim) # JUST STARTING TO HAVE SERIOUS DOUBTS ABOUT THIS VALUE
     int_len = candcuts[end] - candcuts[beg]
     return int_total * log( int_total/(total*int_len) )
 
@@ -50,13 +50,12 @@ def ocut(candcuts, md, lim):
     best cost for a cut into md[0:cut] and md[cut:lim]
     cut in range(1, lim-1), 3 <= lim < len(candcuts)
     '''
-    print("cuts up to", lim)
     # ~ oc = 1
     # ~ print("cut", oc, candcuts[oc])
     # ~ mx = ev_cut(candcuts, md, lim, oc)
     mx = VLOW
     for cut in range(1, lim):
-        print("cut", cut, candcuts[cut])
+        print("cut", cut, candcuts[cut], "->", end = ' ')
         m = ev_cut(candcuts, md, lim, cut)
         print(m)
         if m > mx:
@@ -95,11 +94,17 @@ if n < 25:
 
 # ~ d = sorted(d)
 
+d = [7, 7, 8, 10, 10]
+
+print("RESET TO", d)
+
 # to compute eps and candcuts we must collapse duplicates in d first
 dd = Counter(d)
 ud = sorted(dd) # data without duplicates
 md = tuple( dd[a] for a in ud ) # data multiplicities in same order as ud
                                 # immutable so that ev_int can be cached
+
+print("Multiplicities", list(zip(ud, md)))
 
 # minimum difference of consecutive, different values
 mindiff = min(b - a for a, b in pairwise(ud))
@@ -127,14 +132,33 @@ spl2optcut = list()
 
 print("candcuts", candcuts)
 
-# lim below 3 forces empty intervals
+# 2 intervals below 3 forces empty intervals
 for lim in range(3, len(candcuts)):
     "best cost for a cut below and up to lim-1"
+    print("2 intervals up to", lim)
     ll, oc = ocut(candcuts, md, lim)
+    print("best", oc, ll)
     spl2loglik.append(ll)
     spl2optcut.append(oc)
 
 print( "Cut into 2 at", oc, "loglik", ll, "total", ll - log(reg[2]) )
+
+# ~ spl2loglik[0]: val of best cut up to lim 3
+# ~ for ggg in enumerate(spl2loglik): print(ggg)
+
+mx = VLOW
+
+# 3 intervals below 4 implies empty intervals
+for c in range(4, len(candcuts)):
+    "best cost for a cut into opt cut in 2 of d[0:cut] and d[cut:lim]"
+    print("2 intervals up to", c, "plus 3rd one, val:", end = '')
+    m = spl2loglik[c-3] + ev_int(candcuts, md, c, len(candcuts) - 1, len(candcuts))
+    print(m)
+    if m > mx:
+        print("new best", c, m)
+        mx, o1c, o2c = m, spl2optcut[c-3], c
+
+print( "Cut into 3 at", o1c, o2c, "loglik", mx, "total", mx - log(reg[3]) )
 
 exit()
 
