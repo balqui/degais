@@ -38,7 +38,8 @@ def ev_int(candcuts, md, beg, end, lim):
         return VLOW
     total = intsum(md, 0, lim) # JUST STARTING TO HAVE SERIOUS DOUBTS ABOUT THIS VALUE
     int_len = candcuts[end] - candcuts[beg]
-    return int_total * log( int_total/(total*int_len) )
+    # ~ return int_total * log( int_total/(total*int_len) )
+    return int_total * log( eps*int_total/(total*int_len) )
 
 def ev_cut(candcuts, md, lim, cut):
     "VLOW absorbs addition with finite values or with VLOW"
@@ -141,7 +142,7 @@ for lim in range(3, len(candcuts)):
     spl2loglik.append(ll)
     spl2optcut.append(oc)
 
-print( "Cut into 2 at", oc, "loglik", ll, "total", ll - log(reg[2]), "with log", ll - log(reg[2]) + log(1/(len(candcuts)-2) ) )
+print( "Cut into 2 at", oc, "loglik", ll, "total", ll - log(reg[2]), "with log", ll - log(reg[2]) - log(len(candcuts)-2))
 
 # ~ spl2loglik[0]: val of best cut up to lim 3
 # ~ for ggg in enumerate(spl2loglik): print(ggg)
@@ -158,5 +159,5 @@ for c in range(4, len(candcuts)):
         # ~ print("new best", c, m)
         mx, o1c, o2c = m, spl2optcut[c-3], c
 
-print( "Cut into 3 at", o1c, o2c, "loglik", mx, "total", mx - log(reg[3]), "with log", mx - log(reg[3]) +  log(1/comb(len(candcuts)-2, 2) ) )
+print( "Cut into 3 at", o1c, o2c, "loglik", mx, "total", mx - log(reg[3]), "with log", mx - log(reg[3]) - log(comb(len(candcuts)-2, 2)))
 

@@ -25,6 +25,7 @@ from dectree import DecTree # based on SB's graphviz for Python
                             # a Linux-only variant based on the
                             # official Graphviz bindings python3-gv
 
+# TO REFACTOR INTO Palette CLASS
 from binning import \
     ident, binary, thresh, linwidth, expwidth, lguess, eguess
 
@@ -81,7 +82,7 @@ def run():
         fullfilename = filename
         filename, ext = filename.split('.', maxsplit = 1)
         if ext != "td":
-            print(" . Found extension", ext, "instead of td for file", filename)
+            print(" * Found extension", ext, "instead of td for file", filename)
     else:
         fullfilename = filename + ".td"
 
@@ -93,12 +94,14 @@ def run():
                  'binary': 1, 'ident': 1 } # last two irrelevant
     if args.coloring.endswith('width') and args.param is not None and \
         float(args.param) <= 0:
-            print(" . Disallowed value " + args.param + " for " + args.coloring + '.')
+            print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
             exit()
     param = default[args.coloring] if args.param is None else float(args.param)
+
+# TO REFACTOR INTO Palette CLASS
     g.recolor(partial(eval(args.coloring), param))
 
-    print(" . Loaded " + fullfilename + "; coloring: " + args.coloring
+    print(" * Loaded " + fullfilename + "; coloring: " + args.coloring
           + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 
           + "; pair frequencies, "
@@ -109,7 +112,7 @@ def run():
 
 
     if len(items) == 0:
-        print(" . No items available at these thresholds. Exiting.")
+        print(" * No items available at these thresholds. Exiting.")
         exit()
     ans = input(" . Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
@@ -125,7 +128,7 @@ def run():
 
     # Convert the decomposition tree into a GV graph for drawing
     outfile = dt.draw(root, filename)
-    print(" . Wrote", filename + ".gv and " + outfile + ".")
+    print(" * Wrote", filename + ".gv and " + outfile + ".")
 
 if __name__ == "__main__":
     run()

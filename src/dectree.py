@@ -43,6 +43,7 @@ class DecTree(dict):
         super().__init__(self)
         self.visib = EZGraph()
         self.graph = graph # the data/input Gaifman graph
+# TO REFACTOR INTO Palette CLASS
         self.palette = ( # original color sequence by Ely,
                          # except transparent instead of white
                         'transparent', 'black', 'blue', 'blueviolet',
