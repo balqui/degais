@@ -17,10 +17,21 @@ Plan is to:
 - that method must also register which values are actually employed
 - so as to offer also the drawing of the color legend only with actually
   employed colors and corresponding values or intervals
+- compute a default cut if coloring is thresh and no param is
+  specified, by applying Kontkanen-Myllymaeki before or after taking
+  the zeros out as required
 '''
 
 
 from math import floor, ceil, log
+
+# ident: keeps multiplicities as labels
+# binary: labels 0/1 give, essentially, a standard Gaifman graph
+# thresh: thresholded Gaifman graph, threshold given as param
+# linwidth: linear Gaifman graph, interval width given as param,
+#   default value provided by lguess
+# expwidth: exponential Gaifman graph, base given as param,
+#   default value provided by eguess
 
 ident = lambda _, x: x
 
