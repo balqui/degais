@@ -74,7 +74,8 @@ def run():
 
     argp.add_argument('-a', '--alledges', action = 'store_true', 
        help = "draw a complete graph instead of disconnecting " + \
-              "items that never co-occur (default: disconnect them)")
+              "items that never co-occur (default: disconnect " + \
+              "them); ignored if coloring is binary.")
 
     args = argp.parse_args()
 
@@ -96,19 +97,22 @@ def run():
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
 
+    palette = Palette(g.labels, args.coloring, args.alledges)
+
 # TO REFACTOR INTO Palette CLASS
-    default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
-                 'linwidth': lguess(g.mx, g.mn), 
-                 'binary': 1, 'ident': 1 } # last two irrelevant
-    if args.coloring.endswith('width') and args.param is not None and \
-        float(args.param) <= 0:
-            print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
-            exit()
-    param = default[args.coloring] if args.param is None else float(args.param)
+    # ~ default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
+                 # ~ 'linwidth': lguess(g.mx, g.mn), 
+                 # ~ 'binary': 1, 'ident': 1 } # last two irrelevant
+    # ~ if args.coloring.endswith('width') and args.param is not None and \
+        # ~ float(args.param) <= 0:
+            # ~ print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
+            # ~ exit()
+    # ~ param = default[args.coloring] if args.param is None else float(args.param)
 
 # TO REFACTOR INTO Palette CLASS
 # args.alledge bool False: draw transparent zeros True: draw all in color
-    g.recolor(partial(eval(args.coloring), param))
+    # ~ g.recolor(partial(eval(args.coloring), param))
+    g.recolor(palette.color)
 
     print(" * Loaded " + fullfilename + "; coloring: " + args.coloring
           + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 

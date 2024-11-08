@@ -19,7 +19,7 @@ not enforced anymore.
 
 from collections import Counter, defaultdict as ddict
 from auxfun import delbl, q, comb
-from bisect import bisect, insort
+from bisect import bisect, insort # RECHECK
 
 SEP = '-'       # constant to make up clan names, forbidden in items
 FORBIDDEN = ':' # Bank's graphviz syntax implies ':' forbidden in items  
@@ -32,9 +32,9 @@ class EZGraph(ddict):
     include some occurrence of the pair (u, v) or, alternatively, the 
     outcome of an optional binning strategy (called coloring and for 
     now imported from a binning package) on that quantity. The values 
-    g[u][v] are then called colors or labels. Another instance stores 
-    the visibility graph of the decomposition tree: how each clan sees 
-    each other as we have found up to that point.
+    g[u][v] are then made into "colors" (labels). Another instance 
+    stores the visibility graph of the decomposition tree: how each 
+    clan sees each other as we have found up to that point.
 
     As undirected graphs without self-loops, g[u][v] only kept for u<v.
 
@@ -70,25 +70,30 @@ class EZGraph(ddict):
                         for (u,v) in comb(transaction, 2):
                             self[min(u, v)][max(u, v)] += 1
             self.items = sorted(it for it in items if items[it] >= frq_thr)
-            mx = 0
-            mn = lns
+            self.labels = list()
+            # ~ mx = 0
+            # ~ mn = lns
             for u in self.items:
                 if SEP in u:
-                    print(q(SEP), 'not valid in item', u, 
+                    print(' * Character', q(SEP), 
+                          'not valid in item', u, 
                           '(please change separator SEP in source code).')
                     exit()
                 if FORBIDDEN in u:
-                    print(q(FORBIDDEN), 'not valid in item', u, 
+                    print(' * Character', q(FORBIDDEN), 
+                          'not valid in item', u, 
                           '(graphviz syntax, please change it in dataset).')
                     exit()
                 for v in self.items:
                     if u < v:
-                        mx = max(mx, self[u][v])
-                        mn = min(mn, self[u][v])
+                        self.labels.append(self[u][v])
+                        # ~ mx = max(mx, self[u][v])
+                        # ~ mn = min(mn, self[u][v])
                         # ~ self[u][v] = coloring(self[u][v]) MOVED TO SEPARATE METHOD
-            self.mx = mx # highest frequency value seen among thresholded items
-            self.mn = mn # lowest frequency value, sometimes it is not zero
+            # ~ self.mx = mx # highest frequency value seen among thresholded items
+            # ~ self.mn = mn # lowest frequency value, sometimes it is not zero
             # consider setting up a more informative histogram
+            self.labels = sorted(self.labels) # mn at 0 and mx at -1
 
 
     def recolor(self, coloring):
