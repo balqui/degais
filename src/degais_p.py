@@ -97,7 +97,7 @@ def run():
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
 
-    palette = Palette(g.labels, args.coloring, args.alledges)
+    palette = Palette(g.labels, args.coloring, args.param, args.alledges)
 
 # TO REFACTOR INTO Palette CLASS
     # ~ default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
@@ -112,23 +112,29 @@ def run():
 # TO REFACTOR INTO Palette CLASS
 # args.alledge bool False: draw transparent zeros True: draw all in color
     # ~ g.recolor(partial(eval(args.coloring), param))
+
     g.recolor(palette.color)
 
     print(" * Loaded " + fullfilename + "; coloring: " + args.coloring
-          + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
+          + "; param: " + str(palette.param) 
+          + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 
           + "; pair frequencies, "
-          + "highest: " + str(g.mx) + ", lowest: " + str(g.mn) + "."
+          + "highest: " + str(g.labels[-1]) 
+          + ", lowest: " + str(g.labels[0]) + "."
           )
 
     filename += '_' + args.freq_thr # for output
-
 
     if len(items) == 0:
         print(" * No items available at these thresholds. Exiting.")
         exit()
     ans = input(" . Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
+
+    palette.make_legend()
+
+    exit()
 
     # Initialize the decomposition tree
     dt = DecTree(g)

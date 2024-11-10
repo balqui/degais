@@ -20,11 +20,20 @@ Plan is to:
 - compute a default cut if coloring is thresh and no param is
   specified, by applying Kontkanen-Myllymaeki before or after taking
   the zeros out as required
+
+THE -a IS NOT WORKING AT ALL, TRIED ONLY ON thresh BUT THEN 
+LEGEND IS MISSING THE FIRST INTERVAL INCLUDING THE ZERO 
+AND/OR IS SOMEHOW MESSED UP
+
+I BELIEVE NEED TO ADD A FINAL CUT WITH MAX LABEL + 1
+
+
 '''
 
 
 from math import floor, ceil, log
 from bisect import bisect_left # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+import graphviz as gvz # NOT the official bindings!
 
 # ident: keeps multiplicities as labels
 # binary: labels 0/1 give, essentially, a standard Gaifman graph
@@ -70,8 +79,7 @@ class Palette:
 
     def __init__(self, labels, coloring, param, alledges):
         '''
-        mn, mx from graph are smallest and largest 
-        frequency labels of all edges
+        we need the frequency labels of all edges
         '''
 
         default = { 'thresh': labels[0] + 1,                # PENDING
@@ -79,7 +87,8 @@ class Palette:
                     'linwidth': lguess(labels[-1], labels[0]), 
                     'binary': 1, 'ident': 1 } # last two irrelevant
         try:
-            param = default[coloring] if param is None else float(param)
+            param = default[coloring] if param is None else int(param) 
+            # pending: make it float(param) for expwidth
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
         except ValueError:
@@ -87,7 +96,9 @@ class Palette:
             print(" * Disallowed value " + param + " for " + coloring + '.')
             exit()
 
-        self.zero = not alledges
+        self.coloring = coloring
+        self.param = param
+        self.alledges = alledges
 
         self.usedcolorindices = set()
 
@@ -101,20 +112,21 @@ class Palette:
                         'hotpink', 'orangered', 'pink', 'red',
                         'seagreen', 'yellow') 
 
-        if self.zero:
-            "first interval contains just zero, 0:1"
+        if not self.alledges:
+            "first interval contains just zero, 0:1, and will be transparent"
             self.cuts = [1]
         else:
             "init cutpoints, don't handle zero separately"
             self.cuts = list()
         if coloring == 'binary':
-            self.cuts = [1, labels[-1]]
+            self.cuts = [1, labels[-1]] # days later I doubt that second value
         elif coloring == 'ident':
-            if len(labels) > len(self.the_colors):
+            if len(labels) > len(self.the_colors) - int(self.alledges):
                 print(" * Sorry. Too many class numbers", 
                       "not enough colors.")
                 exit()
-            self.cuts = labels
+            self.cuts += labels
+            self.ident = True
         elif coloring == 'thresh':
             self.cuts.extend([param, labels[-1]])
         elif coloring == 'linwidth':
@@ -129,15 +141,51 @@ class Palette:
                 c *= param
 
     def color(self, label):
-        index = eval(coloring)(param, label)
-        if index != bisect_left(self.cuts, label):
-            print(" * Bad index for label " + str(label) + 
-                  " in " + coloring + " with " + param + ': ' +
-                  str(index) + ' ' + str(bisect_left(self.cuts, label)) + '.' )            
+        "Redundancy to refactor: two ways of identifying the color, should coincide"
+        # ~ index = eval(self.coloring)(self.param, label)
+        index = bisect_left(self.cuts, label)
+        # ~ if index != bisect_left(self.cuts, label):
+            # ~ print(" * Bad index for label " + str(label) + 
+                  # ~ " in " + self.coloring + " with " + str(self.param) + ': ' +
+                  # ~ str(index) + ' ' + str(bisect_left(self.cuts, label)) + '.' )            
+        print(" *** Cuts:", self.cuts)
+        print(" *** ", self.coloring, self.param, label, index)
         self.usedcolorindices.add(index)
         return index
 
 # add make_legend which takes the color from self.the_colors
 # and the intervals from consecutive pairs in self.cuts
 
+    def _legend_item(self, legend_line, color_index):
+        if self.coloring == 'ident':
+            print(" ***** Coloring ident in _legend_item",
+                "color_index", color_index, "for", self.cuts)
+            label = str(self.cuts[color_index])
+        else:
+            print(" ***** Coloring in _legend_item:", self.coloring, 
+                "color_index", color_index, "for", self.cuts)
+            label = str(self.cuts[color_index]) + ' - '
+            if color_index < len(self.cuts) - 1:
+                label += str(self.cuts[color_index + 1] - 1)
+        color = self.the_colors[color_index + int(self.alledges)]
+        legend_line.node("sgL" + str(color), shape = "none", label = '')
+        legend_line.node("sgR" + str(color), shape = "none", label = label)
+        legend_line.edge("sgL" + str(color), "sgR" + str(color), 
+            color = color, arrowhead = "none", penwidth = "2.5" )
+        return "sgL" + str(color)
 
+    def make_legend(self):
+        if self.coloring == 'binary':
+            "no legend necessary"
+            return
+        leg_gr = gvz.Digraph(graph_attr = { "compound": "true", 
+            "newrank": "true", "ranksep" : "0.1", "labeljust" : "l",
+            "fontname" : "Courier New" })
+        prev = None
+        for color_index in sorted(self.usedcolorindices):
+            with leg_gr.subgraph(graph_attr = { "rank" : "same" }) as sg:
+                sg_n = self._legend_item(sg, color_index)
+            if prev is not None:
+                leg_gr.edge(prev, sg_n, color = 'transparent')
+            prev = sg_n
+        leg_gr.render(view = True)

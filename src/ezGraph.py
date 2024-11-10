@@ -100,7 +100,8 @@ class EZGraph(ddict):
             for u in self.items:
                 for v in self.items:
                     if u < v:
-                        self[u][v] = coloring(self[u][v])
+                        self[u][v] = (c := coloring(self[u][v]))
+                        print(" ***** Colored", u, v, "as", c)
 
 
     def __str__(self):
