@@ -129,12 +129,12 @@ def run():
     if len(items) == 0:
         print(" * No items available at these thresholds. Exiting.")
         exit()
-    ans = input(" . Continue? ")
+    ans = input(" * Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
 
     palette.make_legend()
 
-    exit()
+    # ~ exit()
 
     # Initialize the decomposition tree
     dt = DecTree(g)

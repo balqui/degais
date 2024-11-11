@@ -89,8 +89,8 @@ def run():
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
 
-    default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
-                 'linwidth': lguess(g.mx, g.mn), 
+    default = { 'thresh': g.labels[0] + 1, 'expwidth': eguess(g.labels[-1], g.labels[0]), 
+                 'linwidth': lguess(g.labels[-1], g.labels[0]), 
                  'binary': 1, 'ident': 1 } # last two irrelevant
     if args.coloring.endswith('width') and args.param is not None and \
         float(args.param) <= 0:
@@ -105,7 +105,7 @@ def run():
           + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 
           + "; pair frequencies, "
-          + "highest: " + str(g.mx) + ", lowest: " + str(g.mn) + "."
+          + "highest: " + str(g.labels[-1]) + ", lowest: " + str(g.labels[0]) + "."
           )
 
     filename += '_' + args.freq_thr # for output

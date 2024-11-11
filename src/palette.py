@@ -1,4 +1,11 @@
 '''
+
+El desajuste está viniendo de que intento que los cortes marquen
+diferencia entre x < cut y cut <= x pero, sin embargo, en el caso
+default sin -a quiero que el índice 0 sea para x == 0. Y lo estoy
+intentando hacer con un cut en 0 pero, claro, ahora nada funciona.
+
+
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
@@ -32,7 +39,9 @@ I BELIEVE NEED TO ADD A FINAL CUT WITH MAX LABEL + 1
 
 
 from math import floor, ceil, log
-from bisect import bisect_left # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+# ~ from bisect import bisect_left # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+from bisect import bisect_left as bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+# ~ from bisect import bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
 import graphviz as gvz # NOT the official bindings!
 
 # ident: keeps multiplicities as labels
@@ -75,11 +84,13 @@ class Palette:
     the explicit cuts for this so that actually the functions
     above seem right now redundant as one can search fast 
     in the cut sequence.
+    NB: the cut sequence does NOT include the extreme points.
     '''
 
     def __init__(self, labels, coloring, param, alledges):
         '''
         we need the frequency labels of all edges
+        caveat: make double sure all defaults are positive
         '''
 
         default = { 'thresh': labels[0] + 1,                # PENDING
@@ -87,10 +98,11 @@ class Palette:
                     'linwidth': lguess(labels[-1], labels[0]), 
                     'binary': 1, 'ident': 1 } # last two irrelevant
         try:
-            param = default[coloring] if param is None else int(param) 
-            # pending: make it float(param) for expwidth
+            param = default[coloring] if param is None else float(param) 
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
+            if coloring != 'expwidth':
+                param = int(param)
         except ValueError:
             "comes from either float(param) or a nonpositive value"
             print(" * Disallowed value " + param + " for " + coloring + '.')
@@ -102,7 +114,7 @@ class Palette:
 
         self.usedcolorindices = set()
 
-        self.the_colors = ( # original color sequence by Ely,
+        self.the_colors = ( # original color sequence by Ely Piceno,
                             # except transparent instead of white
                         'transparent', 'black', 'blue', 'blueviolet',
                         'brown', 'burlywood', 'cadetblue', 
@@ -114,13 +126,12 @@ class Palette:
 
         if not self.alledges:
             "first interval contains just zero, 0:1, and will be transparent"
-            self.cuts = [1]
+            self.cuts = [0]
         else:
             "init cutpoints, don't handle zero separately"
             self.cuts = list()
-        if coloring == 'binary':
-            self.cuts = [1, labels[-1]] # days later I doubt that second value
-        elif coloring == 'ident':
+
+        if coloring == 'ident':
             if len(labels) > len(self.the_colors) - int(self.alledges):
                 print(" * Sorry. Too many class numbers", 
                       "not enough colors.")
@@ -128,7 +139,7 @@ class Palette:
             self.cuts += labels
             self.ident = True
         elif coloring == 'thresh':
-            self.cuts.extend([param, labels[-1]])
+            self.cuts.append(param)
         elif coloring == 'linwidth':
             c = param
             while c <= labels[-1]:
@@ -139,17 +150,26 @@ class Palette:
             while c <= labels[-1]:
                 self.cuts.append(c)
                 c *= param
+        elif coloring == 'binary':
+            self.cuts = [1]
+            self.alledges = False # override --alledges if it was present
+        else:
+            print(" * Color scheme", coloring, "unknown.")
+            exit() 
 
-    def color(self, label):
-        "Redundancy to refactor: two ways of identifying the color, should coincide"
+    # ~ def test(self, label)
+        # ~ "Redundancy to test: two ways of identifying the color, should coincide"
         # ~ index = eval(self.coloring)(self.param, label)
-        index = bisect_left(self.cuts, label)
+        # ~ index = bisect(self.cuts, label) + int(self.alledges)
         # ~ if index != bisect_left(self.cuts, label):
             # ~ print(" * Bad index for label " + str(label) + 
                   # ~ " in " + self.coloring + " with " + str(self.param) + ': ' +
                   # ~ str(index) + ' ' + str(bisect_left(self.cuts, label)) + '.' )            
+
+    def color(self, label):
+        index = bisect(self.cuts, label) + int(self.alledges)
         print(" *** Cuts:", self.cuts)
-        print(" *** ", self.coloring, self.param, label, index)
+        print(" *** (", self.coloring, self.param, ")", label, index)
         self.usedcolorindices.add(index)
         return index
 
