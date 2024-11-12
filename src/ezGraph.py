@@ -93,7 +93,7 @@ class EZGraph(ddict):
             # ~ self.mx = mx # highest frequency value seen among thresholded items
             # ~ self.mn = mn # lowest frequency value, sometimes it is not zero
             # consider setting up a more informative histogram
-            self.labels = sorted(self.labels) # mn at 0 and mx at -1
+            self.labels = sorted(set(self.labels)) # mn at 0 and mx at -1
 
 
     def recolor(self, coloring):

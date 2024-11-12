@@ -28,20 +28,13 @@ Plan is to:
   specified, by applying Kontkanen-Myllymaeki before or after taking
   the zeros out as required
 
-THE -a IS NOT WORKING AT ALL, TRIED ONLY ON thresh BUT THEN 
-LEGEND IS MISSING THE FIRST INTERVAL INCLUDING THE ZERO 
-AND/OR IS SOMEHOW MESSED UP
-
-I BELIEVE NEED TO ADD A FINAL CUT WITH MAX LABEL + 1
-
-
 '''
 
 
 from math import floor, ceil, log
 # ~ from bisect import bisect_left # DOUBLE-CHECK THAT I WANT THIS EXACTLY
-from bisect import bisect_left as bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
-# ~ from bisect import bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+# ~ from bisect import bisect_left as bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
+from bisect import bisect # DOUBLE-CHECK THAT I WANT THIS EXACTLY
 import graphviz as gvz # NOT the official bindings!
 
 # ident: keeps multiplicities as labels
@@ -93,11 +86,14 @@ class Palette:
         caveat: make double sure all defaults are positive
         '''
 
+        print(" *** Labels:", labels)
+
         default = { 'thresh': labels[0] + 1,                # PENDING
                     'expwidth': eguess(labels[-1], labels[0]), 
                     'linwidth': lguess(labels[-1], labels[0]), 
                     'binary': 1, 'ident': 1 } # last two irrelevant
         try:
+            "tried to detect wrong colorings below but too late, they raise KeyError here"
             param = default[coloring] if param is None else float(param) 
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
@@ -124,28 +120,35 @@ class Palette:
                         'hotpink', 'orangered', 'pink', 'red',
                         'seagreen', 'yellow') 
 
-        if not self.alledges:
-            "first interval contains just zero, 0:1, and will be transparent"
-            self.cuts = [0]
-        else:
-            "init cutpoints, don't handle zero separately"
-            self.cuts = list()
+
+# TEMPORARY SOLUTION WITH CUTPOINTS AT .5 
+# WHICH WILL NOT WORK WELL FOR THE LEGEND 
+# BUT AT LEAST MAKE SURE THINGS START WORKING.
+# AS OF TODAY, INCLUDES ARTIFICIAL EXTREMES.
+
+        self.cuts = [ -0.5 ]
 
         if coloring == 'ident':
+            "color: bisect - int(not alledges)"
             if len(labels) > len(self.the_colors) - int(self.alledges):
-                print(" * Sorry. Too many class numbers", 
+                print(" * Sorry. Too many classes", 
                       "not enough colors.")
                 exit()
-            self.cuts += labels
+            self.cuts.extend(x + 0.5 for x in labels)
             self.ident = True
         elif coloring == 'thresh':
+            "NOT COMPLETE YET"
             self.cuts.append(param)
         elif coloring == 'linwidth':
-            c = param
+            c = param if self.alledges else 0.5
             while c <= labels[-1]:
                 self.cuts.append(c)
                 c += param
+            self.cuts.append(c)
         elif coloring == 'expwidth':
+            if not self.alledges:
+                "first interval contains just zero and will be transparent"
+                self.cuts.append(0.5)
             c = param
             while c <= labels[-1]:
                 self.cuts.append(c)
@@ -157,19 +160,58 @@ class Palette:
             print(" * Color scheme", coloring, "unknown.")
             exit() 
 
-    # ~ def test(self, label)
-        # ~ "Redundancy to test: two ways of identifying the color, should coincide"
-        # ~ index = eval(self.coloring)(self.param, label)
-        # ~ index = bisect(self.cuts, label) + int(self.alledges)
-        # ~ if index != bisect_left(self.cuts, label):
-            # ~ print(" * Bad index for label " + str(label) + 
-                  # ~ " in " + self.coloring + " with " + str(self.param) + ': ' +
-                  # ~ str(index) + ' ' + str(bisect_left(self.cuts, label)) + '.' )            
+
+
+# EARLIER SOLUTION TO FISH BACK IN SOME PARTS:
+
+        # ~ if not self.alledges:
+            # ~ "first interval contains just zero, 0:1, and will be transparent"
+            # ~ self.cuts = [0]
+        # ~ else:
+            # ~ "init cutpoints, don't handle zero separately"
+            # ~ self.cuts = list()
+
+        # ~ if coloring == 'ident':
+            # ~ if len(labels) > len(self.the_colors) - int(self.alledges):
+                # ~ print(" * Sorry. Too many class numbers", 
+                      # ~ "not enough colors.")
+                # ~ exit()
+            # ~ self.cuts += labels
+            # ~ self.ident = True
+        # ~ elif coloring == 'thresh':
+            # ~ self.cuts.append(param)
+        # ~ elif coloring == 'linwidth':
+            # ~ c = param
+            # ~ while c <= labels[-1]:
+                # ~ self.cuts.append(c)
+                # ~ c += param
+        # ~ elif coloring == 'expwidth':
+            # ~ c = param
+            # ~ while c <= labels[-1]:
+                # ~ self.cuts.append(c)
+                # ~ c *= param
+        # ~ elif coloring == 'binary':
+            # ~ self.cuts = [1]
+            # ~ self.alledges = False # override --alledges if it was present
+        # ~ else:
+            # ~ print(" * Color scheme", coloring, "unknown.")
+            # ~ exit() 
+
+    def test(self, label, index):
+        "Redundancy test before removing the functions"
+        if not self.alledges:
+            "o/w they are off by 1, I believe now"
+            print(" * Index for label " + str(label) 
+                  + " in " + self.coloring + " with " + str(self.param) 
+                  + ': ' + str(index) 
+                  + '; check: ' + str(index == eval(self.coloring)(self.param, label)) + '.' )            
 
     def color(self, label):
-        index = bisect(self.cuts, label) + int(self.alledges)
+        "if alledges, need to avoid index 0 so as to avoid flattening"
+        index = bisect(self.cuts, label) - 1 + int(self.alledges)
         print(" *** Cuts:", self.cuts)
         print(" *** (", self.coloring, self.param, ")", label, index)
+        self.test(label, index)
         self.usedcolorindices.add(index)
         return index
 
@@ -178,6 +220,7 @@ class Palette:
 
     def _legend_item(self, legend_line, color_index):
         if self.coloring == 'ident':
+            "caveat: single-value label to be extended to some other cases"
             print(" ***** Coloring ident in _legend_item",
                 "color_index", color_index, "for", self.cuts)
             label = str(self.cuts[color_index])
