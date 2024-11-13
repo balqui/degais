@@ -19,7 +19,7 @@ not enforced anymore.
 
 from collections import Counter, defaultdict as ddict
 from auxfun import delbl, q, comb
-from bisect import bisect, insort # RECHECK
+from bisect import insort # bisect, 
 
 SEP = '-'       # constant to make up clan names, forbidden in items
 FORBIDDEN = ':' # Bank's graphviz syntax implies ':' forbidden in items  

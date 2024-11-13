@@ -6,6 +6,7 @@ Assorted, auxiliary little functions needed by several modules.
 '''
 
 from itertools import combinations as comb
+from math import ceil
 
 # JLB guess of default width for linwidth coloring
 lguess = lambda mx, mn: ceil( (mx - mn)/4 )

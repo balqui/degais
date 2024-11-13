@@ -99,20 +99,6 @@ def run():
 
     palette = Palette(g.labels, args.coloring, args.param, args.complete)
 
-# TO REFACTOR INTO Palette CLASS
-    # ~ default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
-                 # ~ 'linwidth': lguess(g.mx, g.mn), 
-                 # ~ 'binary': 1, 'ident': 1 } # last two irrelevant
-    # ~ if args.coloring.endswith('width') and args.param is not None and \
-        # ~ float(args.param) <= 0:
-            # ~ print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
-            # ~ exit()
-    # ~ param = default[args.coloring] if args.param is None else float(args.param)
-
-# TO REFACTOR INTO Palette CLASS
-# args.alledge bool False: draw transparent zeros True: draw all in color
-    # ~ g.recolor(partial(eval(args.coloring), param))
-
     g.recolor(palette.color)
 
     print(" * Loaded " + fullfilename + "; coloring: " + args.coloring

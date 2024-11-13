@@ -32,7 +32,7 @@ PENDING: compute a default cut if coloring is thresh and no param is
 
 import graphviz as gvz               # NOT the official bindings!
 
-from math import floor, ceil, log
+from math import floor
 from bisect import bisect_left as bs # specific variant of binary search
 from auxfun import lguess, eguess    # compute heuristic defaults
 
@@ -52,7 +52,7 @@ class Palette:
         caveat: make double sure all defaults are positive
         '''
 
-        print(" *** Labels:", labels)
+        # ~ print(" *** Labels:", labels)
 
         default = { 'thresh': labels[0] + 1,                # PENDING
                     'expwidth': eguess(labels[-1], labels[0]), 
@@ -120,10 +120,6 @@ class Palette:
             self.complete = False # override --complete if it was present
 
         self.ecuts = ([-1] if self.complete else list()) + self.cuts + [labels[-1]]
-        print(" *** Cuts:", self.cuts)
-        print(" *** Extended cuts:", self.ecuts)
-        for z in range(labels[-1] + 1):
-            test(z, self)
 
 
     def color(self, label):
@@ -138,13 +134,13 @@ class Palette:
         interval from consecutive pairs in self.ecuts; 
         '''
         if self.coloring == 'ident':
-            print(" ***** Coloring ident in _legend_item",
-                "color_index", color_index, "for", self.cuts)
+            # ~ print(" ***** Coloring ident in _legend_item",
+                # ~ "color_index", color_index, "for", self.cuts)
             label = str(self.cuts[color_index - int(self.complete)])
         else:
             "careful with the '+1', assumes int but expwidth is not"
-            print(" ***** Coloring in _legend_item:", self.coloring, 
-                "color_index", color_index, "for", self.ecuts)
+            # ~ print(" ***** Coloring in _legend_item:", self.coloring, 
+                # ~ "color_index", color_index, "for", self.ecuts)
             label = str(floor(self.ecuts[color_index - 1]) + 1) + ' - ' \
                   + str(floor(self.ecuts[color_index]))
         color = self.the_colors[color_index]
