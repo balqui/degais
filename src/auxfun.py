@@ -7,6 +7,12 @@ Assorted, auxiliary little functions needed by several modules.
 
 from itertools import combinations as comb
 
+# JLB guess of default width for linwidth coloring
+lguess = lambda mx, mn: ceil( (mx - mn)/4 )
+
+# JLB guess of default base for expwidth coloring
+eguess = lambda mx, mn: ceil( (mx/max(1,mn)) ** (1/3) )
+
 def delbl(lbl):
     '''
     reduce lbl to only alnum chars or dot, capitalized initial 

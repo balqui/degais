@@ -1,83 +1,48 @@
 '''
-
-
-
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
 Palette of colors for Gaifman structures under various binning schemes.
 
-Cuts in list mark difference between x <= cut and cut < x
+Cuts in list mark a different color between x <= cut and cut < x
 (doing it the other way raises incompatibilities with zero
-and the -k option). A temporary solution with cuts at .5 and
+and the -k option; a temporary solution with cuts at .5 and
 exploring different binary search schemes did not provide the 
-desired behavior.
+desired behavior).
 
-Binning functions to reduce the quantity of labels in a 
-Gaifman structure as labeling with frequencies may be
-too rigid.
+Offers a coloring method to color the EZGraph while registering 
+which colors are actually employed, and a method for drawing a 
+legend only with actually employed colors with their corresponding 
+values or intervals.
 
-Plan is to:
-- create it taking into account the CLI parameters, including the
-  newly planned one of making transparent correspond only to zero
-  multiplicities with an on/off switch
-- offer from here a coloring method to color the EZGraph
-- this coloring is to be in the range of the number of available colors
-- that method must also register which values are actually employed
-- so as to offer also the drawing of the color legend only with actually
-  employed colors and corresponding values or intervals
-- compute a default cut if coloring is thresh and no param is
+Available colorings:
+ ident: keeps multiplicities as labels
+ binary: labels 0/1 which give, essentially, a standard Gaifman graph
+ thresh: thresholded Gaifman graph, threshold given as param
+ linwidth: linear Gaifman graph, interval width given as param,
+   default value provided by lguess
+ expwidth: exponential Gaifman graph, base given as param,
+   default value provided by eguess
+
+PENDING: compute a default cut if coloring is thresh and no param is
   specified, by applying Kontkanen-Myllymaeki before or after taking
   the zeros out as required
 
 '''
 
+import graphviz as gvz               # NOT the official bindings!
 
 from math import floor, ceil, log
 from bisect import bisect_left as bs # specific variant of binary search
-import graphviz as gvz               # NOT the official bindings!
-
-# ident: keeps multiplicities as labels
-# binary: labels 0/1 give, essentially, a standard Gaifman graph
-# thresh: thresholded Gaifman graph, threshold given as param
-# linwidth: linear Gaifman graph, interval width given as param,
-#   default value provided by lguess
-# expwidth: exponential Gaifman graph, base given as param,
-#   default value provided by eguess
-
-# ALL THESE FUNCTIONS TO BE REMOVED WHEN TESTING IS SUFFICIENT
-ident = lambda _, x: x
-
-# binary binning labels 0/1 give, essentially, a standard Gaifman graph
-binary = lambda _, x: int(x > 0)
-
-# binary binning labels for thresholded Gaifman graph
-thresh = lambda thr, x: int(x > thr)
-
-# binning with linear intervals
-linwidth = lambda w, x: x // int(w) # w width of regular intervals
-# int needed because -p value in command line is now a float
-# task of ensuring denominator is not null falls upon the caller
-
-# binning with exponentially growing intervals
-expwidth = lambda b, x: 0 if x < b else floor(log(x, b))
-# zero (and potential negatives) flattened up to const 0
-
-# JLB guess of default width for linwidth coloring
-lguess = lambda mx, mn: ceil( (mx - mn)/4 )
-
-# JLB guess of default base for expwidth coloring
-eguess = lambda mx, mn: ceil( (mx/max(1,mn)) ** (1/3) )
-
+from auxfun import lguess, eguess    # compute heuristic defaults
 
 
 class Palette:
     '''
     Handles the colors both in the graph (as an index) and
-    at drawing time; provides as well the legend, it needs
-    the explicit cuts for this so that actually the functions
-    above seem right now redundant as one can search fast 
-    in the cut sequence.
+    at drawing time; provides as well the legend; it needs
+    the explicit cuts for this, which made the original
+    programming of the binning functions obsolete.
     NB: the cut sequence does NOT include the extreme points.
     '''
 
@@ -93,10 +58,11 @@ class Palette:
                     'expwidth': eguess(labels[-1], labels[0]), 
                     'linwidth': lguess(labels[-1], labels[0]), 
                     'binary': 1, 'ident': 1 } # last two irrelevant
+
+        if coloring not in default:
+            print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
+            exit()
         try:
-            if coloring not in default:
-                print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
-                exit()
             param = default[coloring] if param is None else float(param) 
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
@@ -135,7 +101,7 @@ class Palette:
             if len(labels) > len(self.the_colors) - int(self.complete):
                 print(" * Sorry. Too many classes, not enough colors. Exiting.")
                 exit()
-            self.cuts = labels # take out the zero as well
+            self.cuts = labels
         elif coloring == 'thresh':
             self.cuts.append(param)
         elif coloring == 'linwidth':
@@ -154,38 +120,29 @@ class Palette:
             self.complete = False # override --complete if it was present
 
         self.ecuts = ([-1] if self.complete else list()) + self.cuts + [labels[-1]]
-        print(self.cuts)
-        print(self.ecuts, '\n\n\n\n')
-        # ~ exit()
+        print(" *** Cuts:", self.cuts)
+        print(" *** Extended cuts:", self.ecuts)
+        for z in range(labels[-1] + 1):
+            test(z, self)
 
-    def test(self, label, index):
-        "Redundancy test TO REVIEW AND ENSURE WHAT HAPPENS"
-        pass
-        # ~ if not self.complete:
-            # ~ "o/w they are off by 1, I believe now"
-            # ~ print(" * Index for label " + str(label) 
-                  # ~ + " in " + self.coloring + " with " + str(self.param) 
-                  # ~ + ': ' + str(index) 
-                  # ~ + '; check: ' + str(index == eval(self.coloring)(self.param, label)) + '.' )            
 
     def color(self, label):
         "if complete, need to avoid index 0 so as to avoid flattening"
         index = bs(self.cuts, label) + int(self.complete)
-        # ~ print(" *** Cuts:", self.cuts)
-        # ~ print(" *** (", self.coloring, self.param, ")", label, index)
-        self.test(label, index)
         self.usedcolorindices.add(index)
         return index
 
-# add make_legend which takes the color from self.the_colors
-# and the intervals from consecutive pairs in self.cuts
-
     def _legend_item(self, legend_line, color_index):
+        '''
+        takes the color from self.the_colors and the value or 
+        interval from consecutive pairs in self.ecuts; 
+        '''
         if self.coloring == 'ident':
             print(" ***** Coloring ident in _legend_item",
                 "color_index", color_index, "for", self.cuts)
             label = str(self.cuts[color_index - int(self.complete)])
         else:
+            "careful with the '+1', assumes int but expwidth is not"
             print(" ***** Coloring in _legend_item:", self.coloring, 
                 "color_index", color_index, "for", self.ecuts)
             label = str(floor(self.ecuts[color_index - 1]) + 1) + ' - ' \

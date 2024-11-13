@@ -25,9 +25,12 @@ from dectree import DecTree # based on SB's graphviz for Python
                             # a Linux-only variant based on the
                             # official Graphviz bindings python3-gv
 
+from palette import Palette
+
+
 # TO REFACTOR INTO Palette CLASS
-from binning import \
-    ident, binary, thresh, linwidth, expwidth, lguess, eguess
+# ~ from binning import \
+    # ~ ident, binary, thresh, linwidth, expwidth, lguess, eguess
 
 # ident: keeps multiplicities as labels
 # binary: labels 0/1 give, essentially, a standard Gaifman graph
@@ -69,6 +72,11 @@ def run():
     argp.add_argument('-p', '--param', nargs = '?', default = None, 
        help = "additional parameter for coloring")
 
+    argp.add_argument('-k', '--complete', action = 'store_true', 
+       help = "draw a complete graph instead of disconnecting " + \
+              "items that never co-occur (default: disconnect " + \
+              "them); ignored if coloring is binary.")
+
     args = argp.parse_args()
 
     # handle the dataset file
@@ -89,33 +97,44 @@ def run():
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
 
-    default = { 'thresh': g.labels[0] + 1, 'expwidth': eguess(g.labels[-1], g.labels[0]), 
-                 'linwidth': lguess(g.labels[-1], g.labels[0]), 
-                 'binary': 1, 'ident': 1 } # last two irrelevant
-    if args.coloring.endswith('width') and args.param is not None and \
-        float(args.param) <= 0:
-            print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
-            exit()
-    param = default[args.coloring] if args.param is None else float(args.param)
+    palette = Palette(g.labels, args.coloring, args.param, args.complete)
 
 # TO REFACTOR INTO Palette CLASS
-    g.recolor(partial(eval(args.coloring), param))
+    # ~ default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
+                 # ~ 'linwidth': lguess(g.mx, g.mn), 
+                 # ~ 'binary': 1, 'ident': 1 } # last two irrelevant
+    # ~ if args.coloring.endswith('width') and args.param is not None and \
+        # ~ float(args.param) <= 0:
+            # ~ print(" * Disallowed value " + args.param + " for " + args.coloring + '.')
+            # ~ exit()
+    # ~ param = default[args.coloring] if args.param is None else float(args.param)
+
+# TO REFACTOR INTO Palette CLASS
+# args.alledge bool False: draw transparent zeros True: draw all in color
+    # ~ g.recolor(partial(eval(args.coloring), param))
+
+    g.recolor(palette.color)
 
     print(" * Loaded " + fullfilename + "; coloring: " + args.coloring
-          + "; param: " + str(param) + "; freq_thr: " + args.freq_thr 
+          + "; param: " + str(palette.param) 
+          + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 
           + "; pair frequencies, "
-          + "highest: " + str(g.labels[-1]) + ", lowest: " + str(g.labels[0]) + "."
+          + "highest: " + str(g.labels[-1]) 
+          + ", lowest: " + str(g.labels[0]) + "."
           )
 
     filename += '_' + args.freq_thr # for output
 
-
     if len(items) == 0:
-        print(" * No items available at these thresholds. Exiting.")
+        print(" * Sorry. No items available at these thresholds. Exiting.")
         exit()
-    ans = input(" . Continue? ")
+    ans = input(" * Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
+
+    palette.make_legend(filename)
+
+    # ~ exit()
 
     # Initialize the decomposition tree
     dt = DecTree(g)
@@ -128,7 +147,7 @@ def run():
 
     # Convert the decomposition tree into a GV graph for drawing
     outfile = dt.draw(root, filename)
-    print(" * Wrote", filename + ".gv and " + outfile + ".")
+    print(" * Wrote files with prefix", filename + ".")
 
 if __name__ == "__main__":
     run()
