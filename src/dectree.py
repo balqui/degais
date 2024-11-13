@@ -203,7 +203,7 @@ class DecTree(dict):
                         color = self.palette[hs]
                 else:
                     print(" * Sorry. Too high class numbers", 
-                          "or not enough colors.")
+                          "or not enough colors. Exiting.")
                     exit()
                 gvgraph.edge(left_stand_in, right_stand_in, 
                     arrowhead = "none", color = color,

@@ -72,7 +72,7 @@ def run():
     argp.add_argument('-p', '--param', nargs = '?', default = None, 
        help = "additional parameter for coloring")
 
-    argp.add_argument('-a', '--alledges', action = 'store_true', 
+    argp.add_argument('-k', '--complete', action = 'store_true', 
        help = "draw a complete graph instead of disconnecting " + \
               "items that never co-occur (default: disconnect " + \
               "them); ignored if coloring is binary.")
@@ -97,7 +97,7 @@ def run():
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
 
-    palette = Palette(g.labels, args.coloring, args.param, args.alledges)
+    palette = Palette(g.labels, args.coloring, args.param, args.complete)
 
 # TO REFACTOR INTO Palette CLASS
     # ~ default = { 'thresh': g.mn + 1, 'expwidth': eguess(g.mx, g.mn), 
@@ -127,12 +127,12 @@ def run():
     filename += '_' + args.freq_thr # for output
 
     if len(items) == 0:
-        print(" * No items available at these thresholds. Exiting.")
+        print(" * Sorry. No items available at these thresholds. Exiting.")
         exit()
     ans = input(" * Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
 
-    palette.make_legend()
+    palette.make_legend(filename)
 
     # ~ exit()
 
@@ -147,7 +147,7 @@ def run():
 
     # Convert the decomposition tree into a GV graph for drawing
     outfile = dt.draw(root, filename)
-    print(" * Wrote", filename + ".gv and " + outfile + ".")
+    print(" * Wrote files with prefix", filename + ".")
 
 if __name__ == "__main__":
     run()

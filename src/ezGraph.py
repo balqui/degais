@@ -75,14 +75,14 @@ class EZGraph(ddict):
             # ~ mn = lns
             for u in self.items:
                 if SEP in u:
-                    print(' * Character', q(SEP), 
+                    print(' * Sorry. Character', q(SEP), 
                           'not valid in item', u, 
-                          '(please change separator SEP in source code).')
+                          '(please change separator SEP in source code). Exiting.')
                     exit()
                 if FORBIDDEN in u:
-                    print(' * Character', q(FORBIDDEN), 
+                    print(' * Sorry. Character', q(FORBIDDEN), 
                           'not valid in item', u, 
-                          '(graphviz syntax, please change it in dataset).')
+                          '(graphviz syntax, please change it in dataset). Exiting.')
                     exit()
                 for v in self.items:
                     if u < v:
@@ -97,11 +97,11 @@ class EZGraph(ddict):
 
 
     def recolor(self, coloring):
-            for u in self.items:
-                for v in self.items:
-                    if u < v:
-                        self[u][v] = (c := coloring(self[u][v]))
-                        print(" ***** Colored", u, v, "as", c)
+        for u in self.items:
+            for v in self.items:
+                if u < v:
+                    self[u][v] = (c := coloring(self[u][v]))
+                    # ~ print(" ***** Colored", u, v, "as", c)
 
 
     def __str__(self):
