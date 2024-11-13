@@ -5,14 +5,21 @@ Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 Assorted, auxiliary little functions needed by several modules.
 '''
 
+from itertools import chain, pairwise
 from itertools import combinations as comb
-from math import ceil
+from math import floor, ceil, log
+from functools import cache
+from collections import Counter
 
-# JLB guess of default width for linwidth coloring
-lguess = lambda mx, mn: ceil( (mx - mn)/4 )
+VLOW = float('-inf')
 
-# JLB guess of default base for expwidth coloring
-eguess = lambda mx, mn: ceil( (mx/max(1,mn)) ** (1/3) )
+# JLB guess of default width for linwidth coloring - OLD FORMAT
+# lguess = lambda mx, mn: ceil( (mx - mn)/4 )
+lguess = lambda labels: ceil( (labels[-1] - labels[0])/4 )
+
+# JLB guess of default base for expwidth coloring - OLD FORMAT
+# eguess = lambda mx, mn: ceil( (mx/max(1,mn)) ** (1/3) )
+eguess = lambda labels: ceil( (labels[-1]/max(1,labels[0])) ** (1/3) )
 
 def delbl(lbl):
     '''
@@ -24,3 +31,58 @@ def delbl(lbl):
 'quote string s'
 q = lambda s: '"' + s + '"'
 
+# ==== Ancillary functions for the 2-split for thr_1, default in thresh
+
+@cache
+def _intsum(md, b, e):
+    return sum(md[b:e])
+
+def _ev_int(candcuts, md, beg, end, lim, eps): 
+    '''
+    VLOW value for empty intervals, now possible
+    start adding up at (beg+1)//2 incl
+    stop  adding up at (end+1)//2 excl
+    '''
+    int_total = _intsum(md, (beg+1)//2, (end+1)//2)
+    if int_total == 0:
+        return VLOW
+    total = _intsum(md, 0, lim) # JUST STARTING TO HAVE SERIOUS DOUBTS ABOUT THIS VALUE
+    int_len = candcuts[end] - candcuts[beg]
+    return int_total * log( eps*int_total/(total*int_len) )
+
+def _ev_cut(candcuts, md, lim, cut, eps):
+    "VLOW absorbs addition with finite values or with VLOW"
+    return _ev_int(candcuts, md, 0, cut, lim, eps) + \
+           _ev_int(candcuts, md, cut, lim, lim, eps)
+
+def _ocut(candcuts, md, lim, eps):
+    '''
+    best cost for a cut into md[0:cut] and md[cut:lim]
+    cut in range(1, lim-1), 3 <= lim < len(candcuts)
+    '''
+    mx = VLOW
+    for cut in range(1, lim):
+        print("cut", cut, candcuts[cut], "->", end = ' ')
+        m = _ev_cut(candcuts, md, lim, cut, eps)
+        print(m)
+        if m > mx:
+            print("new best", cut, m)
+            mx = m
+            oc = cut
+    return mx, oc
+
+def thr_1(labels):
+	print("thr_1", len(labels))
+	dd = Counter(labels)
+	ud = sorted(dd) # data without duplicates
+	md = tuple( dd[a] for a in ud ) # data multiplicities in same order as ud
+	                                # immutable so that ev_int can be cached
+	# minimum difference of consecutive, different values
+	mindiff = min(b - a for a, b in pairwise(ud))
+	# 0.1 fraction of minimum empirical separation
+	eps = mindiff/10 
+	# candcuts[0] and candcuts[-1] always belong to the cut sequence
+	candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
+	ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
+	print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
+	return floor(candcuts[oc])

@@ -34,7 +34,7 @@ import graphviz as gvz               # NOT the official bindings!
 
 from math import floor
 from bisect import bisect_left as bs # specific variant of binary search
-from auxfun import lguess, eguess    # compute heuristic defaults
+from auxfun import lguess, eguess, thr_1    # compute heuristic defaults
 
 
 class Palette:
@@ -54,16 +54,17 @@ class Palette:
 
         # ~ print(" *** Labels:", labels)
 
-        default = { 'thresh': labels[0] + 1,                # PENDING
-                    'expwidth': eguess(labels[-1], labels[0]), 
-                    'linwidth': lguess(labels[-1], labels[0]), 
-                    'binary': 1, 'ident': 1 } # last two irrelevant
+        default = {   'thresh': thr_1, 
+                    'expwidth': eguess, 
+                    'linwidth': lguess, 
+                      'binary': lambda x: 1, 
+                       'ident': lambda x: 1 } # last two irrelevant
 
         if coloring not in default:
             print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
             exit()
         try:
-            param = default[coloring] if param is None else float(param) 
+            param = default[coloring](labels) if param is None else float(param) 
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
             if coloring != 'expwidth':
