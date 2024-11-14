@@ -64,14 +64,17 @@ class Palette:
             print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
             exit()
         try:
+            "if len(labels) == 1 the default params are wrong - caveat: REFACTOR THIS"
             param = default[coloring](labels) if param is None else float(param) 
             if coloring.endswith('width') and param <= 0:
                 raise ValueError
             if coloring != 'expwidth':
                 param = int(param)
+            elif param <= 1:
+                raise ValueError
         except ValueError:
-            "comes from either float(param) or a nonpositive value"
-            print(" * Sorry. Disallowed value " + param + " for " + coloring + '. Exiting.')
+            "may come from either float(param) or a nonpositive value"
+            print(" * Sorry. Disallowed value " + str(param) + " for " + coloring + '. Exiting.')
             exit()
 
         self.coloring = coloring
@@ -103,6 +106,7 @@ class Palette:
                 print(" * Sorry. Too many classes, not enough colors. Exiting.")
                 exit()
             self.cuts = labels
+            self.complete = True # override --complete if it was absent
         elif coloring == 'thresh':
             self.cuts.append(param)
         elif coloring == 'linwidth':
@@ -117,7 +121,7 @@ class Palette:
                 c *= param
         else:
             "coloring == 'binary'"
-            self.cuts = [1]
+            self.cuts = [0]
             self.complete = False # override --complete if it was present
 
         self.ecuts = ([-1] if self.complete else list()) + self.cuts + [labels[-1]]

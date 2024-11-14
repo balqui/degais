@@ -2,7 +2,7 @@
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
 
-Assorted, auxiliary little functions needed by several modules.
+Assorted, auxiliary functions.
 '''
 
 from itertools import chain, pairwise
@@ -46,7 +46,7 @@ def _ev_int(candcuts, md, beg, end, lim, eps):
     int_total = _intsum(md, (beg+1)//2, (end+1)//2)
     if int_total == 0:
         return VLOW
-    total = _intsum(md, 0, lim) # JUST STARTING TO HAVE SERIOUS DOUBTS ABOUT THIS VALUE
+    total = _intsum(md, 0, lim) # caveat: SERIOUS DOUBTS ABOUT THIS VALUE
     int_len = candcuts[end] - candcuts[beg]
     return int_total * log( eps*int_total/(total*int_len) )
 
@@ -72,17 +72,20 @@ def _ocut(candcuts, md, lim, eps):
     return mx, oc
 
 def thr_1(labels):
-	print("thr_1", len(labels))
-	dd = Counter(labels)
-	ud = sorted(dd) # data without duplicates
-	md = tuple( dd[a] for a in ud ) # data multiplicities in same order as ud
-	                                # immutable so that ev_int can be cached
-	# minimum difference of consecutive, different values
-	mindiff = min(b - a for a, b in pairwise(ud))
-	# 0.1 fraction of minimum empirical separation
-	eps = mindiff/10 
-	# candcuts[0] and candcuts[-1] always belong to the cut sequence
-	candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
-	ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
-	print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
-	return floor(candcuts[oc])
+    print("thr_1", len(labels))
+    if len(labels) < 2:
+        "caveat: REFACTOR THIS"
+        return 0
+    dd = Counter(labels)
+    ud = sorted(dd) # data without duplicates
+    md = tuple( dd[a] for a in ud ) # data multiplicities in same order as ud
+                                    # immutable so that ev_int can be cached
+    # minimum difference of consecutive, different values
+    mindiff = min(b - a for a, b in pairwise(ud))
+    # 0.1 fraction of minimum empirical separation
+    eps = mindiff/10 
+    # candcuts[0] and candcuts[-1] always belong to the cut sequence
+    candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
+    ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
+    print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
+    return floor(candcuts[oc])
