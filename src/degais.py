@@ -101,7 +101,7 @@ def run():
 
     g.recolor(palette.color)
 
-    print(" * Loaded " + fullfilename + "; coloring: " + args.coloring
+    print(" * Loaded " + fullfilename + "; coloring: " + palette.coloring
           + "; param: " + str(palette.param) 
           + "; freq_thr: " + args.freq_thr 
           + ";\n   items at threshold: " +  str(len(items)) 
@@ -132,7 +132,7 @@ def run():
         root = root.add(item_cl, dt)
 
     # Convert the decomposition tree into a GV graph for drawing
-    outfile = dt.draw(root, filename)
+    outfile = dt.draw(root, filename, palette.the_colors)
     print(" * Wrote files with prefix", filename + ".")
 
 if __name__ == "__main__":

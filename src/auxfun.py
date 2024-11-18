@@ -19,7 +19,8 @@ lguess = lambda labels: ceil( (labels[-1] - labels[0])/4 )
 
 # JLB guess of default base for expwidth coloring - OLD FORMAT
 # eguess = lambda mx, mn: ceil( (mx/max(1,mn)) ** (1/3) )
-eguess = lambda labels: ceil( (labels[-1]/max(1,labels[0])) ** (1/3) )
+# ~ eguess = lambda labels: ceil( (labels[-1]/max(1,labels[0])) ** (1/3) )
+eguess = lambda labels: round( (labels[-1]/max(0.9,labels[0])) ** (1/3), 4)
 
 def delbl(lbl):
     '''
@@ -62,20 +63,17 @@ def _ocut(candcuts, md, lim, eps):
     '''
     mx = VLOW
     for cut in range(1, lim):
-        print("cut", cut, candcuts[cut], "->", end = ' ')
+        # ~ print("cut", cut, candcuts[cut], "->", end = ' ')
         m = _ev_cut(candcuts, md, lim, cut, eps)
-        print(m)
+        # ~ print(m)
         if m > mx:
-            print("new best", cut, m)
+            # ~ print("new best", cut, m)
             mx = m
             oc = cut
     return mx, oc
 
 def thr_1(labels):
-    print("thr_1", len(labels))
-    if len(labels) < 2:
-        "caveat: REFACTOR THIS"
-        return 0
+    assert len(labels) > 1, "Threshold with only one label should not happen."
     dd = Counter(labels)
     ud = sorted(dd) # data without duplicates
     md = tuple( dd[a] for a in ud ) # data multiplicities in same order as ud
@@ -87,5 +85,5 @@ def thr_1(labels):
     # candcuts[0] and candcuts[-1] always belong to the cut sequence
     candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
     ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
-    print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
+    # ~ print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
     return floor(candcuts[oc])

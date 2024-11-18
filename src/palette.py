@@ -51,35 +51,35 @@ class Palette:
         we need the frequency labels of all edges
         caveat: make double sure all defaults are positive
         '''
-
-        # ~ print(" *** Labels:", labels)
-
-        default = {   'thresh': thr_1, 
-                    'expwidth': eguess, 
-                    'linwidth': lguess, 
-                      'binary': lambda x: 1, 
-                       'ident': lambda x: 1 } # last two irrelevant
-
-        if coloring not in default:
-            print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
-            exit()
-        try:
-            "if len(labels) == 1 the default params are wrong - caveat: REFACTOR THIS"
-            param = default[coloring](labels) if param is None else float(param) 
-            if coloring.endswith('width') and param <= 0:
-                raise ValueError
-            if coloring != 'expwidth':
-                param = int(param)
-            elif param <= 1:
-                raise ValueError
-        except ValueError:
-            "may come from either float(param) or a nonpositive value"
-            print(" * Sorry. Disallowed value " + str(param) + " for " + coloring + '. Exiting.')
-            exit()
-
-        self.coloring = coloring
-        self.param = param
-        self.complete = complete
+        if len(labels) == 1:
+            print(" * Only one label. Binary coloring scheme forced.")
+            self.coloring = 'binary'
+            self.param = 1
+            self.complete = False
+        else:
+            default = {   'thresh': thr_1, 
+                        'expwidth': eguess, 
+                        'linwidth': lguess, 
+                          'binary': lambda x: 1, 
+                           'ident': lambda x: 1 } # last two irrelevant
+            if coloring not in default:
+                print(" * Sorry. Unknown coloring scheme " + coloring + '. Exiting.')
+                exit()
+            try:
+                param = default[coloring](labels) if param is None else float(param) 
+                if coloring.endswith('width') and param <= 0:
+                    raise ValueError
+                if coloring != 'expwidth':
+                    param = int(param)
+                elif param <= 1:
+                    raise ValueError
+            except ValueError:
+                "may come from either float(param) or a nonpositive value"
+                print(" * Sorry. Disallowed value " + str(param) + " for " + coloring + '. Exiting.')
+                exit()
+            self.coloring = coloring
+            self.param = param
+            self.complete = complete
 
         self.usedcolorindices = set()
 
@@ -100,30 +100,29 @@ class Palette:
             "init cutpoints, don't handle zero separately"
             self.cuts = list()
 
-        if coloring == 'ident':
+        if self.coloring == 'ident':
             "color: bisect - int(not complete)"
             if len(labels) > len(self.the_colors) - int(self.complete):
                 print(" * Sorry. Too many classes, not enough colors. Exiting.")
                 exit()
             self.cuts = labels
             self.complete = True # override --complete if it was absent
-        elif coloring == 'thresh':
+        elif self.coloring == 'thresh':
             self.cuts.append(param)
-        elif coloring == 'linwidth':
+        elif self.coloring == 'linwidth':
             c = param
             while c <= labels[-1]:
                 self.cuts.append(c)
                 c += param
-        elif coloring == 'expwidth':
+        elif self.coloring == 'expwidth':
             c = param
             while c <= labels[-1]:
                 self.cuts.append(c)
                 c *= param
         else:
-            "coloring == 'binary'"
+            "coloring is 'binary'"
             self.cuts = [0]
             self.complete = False # override --complete if it was present
-
         self.ecuts = ([-1] if self.complete else list()) + self.cuts + [labels[-1]]
 
 
@@ -172,4 +171,5 @@ class Palette:
             if prev is not None:
                 leg_gr.edge(prev, sg_n, color = 'transparent')
             prev = sg_n
+        # ~ leg_gr.render(format = "png", view = True)
         leg_gr.render(view = True)

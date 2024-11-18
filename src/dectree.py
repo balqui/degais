@@ -9,8 +9,6 @@ from clans import Clan
 import graphviz as gvz # NOT the official bindings!
         # ~ Refactored everything for using the pip/conda-importable 
         # ~ graphviz instead of the python3-gv official bindings.
-        # ~ Flattening could be extended, see: 
-        # ~ see https://github.com/balqui/degais/issues/10
 
 # ~ ALSO: current graphviz does not support colons in node names
 class DecTree(dict):
@@ -43,16 +41,17 @@ class DecTree(dict):
         super().__init__(self)
         self.visib = EZGraph()
         self.graph = graph # the data/input Gaifman graph
-# TO REFACTOR INTO Palette CLASS
-        self.palette = ( # original color sequence by Ely,
-                         # except transparent instead of white
-                        'transparent', 'black', 'blue', 'blueviolet',
-                        'brown', 'burlywood', 'cadetblue', 
-                        'chartreuse', 'coral', 'crimson', 'cyan',
-                        'darkorange', 'deeppink', 'deepskyblue', 
-                        'forestgreen', 'gold', 'greenyellow',
-                        'hotpink', 'orangered', 'pink', 'red',
-                        'seagreen', 'yellow') 
+
+# REFACTOR INTO Palette CLASS
+        # ~ self.palette = ( # original color sequence by Ely,
+                         # ~ # except transparent instead of white
+                        # ~ 'transparent', 'black', 'blue', 'blueviolet',
+                        # ~ 'brown', 'burlywood', 'cadetblue', 
+                        # ~ 'chartreuse', 'coral', 'crimson', 'cyan',
+                        # ~ 'darkorange', 'deeppink', 'deepskyblue', 
+                        # ~ 'forestgreen', 'gold', 'greenyellow',
+                        # ~ 'hotpink', 'orangered', 'pink', 'red',
+                        # ~ 'seagreen', 'yellow') 
 
     def clan(self, elems, color = -1):
         '''
@@ -132,7 +131,7 @@ class DecTree(dict):
         return self.visib[s_nm][t_nm] - 2
 
 
-    def _add_clan(self, gvgraph, clan):
+    def _add_clan(self, gvgraph, clan, palette):
         '''
         Add the whole subtree below that nonsingleton clan to the 
         Graphviz graph. Thus, both a big clan node plus a point-shaped 
@@ -168,7 +167,7 @@ class DecTree(dict):
                     stand_in = "PT_" + subhead
                     subclus = None
                 else:
-                    subclus, subhead = self._add_clan(gvgraph, subclan)
+                    subclus, subhead = self._add_clan(gvgraph, subclan, palette)
                     stand_in = "PT_" + subclan.name
                 the_subgraph.node(stand_in, shape = 'point')
                 clus_contents.append( 
@@ -199,11 +198,13 @@ class DecTree(dict):
             in comb(clus_contents, 2):
                 "Set up colored edges inside current cluster"
                 if ((hs := self.how_seen(left, right)) <
-                    len(self.palette)): 
-                        color = self.palette[hs]
+                    len(palette)): 
+                        color = palette[hs]
                 else:
-                    print(" * Sorry. Too high class numbers", 
-                          "or not enough colors. Exiting.")
+                    "should not happen anymore"
+                    print(" * Sorry. Too high class numbers "
+                          "or not enough colors upon adding a clan. "
+                          "Exiting.")
                     exit()
                 gvgraph.edge(left_stand_in, right_stand_in, 
                     arrowhead = "none", color = color,
@@ -212,12 +213,12 @@ class DecTree(dict):
         return clus_name, headnode
 
 
-    def draw(self, root, name):
+    def draw(self, root, name, palette):
         gvgraph = gvz.Digraph(name, graph_attr = { "compound": "true", "newrank": "true" })
         if root.is_sgton:
             gvgraph.node(root[0])
         else:
-            self._add_clan(gvgraph, root)
+            self._add_clan(gvgraph, root, palette)
         return gvgraph.render(format = "png", view = True) 
         # returns output filename
 
