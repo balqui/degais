@@ -1,6 +1,6 @@
 # degais
 
-### Decomposing Gaifman Structures (again)
+### Decomposing Gaifman Structures (again): Minimal documentation
 
 <br>
 <br>

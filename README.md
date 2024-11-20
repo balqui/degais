@@ -20,7 +20,7 @@ Check out this one day.
 <br>
 <br>
 
-Current version: early Frimaire 2024, 
+Current version: 1.4, early Frimaire 2024, 
 planned to be made publicly available.
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528,
