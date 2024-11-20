@@ -47,7 +47,7 @@ def _ev_int(candcuts, md, beg, end, lim, eps):
     int_total = _intsum(md, (beg+1)//2, (end+1)//2)
     if int_total == 0:
         return VLOW
-    total = _intsum(md, 0, lim) # caveat: SERIOUS DOUBTS ABOUT THIS VALUE
+    total = _intsum(md, 0, lim)
     int_len = candcuts[end] - candcuts[beg]
     return int_total * log( eps*int_total/(total*int_len) )
 
@@ -63,11 +63,8 @@ def _ocut(candcuts, md, lim, eps):
     '''
     mx = VLOW
     for cut in range(1, lim):
-        # ~ print("cut", cut, candcuts[cut], "->", end = ' ')
         m = _ev_cut(candcuts, md, lim, cut, eps)
-        # ~ print(m)
         if m > mx:
-            # ~ print("new best", cut, m)
             mx = m
             oc = cut
     return mx, oc
@@ -85,5 +82,4 @@ def thr_1(labels):
     # candcuts[0] and candcuts[-1] always belong to the cut sequence
     candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
     ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
-    # ~ print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
     return floor(candcuts[oc])

@@ -23,11 +23,6 @@ Available colorings:
    default value provided by lguess
  expwidth: exponential Gaifman graph, base given as param,
    default value provided by eguess
-
-PENDING: compute a default cut if coloring is thresh and no param is
-  specified, by applying Kontkanen-Myllymaeki before or after taking
-  the zeros out as required
-
 '''
 
 import graphviz as gvz               # NOT the official bindings!
@@ -41,21 +36,20 @@ class Palette:
     '''
     Handles the colors both in the graph (as an index) and
     at drawing time; provides as well the legend; it needs
-    the explicit cuts for this, which made the original
-    programming of the binning functions obsolete.
-    NB: the cut sequence does NOT include the extreme points.
+    the explicit cuts for this.
+    NB: sequence self.cuts does NOT include the extreme points.
+    Sequence self.ecuts does. Maybe one can do with only one of them.
     '''
 
     def __init__(self, labels, coloring, param, complete):
         '''
-        we need the frequency labels of all edges
-        caveat: make double sure all defaults are positive
+        We need the frequency labels of all edges now.
         '''
         if len(labels) == 1:
-            print(" * Only one label. Binary coloring scheme forced.")
+            print(" * Only one label. Binary coloring scheme enforced.")
             self.coloring = 'binary'
             self.param = 1
-            self.complete = False
+            self.complete = False # will be complete anyhow, on itself
         else:
             default = {   'thresh': thr_1, 
                         'expwidth': eguess, 
@@ -132,19 +126,16 @@ class Palette:
         self.usedcolorindices.add(index)
         return index
 
+
     def _legend_item(self, legend_line, color_index):
         '''
         takes the color from self.the_colors and the value or 
         interval from consecutive pairs in self.ecuts; 
         '''
         if self.coloring == 'ident':
-            # ~ print(" ***** Coloring ident in _legend_item",
-                # ~ "color_index", color_index, "for", self.cuts)
             label = str(self.cuts[color_index - int(self.complete)])
         else:
-            "careful with the '+1', assumes int but expwidth is not"
-            # ~ print(" ***** Coloring in _legend_item:", self.coloring, 
-                # ~ "color_index", color_index, "for", self.ecuts)
+            "some coloring schemes work with a float as param"
             label = str(floor(self.ecuts[color_index - 1]) + 1) + ' - ' \
                   + str(floor(self.ecuts[color_index]))
         color = self.the_colors[color_index]
@@ -153,6 +144,7 @@ class Palette:
         legend_line.edge("sgL" + str(color), "sgR" + str(color), 
             color = color, arrowhead = "none", penwidth = "2.5" )
         return "sgL" + str(color)
+
 
     def make_legend(self, name):
         if self.coloring == 'binary':
@@ -171,5 +163,5 @@ class Palette:
             if prev is not None:
                 leg_gr.edge(prev, sg_n, color = 'transparent')
             prev = sg_n
-        # ~ leg_gr.render(format = "png", view = True)
-        leg_gr.render(view = True)
+        leg_gr.render(format = "png", view = True) # may produce some Linux error
+        # ~ leg_gr.render(view = True)

@@ -1,7 +1,7 @@
 '''
 DeGaiS: Decomposing Gaifman Structures
 
-Current version: early Brumaire 2024
+Current version: early Frimaire 2024
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528 
 Copyleft: MIT License (https://en.wikipedia.org/wiki/MIT_License)
@@ -27,8 +27,8 @@ from dectree import DecTree # based on SB's graphviz for Python
 
 from palette import Palette
 
+# REFACTORED INTO Palette CLASS
 
-# TO REFACTOR INTO Palette CLASS
 # ~ from binning import \
     # ~ ident, binary, thresh, linwidth, expwidth, lguess, eguess
 
@@ -40,7 +40,7 @@ from palette import Palette
 # expwidth: exponential Gaifman graph, base given as param,
 #   default value provided by eguess
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 
 def run():
@@ -96,7 +96,13 @@ def run():
 
     g = EZGraph(fullfilename, int(args.freq_thr) )
     items = g.items # maybe we want to use a different list of items
-
+    
+    if len(g.labels) == 0:
+        print(" * Sorry. No edges available.", 
+              len(g.items), "item(s) at that frequency threshold.",
+              "Exiting.")
+        exit()
+    
     palette = Palette(g.labels, args.coloring, args.param, args.complete)
 
     g.recolor(palette.color)
@@ -112,9 +118,6 @@ def run():
 
     filename += '_' + args.freq_thr # for output
 
-    if len(items) == 0:
-        print(" * Sorry. No items available at these thresholds. Exiting.")
-        exit()
     ans = input(" * Continue? ")
     if ans in ['n', 'N', 'no', 'No', 'NO' ]: exit()
 

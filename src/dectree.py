@@ -201,7 +201,7 @@ class DecTree(dict):
                     len(palette)): 
                         color = palette[hs]
                 else:
-                    "should not happen anymore"
+                    "this should not happen anymore"
                     print(" * Sorry. Too high class numbers "
                           "or not enough colors upon adding a clan. "
                           "Exiting.")

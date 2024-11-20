@@ -61,14 +61,20 @@ class EZGraph(ddict):
             self.name = delbl(filename.split('.')[0])
             lns = 0
             items = Counter()
-            with open(filename) as f:
-                for line in f:
-                    transaction = set(line.split())
-                    if transaction:
-                        lns += 1
-                        items.update(Counter(transaction))
-                        for (u,v) in comb(transaction, 2):
-                            self[min(u, v)][max(u, v)] += 1
+            try:
+                with open(filename) as f:
+                    for line in f:
+                        transaction = set(line.split())
+                        if transaction:
+                            lns += 1
+                            items.update(Counter(transaction))
+                            for (u,v) in comb(transaction, 2):
+                                self[min(u, v)][max(u, v)] += 1
+            except IOError:
+                print(' * Sorry. Could not read from the file', 
+                      filename + ' as requested. Exiting.')
+                exit()
+                
             self.items = sorted(it for it in items if items[it] >= frq_thr)
             self.labels = list()
             # ~ mx = 0
@@ -87,12 +93,16 @@ class EZGraph(ddict):
                 for v in self.items:
                     if u < v:
                         self.labels.append(self[u][v])
+
+# Earlier versions kept only minimum and maximum label but thr_1 guesses need all of them
+
                         # ~ mx = max(mx, self[u][v])
                         # ~ mn = min(mn, self[u][v])
                         # ~ self[u][v] = coloring(self[u][v]) MOVED TO SEPARATE METHOD
             # ~ self.mx = mx # highest frequency value seen among thresholded items
             # ~ self.mn = mn # lowest frequency value, sometimes it is not zero
             # consider setting up a more informative histogram
+
             self.labels = sorted(set(self.labels)) # mn at 0 and mx at -1
 
 
@@ -101,7 +111,6 @@ class EZGraph(ddict):
             for v in self.items:
                 if u < v:
                     self[u][v] = (c := coloring(self[u][v]))
-                    # ~ print(" ***** Colored", u, v, "as", c)
 
 
     def __str__(self):
@@ -149,6 +158,6 @@ class EZGraph(ddict):
             print("}", file = f)
 
 if __name__ == "__main__":
-    gr1 = EZGraph("ex_dec_0.td")
+    gr1 = EZGraph("../testdata/e4a.td")
     print(gr1)
     gr1.to_dot()
