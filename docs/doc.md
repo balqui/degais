@@ -66,7 +66,8 @@ you are installing it in a virtual environment, which is also
 a good and safe idea. If installed with `pip`, then 
 `from degais import run` is, in principle, possible, but it
 is not designed currently to be used in that way and the rest
-of the options cannot be passed in.
+of the options cannot be passed in. Use it instead as described
+next.
 
 ## Usage
 
