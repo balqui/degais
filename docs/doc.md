@@ -1,5 +1,6 @@
 # degais
-Decomposing Gaifman Structures (again)
+
+### Decomposing Gaifman Structures (again)
 
 <br>
 <br>
@@ -166,4 +167,6 @@ used in
 ([alternative link](https://arxiv.org/abs/1910.05146)).
 (Note, however, that the variant of the Zoo dataset employed in 
 that paper is richer than the one indicated above, as it records
-both a `false` and a `true` version of each attribute.
+both a `false` and a `true` version of each attribute.)
+
+![Titanic dataset, standard Gaifman graph decomposition.](../titanic__1_std.gv.png)

@@ -1,5 +1,6 @@
 # degais
-Decomposing Gaifman Structures (again)
+
+### Decomposing Gaifman Structures (again)
 
 <br>
 <br>
