@@ -4,7 +4,7 @@ Decomposing Gaifman Structures (again)
 <br>
 <br>
 
-![Zoo dataset, freq thr 28, exp 4](zoo_28_exp_3_9.png)
+![Zoo dataset, freq thr 28, exp 4](../zoo_28_exp_3_9.png)
 
 <!--- 
 Check out this one day:
