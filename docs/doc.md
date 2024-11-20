@@ -37,11 +37,16 @@ Gaifman graphs.
 ## Installation
 
 The recommended installation is through `pipx` 
-which will cater for isolating virtual environments:
+which will cater for isolating virtual environments on itself:
 
 `pipx install degais`
 
 (In turn, `pipx` can be installed with `pip` in the usual way.)
+
+Alternatively, good old `pip install degais` should work but
+will complain and require you to `break system packages` unless
+you are installing it in a virtual environment, which is also
+a good and safe idea.
 
 ## Usage
 
