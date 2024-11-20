@@ -19,9 +19,6 @@ Does pipx install degais need to be preceded by `sudo` ?)
 (Image: screen capture of the outcome of 
 `degais zoo --coloring expwidth --param 3.9`.)
 
-<br>
-<br>
-
 Current version: early Frimaire 2024, 
 planned to be made publicly available.
 
@@ -56,8 +53,10 @@ allows for '-', but ':' is outlawed by
 [our dependency on Sebastian Bank's `graphviz`](https://graphviz.readthedocs.io/en/stable/manual.html#node-ports-compass).
 
 For the time being, it is a command line tool. 
-Call the main program with the options `-h` or `--help`
+Call the main program `degais` 
+with the options `-h` or `--help`
 to refresh yourself about how to employ it. 
+More information about the options follows.
 
 Option `-f N` / `--freq_thr N` discards all 
 items appearing less than `N` times. 
