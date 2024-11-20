@@ -4,7 +4,7 @@ Decomposing Gaifman Structures (again)
 <br>
 <br>
 
-![Zoo dataset, freq thr 28, exp 4](zoo_28_exp_3_9.png)
+![Zoo dataset, freq thr 28, exp 4](../zoo_28_exp_3_9.png)
 
 <!--- 
 Check out this one day.
@@ -29,7 +29,7 @@ although fully rewritten.
 
 Copyleft: [MIT License](https://en.wikipedia.org/wiki/MIT_License).
 
-Usage: [Documentation](https://github.com/balqui/degais)
+Usage: [Documentation](https://github.com/balqui/degais/blob/main/docs/doc.md)
 is rather minimal as of today but covers the basics. 
 
 Umpteenth attempt at having a working platform on which 
