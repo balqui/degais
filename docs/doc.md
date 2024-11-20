@@ -8,10 +8,15 @@
 ![Zoo dataset, freq thr 28, exp 4](../zoo_28_exp_3_9.png)
 
 <!--- 
+
 Check out this one day:
 https://github.com/cookiecutter/cookiecutter
 
 Does pipx install degais need to be preceded by `sudo` ?)
+
+venv activation in PowerShell: directly call e. g.
+.\testdegais\bin\Activate.ps1 
+
 --->
 
 <br>
@@ -58,7 +63,24 @@ of emergency, a simple adjustment to the `ezGraph.py` file
 allows for '-', but ':' is outlawed by 
 [our dependency on Sebastian Bank's `graphviz`](https://graphviz.readthedocs.io/en/stable/manual.html#node-ports-compass).
 
-For the time being, it is a command line tool. 
+For the time being, it is a command line tool to be run on
+a CLI shell such as a GNOME Terminal, a konsole, a PowerShell, etc.
+Python and [Graphviz](graphviz.org) must be available
+(call `python` or `python3` to test the first and `dot -V` to
+test the second).
+
+For example, assuming that you have downloaded to your current folder the file 
+[zoo.td](https://github.com/balqui/degais/blob/main/testdata/zoo.td),
+you may run
+
+`degais zoo.td --freq_thr 30 --coloring expwidth --param 7.7`
+
+and hit return when asked whether to continue (an opportunity to stop 
+the program with any of n/N/no/No/NO if you see that it will try to 
+draw too big a graph). If all goes well, two windows will pop up 
+(besides getting stored as png files): one with the decomposition 
+and another one with a legend (see further explanations below).
+
 Call the main program `degais` 
 with the options `-h` or `--help`
 to refresh yourself about how to employ it. 
@@ -97,18 +119,20 @@ exhaust the available colors); most often, this scheme leads to a
 trivial decomposition with a single, very large, spaghetti-shaped 
 clan that no one understands.
 
-Additionally, the `-k` / `--complete` option makes sure that all the
-edges are visibly drawn, forming thus a 2-structure; the default
-is to draw it as a graph, with missing edges for zero co-occurrences.
+Additionally, the `-k` / `--complete` option makes sure that all 
+the edges are visibly drawn, forming thus a bona-fide 2-structure; 
+the default is to draw it as a graph, which might display missing 
+edges for cases of zero co-occurrences.
 
 Note: the heuristics that propose a value for `--param` in the 
 `thresh`, `linwidth`, and `expwidth` colorings are likely 
 to change in future releases.
 
-Two images are drawn: one with the decomposition and a second one 
-(whose window may be hidden behind the decomposition) with a legend 
-specifying the co-occurrence intervals corresponding to each color. 
-The legend is omitted for the binary coloring scheme.
+Two images stored as `.png` files and drawn: one with the 
+decomposition corresponding to the coloring and parameter
+and a second one (whose window may be hidden behind the decomposition) 
+with a legend specifying the co-occurrence intervals corresponding 
+to each color. The legend is omitted for the binary coloring scheme.
 
 
 ### Hints
@@ -175,3 +199,4 @@ that paper is richer than the one indicated above, as it records
 both a `false` and a `true` version of each attribute.)
 
 ![Titanic dataset, standard Gaifman graph decomposition.](../titanic__1_std.gv.png)
+
