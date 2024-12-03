@@ -13,7 +13,7 @@ from collections import Counter
 
 VLOW = float('-inf')
 
-# ==== Ancillary functions for the 2-split for thr_1, default in thresh
+# ==== Experimentation for the 2-split default in thresh
 
 @cache
 def _intsum(md, b, e):
@@ -22,10 +22,14 @@ def _intsum(md, b, e):
 def _ev_int(candcuts, md, beg, end, lim, eps): 
     '''
     VLOW value for empty intervals, now possible
-    start adding up at (beg+1)//2 incl
-    stop  adding up at (end+1)//2 excl
+    For candcuts at +/- eps:
+	    start adding up at (beg+1)//2 incl
+	    stop  adding up at (end+1)//2 excl
     '''
-    int_total = _intsum(md, (beg+1)//2, (end+1)//2)
+    # ~ good for candcuts at +/- eps
+    # ~ int_total = _intsum(md, (beg+1)//2, (end+1)//2)
+    # ~ good for candcuts at midpoints
+    int_total = _intsum(md, beg, end)
     if int_total == 0:
         return VLOW
     total = _intsum(md, 0, lim)
@@ -67,7 +71,11 @@ def thr_1(labels):
     # 0.1 fraction of minimum empirical separation
     eps = mindiff/10 
     # candcuts[0] and candcuts[-1] always belong to the cut sequence
-    candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
+    # case of just points +/- eps
+    # ~ candcuts = tuple(chain.from_iterable([a - eps, a + eps] for a in ud))
+    # case of midpoints
+    candcuts = tuple( (a+b)/2 for a, b in pairwise([ud[0] - 1] + ud + [ud[-1] + 1]))
+    print(" ******* ", candcuts)
     ll, oc = _ocut(candcuts, md, len(candcuts) - 1, eps)
     print(" *** Threshold loglik, cut, label", ll, oc, candcuts[oc], floor(candcuts[oc]))
     return floor(candcuts[oc])
