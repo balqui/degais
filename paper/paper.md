@@ -97,6 +97,8 @@ falling in intervals of some fixed width while in the exponential
 Gaifman graphs a log function is applied first, then the fixed-width
 intervals are applied.
 
+We represent visually the labels with different _colors_.
+
 The data analysis approach proposed in [@IDA2018] consists in applying
 a decomposition process to the (possibly labeled) Gaifman graphs;
 in some cases the so-called modular graph decomposition suffices 
@@ -141,7 +143,30 @@ are all primitive or complete clans.
 
 # Tool functionality
 
+The tool runs as a CLI call like: `degais dataset`
+to which some tuning options can be added.
+The data file is expected to contain a transactional dataset: 
+a sequence of transactions, one per line, each consisting of 
+a set of items.
+Items are (almost) arbitrary strings separated by spaces; however, 
+characters ':' and '-' should not appear in items.
+Available options include `--coloring`, which selects the way
+labels ("colors") are decided among the options described
+above; `--param` that provides a value needed by some coloring
+strategies; and `--freq_thr` that applies a frequency threshold
+so as to display only some top frequent items.
+
+Installation, option details and some example runs are detailed in
+the current [documentation](https://github.com/balqui/degais/blob/main/docs/doc.md).
+Once installed, just the CLI calls should work correctly.
+
 # Example
+
+The case described in [@IDA2018], based on one of the variants of
+the famous Titanic dataset, can be replicated by downloading an
+appropriate, transactional version of the data 
+[from here](https://github.com/balqui/degais/blob/main/testdata/titanic_.td)
+and then calling `degais` on it. 
 
 # Acknowledgements
 
