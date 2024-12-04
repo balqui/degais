@@ -6,11 +6,16 @@ tags:
   - 2-structures
   - Gaifman graphs
   - transactional datasets
-author:
+authors:
   - name: José Luis Balcázar
-    affiliation: Universitat Politècnica de Catalunya
-  - Marie Ely Piceno
-  - Laura Rodríguez-Navas
+    corresponding: true
+    orcid: 0000-0003-4248-4528
+    affiliation: 1
+  - name: Marie Ely Piceno
+  - name: Laura Rodríguez-Navas
+affiliations:
+ - name: Universitat Politècnica de Catalunya
+   index: 1
 date: 3 December 2024
 bibliography: paper.bib
 
