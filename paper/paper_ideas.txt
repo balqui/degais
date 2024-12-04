@@ -1,0 +1,9 @@
+Ideas for structure from published papers:
+Related Work / State of the field
+Target audience
+Features / sw features w/subsections / Scope / Functionality and features / Embedded features / Results / Examples
+Main Features w/subs + Alternatives
+a simple example / Usage / Applications
+Ongoing work / Conclusion
+ack
+refs
