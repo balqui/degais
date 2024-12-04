@@ -22,16 +22,17 @@ venv activation in PowerShell: directly call e. g.
 <br>
 <br>
 
-(Image: screen capture of the outcome of 
+(Image: screen capture of the outcomes of 
 `degais zoo --coloring expwidth --param 3.9`.)
 
 Current version: early Frimaire 2024, 
-planned to be made publicly available.
+to be publicly announced.
 
 Author: Jose Luis Balcazar, ORCID 0000-0003-4248-4528,
 relying in large parts on the functionality of 
-[code by Marie Ely Piceno](https://github.com/balqui/labgaif),
-although fully rewritten.
+[code by Marie Ely Piceno](https://github.com/balqui/labgaif)
+(although fully rewritten), which in turn was inspired
+by the graduation project of Laura Rodríguez-Navas.
 
 Copyleft: [MIT License](https://en.wikipedia.org/wiki/MIT_License).
 
@@ -47,7 +48,8 @@ a CLI shell such as a GNOME Terminal, a konsole, a PowerShell, etc.
 [Python](https://www.python.org/downloads/) and 
 [Graphviz](https://graphviz.org/download/) must be available
 (call `python -V` or `python3 -V` to test the first and 
-`dot -V` to test the second).
+`dot -V` to test the second; follow the links to install
+them if necessary).
 
 The recommended installation is through `pipx` 
 which will cater for isolating virtual environments on itself:
@@ -63,7 +65,7 @@ PATH environment variable.)
 Alternatively, good old `pip install degais` should work but
 will complain and require you to `break system packages` unless
 you are installing it in a virtual environment, which is also
-a good and safe idea. If installed with `pip`, then 
+a _good and safe_, recommended idea. If installed with `pip`, then 
 `from degais import run` is, in principle, possible, but it
 is not designed currently to be used in that way and the rest
 of the options cannot be passed in. Use it instead as described
@@ -72,8 +74,8 @@ next.
 ## Usage
 
 Data is expected as a transactional dataset: a sequence of
-transactions, one per line, each consisting of a set of items:
-(almost) arbitrary strings separated by spaces; however, 
+transactions, one per line, each consisting of a set of items.
+Items are (almost) arbitrary strings separated by spaces; however, 
 characters ':' and '-' should not appear in items. In case
 of emergency, a simple adjustment to the `ezGraph.py` file
 allows for '-' (just edit the source code and change the 
@@ -95,6 +97,15 @@ and another one with a legend (see further explanations below).
 Call the main program `degais` 
 with the options `-h` or `--help`
 to refresh yourself about how to employ it. 
+Other options allow you to specify how a sort of colored graph 
+(actually a symmetric 2-structure) will be constructed. 
+The output contains the decomposition of that "colored graph" 
+into "boxes" called _clans_: all items in a clan (everything in 
+the box or below it in the tree) are connected in the same way 
+with the rest of the items. Clans that cannot be further 
+decomposed (all elements correspond to single items) are
+called _primitive_.
+
 More information about the options follows.
 
 Option `-f N` / `--freq_thr N` discards all 
@@ -111,24 +122,25 @@ transaction (`--param` is ignored);
 
 `thresh`: `--param T` is interpreted as a threshold, so that
 the graph has an edge between two items if they appear together 
-in at least `T` many transactions; if `--param` is omitted, 
-a default is set, found by an heuristic application of 
-(simple cases of) density-estimation-based unsupervised 
-discretization;
+in at least `T` many transactions; if `--param` is omitted, then
+a default is set autonomously. It is found by a heuristic 
+application of (simple cases of) density-estimation-based 
+unsupervised discretization;
 
 `linwidth`: edge colors correspond to frequencies of co-occurrence 
-falling in intervals of width `L`, if `--param L` is specified, 
-otherwise a heuristically determined default for `L` is set;
+falling in intervals of width `L`, if `--param L` is specified;
+otherwise, a heuristically determined default for `L` is set
+autonomously;
 
 `expwidth`: edge colors correspond to frequencies of co-occurrence 
 falling in intervals of exponentially growing width with base `B`, 
-if `--param B` is specified, otherwise a heuristically determined 
-default for `B` is set;
+if `--param B` is specified; otherwise, a heuristically determined 
+default for `B` is set autonomously;
 
 `ident`: each co-occurrence frequency gets its own color (but might
 exhaust the available colors); most often, this scheme leads to a 
-trivial decomposition with a single, very large, spaghetti-shaped 
-clan that no one understands.
+trivial decomposition with a very large, spaghetti-shaped 
+primitive clan that no one understands.
 
 Additionally, the `-k` / `--complete` option makes sure that all 
 the edges are visibly drawn, forming thus a bona-fide 2-structure; 
