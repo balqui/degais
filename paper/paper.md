@@ -12,10 +12,18 @@ authors:
     orcid: 0000-0003-4248-4528
     affiliation: 1
   - name: Marie Ely Piceno
+    orcid: 0000-0000-0000-0000
+    affiliation: 2
   - name: Laura Rodríguez-Navas
+    orcid: 0000-0000-0000-0000
+    affiliation: 3
 affiliations:
  - name: Universitat Politècnica de Catalunya
    index: 1
+ - name: Ely's Affiliation
+   index: 2
+ - name: BETA Tech Center, Universitat Central de Catalunya - UVic
+   index: 3
 date: 3 December 2024
 bibliography: paper.bib
 
@@ -30,7 +38,9 @@ specific properties of data.
 
 Gaifman structures are obtained from transactional data by 
 generalizing the existing notion of a Gaifman graph.
-In [@IDA2018], we proposed to employ these generalized Gaifman graphs 
+In [@IDA2018] (alternative, open access version 
+[here](https://dblp.org/db/journals/corr/corr1805.html#abs-1805-05235))
+we proposed to employ these generalized Gaifman graphs 
 as a method of visual data analysis and, specifically, as a way of 
 displaying co-occurrence patterns in data. Such a process allows
 the user to understand better a given dataset, by showing visually
@@ -162,18 +172,51 @@ strategies; and `--freq_thr` that applies a frequency threshold
 so as to display only some top frequent items.
 
 Installation, option details and some example runs are detailed in
-the current [documentation](https://github.com/balqui/degais/blob/main/docs/doc.md).
-Once installed, just the CLI calls should work correctly.
+the current [documentation](https://github.com/balqui/degais/blob/main/docs/doc.md);
+let's just mention that the standard `pipx install degais`
+is expected to work, if the external dependencies (just Python 3 
+and GraphViz) are ready. Once installed, just use CLI calls.
 
-# Example
+Additional explanations, connections to other data analysis
+approaches, and details of the sophisticate algorithmics 
+behind this tool will be published
+elsewhere; a preliminary version can be found 
+[here](https://dblp.org/db/journals/corr/corr1910.html#abs-1910-05146).
+
+# Examples
+
+To start with, we advise to run first the example given in the
+Summary section above. The indicated image will be shown.
+
+Then, try the call 
+`degais e5 --coloring thresh --param 2`: it will show how the 
+more frequently occurring `a` and `b` are correspondingly
+distinguished. One image shows the decomposition whereas the
+second one provides a legend allowing the user to connect the
+colors to actual frequency co-occurrence intervals.
+
+By default, the outcome is shown as a graph, that is,
+non-co-occurring items are shown disconnected.
+If one wants to show a bona-fide 2-structure decomposition,
+that is, treat zero as one more possibility of its
+corresponding interval, the way to do it is to add the option
+`--complete` to the call: on `e5`, for instance, the outcome 
+will differ substantially, because 0 co-occurrences will not 
+receive anymore a different color than 1 co-occurrence.
 
 The case described in [@IDA2018], based on one of the variants of
 the famous Titanic dataset, can be replicated by downloading an
 appropriate, transactional version of the data 
 [from here](https://github.com/balqui/degais/blob/main/testdata/titanic_.td)
-and then calling `degais` on it. 
+and then calling `degais` on it without any additional options. 
+
+Furthermore, the 
+[documentation](https://github.com/balqui/degais/blob/main/docs/doc.md)
+includes several additional examples on additional datasets.
 
 # Acknowledgements
+
+CICYT funding...
 
 # References
 
