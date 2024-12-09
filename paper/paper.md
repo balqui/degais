@@ -12,17 +12,17 @@ authors:
     orcid: 0000-0003-4248-4528
     affiliation: 1
   - name: Marie Ely Piceno
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-9435-0479
     affiliation: 2
   - name: Laura Rodríguez-Navas
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0003-4929-1219
     affiliation: 3
 affiliations:
  - name: Universitat Politècnica de Catalunya
    index: 1
  - name: Ely's Affiliation
    index: 2
- - name: BETA Tech Center, Universitat Central de Catalunya - UVic
+ - name: BETA Tech Center, Universitat de Vic - Universitat Central de Catalunya
    index: 3
 date: 3 December 2024
 bibliography: paper.bib
@@ -48,7 +48,7 @@ the roles of each item in the data in terms of their co-occurrence
 patterns with other items.
 
 Subsequently, we demonstrated in [@CoIn] how the visualization of
-various sorts of Gaifman structures lead to better understanding
+various sorts of Gaifman structures leads to better understanding
 of a fully anonymized dataset of patient diagnostics and conditions 
 from a local hospital.
 
@@ -89,7 +89,7 @@ and for each pair of different items $x$ and $y$ in that
 transaction, we ensure that the edge $(x,y)$ is present
 in the graph, and that only such edges are: thus, items
 coincide with vertices in the graph, and they remain 
-disconnected when they don't appear jointly in any transaction.
+disconnected exactly when they don't appear jointly in any transaction.
 
 Sometimes, we may be interested in keeping track of 
 quantitative information that the standard Gaifman graph lacks.
@@ -99,7 +99,7 @@ Alternative versions were introduced in [@IDA2018]:
 the edge or not, instead of being zero joint occurrences 
 versus 1 or more, resorts to a threshold possibly different from 1:
 graph connections represent frequencies of co-occurrence higher than 
-or equal to the threshold.
+the threshold.
 
 - In the simplest version of labeled Gaifman graphs, the edges are 
 labeled by the number of tuples containing both of the vertices that 
@@ -137,7 +137,7 @@ about how the edges look like after the collapse: from the
 perspective of an outside vertex,
 or indeed of a disjoint second clan, all the edges connecting
 to nodes inside the clan are of the same equivalence class,
-so that class can be chosen for edges upon collapsing
+so that this class can be chosen for edges upon collapsing
 disjoint clans into vertices. Thus, we consider _strong clans_,
 those that don't intersect any other clan, and by collapsing
 them into vertices we get a tree-like organization of smaller
@@ -160,6 +160,8 @@ are all primitive or complete clans.
 
 The tool runs as a CLI call like: `degais dataset`
 to which some tuning options can be added.
+Extension `.td` (standing for `t`ransactional `d`ataset)
+is assumed for the file name if it is not present.
 The data file is expected to contain a transactional dataset: 
 a sequence of transactions, one per line, each consisting of 
 a set of items.
@@ -216,7 +218,8 @@ includes several additional examples on additional datasets.
 
 # Acknowledgements
 
-CICYT funding...
+Supported by MCIN/AEI/10.13039/501100011033 under grant
+PID2020-112581GB-C21 (MOTION).
 
 # References
 
