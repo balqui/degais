@@ -204,7 +204,7 @@ If one wants to show a bona-fide 2-structure decomposition,
 that is, treat zero as one more possibility of its
 corresponding interval, the way to do it is to add the option
 `--complete` to the call: for instance, added to the thresholded 
-call at parameter 2 on `e5` just mentioned, the outcome 
+call with parameter 2 on `e5` as in the previous paragraph, the outcome 
 will differ substantially, because 0 co-occurrences will not 
 receive anymore a different color than 1 co-occurrence.
 
