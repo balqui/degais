@@ -188,7 +188,8 @@ elsewhere; a preliminary version can be found
 # Examples
 
 To start with, we advise to run first the example given in the
-Summary section above. The indicated image will be shown.
+Summary section above. File `e5.td` can be found in the `testdata`
+folder of the GitHub repository. The indicated image will be shown.
 
 Then, try the call 
 `degais e5 --coloring thresh --param 2`: it will show how the 
@@ -202,14 +203,15 @@ non-co-occurring items are shown disconnected.
 If one wants to show a bona-fide 2-structure decomposition,
 that is, treat zero as one more possibility of its
 corresponding interval, the way to do it is to add the option
-`--complete` to the call: on `e5`, for instance, the outcome 
+`--complete` to the call: for instance, added to the thresholded 
+call at parameter 2 on `e5` just mentioned, the outcome 
 will differ substantially, because 0 co-occurrences will not 
 receive anymore a different color than 1 co-occurrence.
 
 The case described in [@IDA2018], based on one of the variants of
-the famous Titanic dataset, can be replicated by downloading an
-appropriate, transactional version of the data 
-[from here](https://github.com/balqui/degais/blob/main/testdata/titanic_.td)
+the famous Titanic dataset, can be replicated easily on an
+appropriate, transactional version of the data (also available
+in the `testdata` folder of the GitHub repository)
 and then calling `degais` on it without any additional options. 
 
 Furthermore, the 

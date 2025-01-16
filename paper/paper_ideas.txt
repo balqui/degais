@@ -7,3 +7,7 @@ a simple example / Usage / Applications
 Ongoing work / Conclusion
 ack
 refs
+
+
+
+[from here](https://github.com/balqui/degais/blob/main/testdata/titanic_.td)
