@@ -39,7 +39,7 @@ specific properties of data.
 Gaifman structures are obtained from transactional data by 
 generalizing the existing notion of a Gaifman graph.
 In [@IDA2018] (alternative, open access version 
-[here](https://dblp.org/db/journals/corr/corr1805.html#abs-1805-05235))
+[here](https://arxiv.org/abs/1805.05235))
 we proposed to employ these generalized Gaifman graphs 
 as a method of visual data analysis and, specifically, as a way of 
 displaying co-occurrence patterns in data. Such a process allows
@@ -80,7 +80,9 @@ to any interested person.
 
 Gaifman graphs are mathematical structures introduced 
 several decades ago as a means to study limitations 
-of the expressivity of logical languages [@Libkin04].
+of the expressivity of logical languages [@Libkin04]
+(also available
+[here](http://www.cs.toronto.edu/\%7Elibkin/fmt)).
 Their basic notion is pretty simple:
 given a dataset consisting of observations, each
 observation being a set of _items_ (e. g., attribute-value 
@@ -102,8 +104,9 @@ graph connections represent frequencies of co-occurrence higher than
 the threshold.
 
 - In the simplest version of labeled Gaifman graphs, the edges are 
-labeled by the number of tuples containing both of the vertices that 
-they connect. This strategy, in practice, most often leads nowhere.
+labeled by their multiplicities, that is, the number of tuples 
+containing both of the vertices that they connect. This strategy, 
+in practice, most often leads nowhere.
 
 - In more evolved versions, edge labels are obtained from these same
 multiplicities via some sort of discretization process. In linear 
@@ -117,8 +120,8 @@ We represent visually the labels with different _colors_.
 The data analysis approach proposed in [@IDA2018] consists in applying
 a decomposition process to the (possibly labeled) Gaifman graphs;
 in some cases the so-called modular graph decomposition suffices 
-but, in general, one must resort to so-called clans on 2-structures 
-[@ERHbook]. This is a concept that generalizes graphs and, 
+but, in general, one must resort to clans on 2-structures 
+[@ERHbook], explained next. This is a concept that generalizes graphs and, 
 specifically, symmetric 2-structures generalize undirected graphs
 such as Gaifman graphs. We call Gaifman Structures the symmetric
 2-structures obtained as the labeled extensions of Gaifman graphs
@@ -173,9 +176,9 @@ above; `--param` that provides a value needed by some coloring
 strategies; and `--freq_thr` that applies a frequency threshold
 so as to display only some top frequent items.
 
-Installation, option details and some example runs are detailed in
+Installation, option details and some example runs are provided in
 the current [documentation](https://github.com/balqui/degais/blob/main/docs/doc.md);
-let's just mention that the standard `pipx install degais`
+let's just mention here that the standard `pipx install degais`
 is expected to work, if the external dependencies (just Python 3 
 and GraphViz) are ready. Once installed, just use CLI calls.
 
@@ -183,7 +186,7 @@ Additional explanations, connections to other data analysis
 approaches, and details of the sophisticate algorithmics 
 behind this tool will be published
 elsewhere; a preliminary version can be found 
-[here](https://dblp.org/db/journals/corr/corr1910.html#abs-1910-05146).
+[here](http://arxiv.org/abs/1910.05146).
 
 # Examples
 
@@ -210,9 +213,9 @@ receive anymore a different color than 1 co-occurrence.
 
 The case described in [@IDA2018], based on one of the variants of
 the famous Titanic dataset, can be replicated easily on an
-appropriate, transactional version of the data (also available
+appropriate, transactional version (also available
 in the `testdata` folder of the GitHub repository)
-and then calling `degais` on it without any additional options. 
+by calling `degais` on it without any additional options. 
 
 Furthermore, the 
 [documentation](https://github.com/balqui/degais/blob/main/docs/doc.md)
@@ -220,7 +223,8 @@ includes several additional examples on additional datasets.
 
 # Acknowledgements
 
-Supported by MCIN/AEI/10.13039/501100011033 under grant
+Supported by Ministerio de Ciencia e Innovación 
+MCIN/AEI/10.13039/501100011033 under grant
 PID2020-112581GB-C21 (MOTION).
 
 # References
