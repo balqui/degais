@@ -18,11 +18,11 @@ authors:
     orcid: 0000-0003-4929-1219
     affiliation: 3
 affiliations:
- - name: Universitat Politècnica de Catalunya
+ - name: Universitat Politècnica de Catalunya, Catalonia
    index: 1
- - name: Ely's Affiliation
+ - name: Algorithia, Mexico City, Mexico
    index: 2
- - name: BETA Tech Center, Universitat de Vic - Universitat Central de Catalunya
+ - name: BETA Tech Center, Universitat de Vic - Universitat Central de Catalunya, Catalonia
    index: 3
 date: 3 December 2024
 bibliography: paper.bib
